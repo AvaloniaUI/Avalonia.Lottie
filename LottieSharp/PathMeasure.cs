@@ -44,7 +44,7 @@ namespace LottieSharp
             if (distance > length)
                 distance = length;
 
-            Vector2 vectOutput;
+            RawVector2 vectOutput;
             var vect2 = _geometry.ComputePointAtLength(distance, out vectOutput);
 
             return new Vector2(vect2.X, vect2.Y);
@@ -128,40 +128,40 @@ namespace LottieSharp
         {
             if (_geometry != null)
             {
-                try
-                {
-                    if (disposing)
-                    {
-                        _geometry.Dispose();
-                    }
-                    else
-                    {
-                        if (System.Runtime.InteropServices.Marshal.IsComObject(_geometry))
-                        {
-                            System.Runtime.InteropServices.Marshal.ReleaseComObject(_geometry);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // Ignore, but should not happen
-                }
-                finally
-                {
+                // try
+                // {
+                //     if (disposing)
+                //     {
+                //         _geometry.Dispose();
+                //     }
+                //     else
+                //     {
+                //         if (System.Runtime.InteropServices.Marshal.IsComObject(_geometry))
+                //         {
+                //             System.Runtime.InteropServices.Marshal.ReleaseComObject(_geometry);
+                //         }
+                //     }
+                // }
+                // catch (Exception)
+                // {
+                //     // Ignore, but should not happen
+                // }
+                // finally
+                // {
                     _geometry = null;
-                }
+                // }
             }
         }
 
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
+            // GC.SuppressFinalize(this);
         }
 
-        ~PathMeasure()
-        {
-            Dispose(false);
-        }
+        // ~PathMeasure()
+        // {
+        //     Dispose(false);
+        // }
     }
 }

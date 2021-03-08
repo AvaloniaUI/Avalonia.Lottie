@@ -10,6 +10,7 @@ using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.TextFormatting;
+using Avalonia.Platform;
 using Avalonia.Visuals.Media.Imaging;
 using LottieSharp.Model.Layer;
 using Color = System.Drawing.Color;
@@ -23,12 +24,11 @@ namespace LottieSharp.Animation.Content
         private readonly Stack<Matrix3X3> _matrixSaves = new Stack<Matrix3X3>();
         private readonly Stack<int> _flagSaves = new Stack<int>();
         private readonly Dictionary<int, RenderTargetHolder> _renderTargets = new Dictionary<int, RenderTargetHolder>();
-        //private DeviceContext _renderTarget;
+        //private IDrawingContextImpl _renderTarget;
 
         class RenderTargetHolder
         {
-            public DeviceContext RenderTarget { get; set; }
-            public Bitmap1 Bitmap { get; set; }
+            public IDrawingContextImpl RenderTarget { get; set; }
         }
 
         class ClipSave
@@ -48,7 +48,7 @@ namespace LottieSharp.Animation.Content
 
         class RenderTargetSave
         {
-            public RenderTargetSave(DeviceContext renderTarget, int paintFlags, PorterDuffXfermode paintXfermode, byte paintAlpha)
+            public RenderTargetSave(IDrawingContextImpl renderTarget, int paintFlags, PorterDuffXfermode paintXfermode, byte paintAlpha)
             {
                 RenderTarget = renderTarget;
                 PaintFlags = paintFlags;
@@ -56,7 +56,7 @@ namespace LottieSharp.Animation.Content
                 PaintAlpha = paintAlpha;
             }
 
-            public DeviceContext RenderTarget { get; }
+            public IDrawingContextImpl RenderTarget { get; }
             public int PaintFlags { get; }
             public PorterDuffXfermode PaintXfermode { get; }
             public byte PaintAlpha { get; }
@@ -66,7 +66,7 @@ namespace LottieSharp.Animation.Content
         private readonly Stack<RenderTargetHolder> _canvasDrawingSessions = new Stack<RenderTargetHolder>();
 
         //internal RenderTarget OutputRenderTarget { get; private set; }
-        internal DeviceContext CurrentRenderTarget =>
+        internal IDrawingContextImpl CurrentRenderTarget =>
             _canvasDrawingSessions.Count > 0 ?
                 _canvasDrawingSessions.Peek()?.RenderTarget :
                 null;
@@ -100,7 +100,7 @@ namespace LottieSharp.Animation.Content
         public static int AllSaveFlag = 0b11111;
 
 
-        internal IDisposable CreateSession(float width, float height, DeviceContext drawingSession)
+        internal IDisposable CreateSession(float width, float height, IDrawingContextImpl drawingSession)
         {
             _canvasDrawingSessions.Clear();
             //_renderTarget = drawingSession;
