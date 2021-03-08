@@ -1,10 +1,12 @@
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
+using Avalonia.Platform;
 
 
 namespace LottieSharp.Animation.Content
 {
     internal abstract class Gradient : Shader
     {
-        public abstract Brush GetBrush(RenderTarget renderTarget, byte alpha);
+        public abstract IBrush GetBrush(byte alpha);
     }
 }
