@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Platform;
 
 namespace LottieSharp.Network
 {
@@ -13,9 +14,9 @@ namespace LottieSharp.Network
 
         private readonly NetworkCache _networkCache;
 
-        public static Task<LottieResult<LottieComposition>> FetchAsync(RenderTarget renderTarget, string url, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<LottieResult<LottieComposition>> FetchAsync(string url, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return new NetworkFetcher(url).FetchAsync(renderTarget, cancellationToken);
+            return new NetworkFetcher(url).FetchAsync(cancellationToken);
         }
 
         private NetworkFetcher(string url)
@@ -24,16 +25,16 @@ namespace LottieSharp.Network
             _networkCache = new NetworkCache(url);
         }
 
-        private async Task<LottieResult<LottieComposition>> FetchAsync(RenderTarget renderTarget, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<LottieResult<LottieComposition>> FetchAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            LottieComposition result = await FetchFromCacheAsync(cancellationToken);
+            var result = await FetchFromCacheAsync(cancellationToken);
             if (result != null)
             {
                 return new LottieResult<LottieComposition>(result);
             }
 
             Debug.WriteLine("Animation for " + _url + " not found in cache. Fetching from network.", LottieLog.Tag);
-            return await FetchFromNetworkAsync(renderTarget, cancellationToken);
+            return await FetchFromNetworkAsync(cancellationToken);
         }
 
         /// <summary>
@@ -68,11 +69,11 @@ namespace LottieSharp.Network
             return null;
         }
 
-        private async Task<LottieResult<LottieComposition>> FetchFromNetworkAsync(RenderTarget renderTarget, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<LottieResult<LottieComposition>> FetchFromNetworkAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
-                return await FetchFromNetworkInternalAsync(renderTarget, cancellationToken);
+                return await FetchFromNetworkInternalAsync(cancellationToken);
             }
             catch (Exception e)
             {
@@ -80,7 +81,7 @@ namespace LottieSharp.Network
             }
         }
 
-        private async Task<LottieResult<LottieComposition>> FetchFromNetworkInternalAsync(RenderTarget renderTarget, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<LottieResult<LottieComposition>> FetchFromNetworkInternalAsync( CancellationToken cancellationToken = default(CancellationToken))
         {
             Debug.WriteLine($"Fetching {_url}", LottieLog.Tag);
             using (var connection = new HttpClient())
@@ -103,7 +104,7 @@ namespace LottieSharp.Network
                             //file = await _networkCache.WriteTempCacheFileAsync(await response.Content.ReadAsStreamAsync().AsAsyncOperation().AsTask(cancellationToken), extension, cancellationToken);
                             //using (var stream = await file.OpenStreamForReadAsync().AsAsyncOperation().AsTask(cancellationToken))
                             //{
-                            result = await LottieCompositionFactory.FromZipStreamAsync(renderTarget, Ionic.Zip.ZipFile.Read(await response.Content.ReadAsStreamAsync()), _url);
+                            result = await LottieCompositionFactory.FromZipStreamAsync(Ionic.Zip.ZipFile.Read(await response.Content.ReadAsStreamAsync()), _url);
                             //}
                             break;
                         case "application/json":

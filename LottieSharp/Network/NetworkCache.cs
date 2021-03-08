@@ -99,10 +99,10 @@ namespace LottieSharp.Network
         {
             return Task.Run(() =>
             {
-                string fileName = FilenameForUrl(_url, extension, true);
+                var fileName = FilenameForUrl(_url, extension, true);
                 var file = new System.IO.FileInfo(fileName);
-                string newFileName = file.Name.Replace(".temp", "");
-                string oldFilename = file.Name;
+                var newFileName = file.Name.Replace(".temp", "");
+                var oldFilename = file.Name;
                 try
                 {
                     file.MoveTo(newFileName);
