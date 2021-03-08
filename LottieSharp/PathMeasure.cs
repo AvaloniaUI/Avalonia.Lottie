@@ -44,7 +44,7 @@ namespace LottieSharp
             if (distance > length)
                 distance = length;
 
-            RawVector2 vectOutput;
+            Vector2 vectOutput;
             var vect2 = _geometry.ComputePointAtLength(distance, out vectOutput);
 
             return new Vector2(vect2.X, vect2.Y);

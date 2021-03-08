@@ -14,13 +14,15 @@ using LottieSharp.Animation.Keyframe;
 using LottieSharp.Value;
 
 using System.Collections.Generic;
-using System.Drawing;
+using Avalonia;
+using Avalonia.Media;
+
 
 namespace LottieSharp.Model.Layer
 {
     internal class TextLayer : BaseLayer
     {
-        //private RectangleF _rectF;
+        //private Rect _rectF;
         private readonly Paint _fillPaint = new Paint(Paint.AntiAliasFlag)
         {
             Style = Paint.PaintStyle.Fill
@@ -209,7 +211,7 @@ namespace LottieSharp.Model.Layer
 
         private void DrawGlyph(Path path, Paint paint, BitmapCanvas canvas)
         {
-            if (paint.Color == Color.Transparent)
+            if (paint.Color == Colors.Transparent)
             {
                 return;
             }
@@ -220,9 +222,9 @@ namespace LottieSharp.Model.Layer
             canvas.DrawPath(path, paint);
         }
 
-        private RectangleF? DrawCharacterFromFont(char c, DocumentData documentData, BitmapCanvas canvas)
+        private Rect? DrawCharacterFromFont(char c, DocumentData documentData, BitmapCanvas canvas)
         {
-            RectangleF? ret;
+            Rect? ret;
             if (documentData.StrokeOverFill)
             {
                 ret = DrawCharacter(c, _fillPaint, canvas);
@@ -233,9 +235,9 @@ namespace LottieSharp.Model.Layer
             return DrawCharacter(c, _fillPaint, canvas) ?? ret;
         }
 
-        private RectangleF? DrawCharacter(char character, Paint paint, BitmapCanvas canvas)
+        private Rect? DrawCharacter(char character, Paint paint, BitmapCanvas canvas)
         {
-            if (paint.Color == Color.Transparent)
+            if (paint.Color == Colors.Transparent)
             {
                 return null;
             }

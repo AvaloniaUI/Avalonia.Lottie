@@ -7,8 +7,9 @@ using LottieSharp.Value;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Linq;
+using Avalonia;
 
 namespace LottieSharp.Animation.Content
 {
@@ -43,7 +44,7 @@ namespace LottieSharp.Animation.Content
 
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
         private readonly Path _path = new Path();
-        private RectangleF _rect;
+        private Rect _rect;
 
         private readonly List<IContent> _contents;
         private List<IPathContent> _pathContents;
@@ -179,7 +180,7 @@ namespace LottieSharp.Animation.Content
             }
         }
 
-        public virtual void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             _matrix.Set(parentMatrix);
             if (_transformAnimation != null)
@@ -199,10 +200,10 @@ namespace LottieSharp.Animation.Content
                     else
                     {
                         RectExt.Set(ref outBounds,
-                            Math.Min(outBounds.Left, _rect.Left),
-                            Math.Min(outBounds.Top, _rect.Top),
-                            Math.Max(outBounds.Right, _rect.Right),
-                            Math.Max(outBounds.Bottom, _rect.Bottom));
+                            (float)Math.Min(outBounds.Left, _rect.Left),
+                            (float)Math.Min(outBounds.Top, _rect.Top),
+                            (float)Math.Max(outBounds.Right, _rect.Right),
+                            (float)Math.Max(outBounds.Bottom, _rect.Bottom));
                     }
                 }
             }

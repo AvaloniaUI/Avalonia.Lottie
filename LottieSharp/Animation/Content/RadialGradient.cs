@@ -32,7 +32,7 @@ namespace LottieSharp.Animation.Content
                 _canvasGradientStopCollection[i] = new GradientStop
                 {
                     Color = colors[i],
-                    Position = positions[i]
+                    Offset = positions[i]
                 };
             }
         }

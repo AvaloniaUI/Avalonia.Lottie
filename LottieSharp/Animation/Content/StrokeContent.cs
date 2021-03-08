@@ -26,7 +26,7 @@ namespace LottieSharp.Animation.Content
 
         public override void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
         {
-            Paint.Color = _colorAnimation.Value ?? Color.White;
+            Paint.Color = _colorAnimation.Value ?? Colors.White;
             if (_colorFilterAnimation != null)
             {
                 Paint.ColorFilter = _colorFilterAnimation.Value;

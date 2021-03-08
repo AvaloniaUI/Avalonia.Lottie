@@ -17,8 +17,9 @@ using System.Collections.Generic;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Numerics;
+using Avalonia;
 
 namespace LottieSharp.Animation.Content
 {
@@ -35,7 +36,7 @@ namespace LottieSharp.Animation.Content
         private readonly Matrix3X3 _shaderMatrix = Matrix3X3.CreateIdentity();
         private readonly Path _path = new Path();
         private readonly Paint _paint = new Paint(Paint.AntiAliasFlag);
-        //private RectangleF _boundsRect;
+        //private Rect _boundsRect;
         private readonly List<IPathContent> _paths = new List<IPathContent>();
         private readonly GradientType _type;
         private readonly IBaseKeyframeAnimation<GradientColor, GradientColor> _colorAnimation;
@@ -124,7 +125,7 @@ namespace LottieSharp.Animation.Content
             LottieLog.EndSection("GradientFillContent.Draw");
         }
 
-        public void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             _path.Reset();
             for (var i = 0; i < _paths.Count; i++)
@@ -134,7 +135,7 @@ namespace LottieSharp.Animation.Content
 
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, outBounds.Left - 1, outBounds.Top - 1, outBounds.Right + 1, outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds, (float)outBounds.Left - 1, (float)outBounds.Top - 1, (float)outBounds.Right + 1, (float)outBounds.Bottom + 1);
         }
 
         public string Name { get; }

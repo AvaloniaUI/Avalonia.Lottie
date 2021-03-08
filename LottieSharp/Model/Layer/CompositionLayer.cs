@@ -4,7 +4,8 @@ using LottieSharp.Value;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
+using Avalonia;
 
 namespace LottieSharp.Model.Layer
 {
@@ -12,7 +13,7 @@ namespace LottieSharp.Model.Layer
     {
         private IBaseKeyframeAnimation<float?, float?> _timeRemapping;
         private readonly List<BaseLayer> _layers = new List<BaseLayer>();
-        private RectangleF _newClipRect;
+        private Rect _newClipRect;
 
         private bool? _hasMatte;
         private bool? _hasMasks;
@@ -102,7 +103,7 @@ namespace LottieSharp.Model.Layer
             LottieLog.EndSection("CompositionLayer.Draw");
         }
 
-        public override void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref Rect, 0, 0, 0, 0);
@@ -116,7 +117,7 @@ namespace LottieSharp.Model.Layer
                 }
                 else
                 {
-                    RectExt.Set(ref outBounds, Math.Min(outBounds.Left, Rect.Left), Math.Min(outBounds.Top, Rect.Top), Math.Max(outBounds.Right, Rect.Right), Math.Max(outBounds.Bottom, Rect.Bottom));
+                    RectExt.Set(ref outBounds, (float)Math.Min(outBounds.Left, Rect.Left), (float)Math.Min(outBounds.Top, Rect.Top), (float)Math.Max(outBounds.Right, Rect.Right), (float)Math.Max(outBounds.Bottom, Rect.Bottom));
                 }
             }
         }

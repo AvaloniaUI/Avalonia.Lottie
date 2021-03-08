@@ -2,7 +2,8 @@
 using LottieSharp.Model.Content;
 
 using System.Collections.Generic;
-using System.Drawing;
+
+using Avalonia;
 
 namespace LottieSharp.Model.Layer
 {
@@ -23,7 +24,7 @@ namespace LottieSharp.Model.Layer
             _contentGroup.Draw(canvas, parentMatrix, parentAlpha);
         }
 
-        public override void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             _contentGroup.GetBounds(ref outBounds, BoundsMatrix);

@@ -10,6 +10,7 @@ using LottieSharp.Value;
 using System;
 using System.Collections.Generic;
 using Avalonia;
+using Avalonia.Media;
 
 namespace LottieSharp.Animation.Content
 {
@@ -30,7 +31,7 @@ namespace LottieSharp.Animation.Content
         private readonly IBaseKeyframeAnimation<float?, float?> _dashPatternOffsetAnimation;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
 
-        internal BaseStrokeContent(LottieDrawable lottieDrawable, BaseLayer layer, CapStyle cap, LineJoin join, float miterLimit, AnimatableIntegerValue opacity, AnimatableFloatValue width, List<AnimatableFloatValue> dashPattern, AnimatableFloatValue offset)
+        internal BaseStrokeContent(LottieDrawable lottieDrawable, BaseLayer layer, PenLineCap cap, PenLineJoin join, float miterLimit, AnimatableIntegerValue opacity, AnimatableFloatValue width, List<AnimatableFloatValue> dashPattern, AnimatableFloatValue offset)
         {
             _lottieDrawable = lottieDrawable;
             _layer = layer;
@@ -282,10 +283,10 @@ namespace LottieSharp.Animation.Content
             _path.ComputeBounds(ref _rect);
 
             var width = _widthAnimation.Value.Value;
-            RectExt.Set(ref _rect, _rect.Left - width / 2f, _rect.Top - width / 2f, _rect.Right + width / 2f, _rect.Bottom + width / 2f);
+            RectExt.Set(ref _rect, (float) (_rect.Left - width / 2f), (float) (_rect.Top - width / 2f), (float)_rect.Right + width / 2f, (float)_rect.Bottom + width / 2f);
             RectExt.Set(ref outBounds, _rect);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, outBounds.Left - 1, outBounds.Top - 1, outBounds.Right + 1, outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds, (float)outBounds.Left - 1, (float)outBounds.Top - 1, (float)outBounds.Right + 1, (float)outBounds.Bottom + 1);
             LottieLog.EndSection("StrokeContent.GetBounds");
         }
 

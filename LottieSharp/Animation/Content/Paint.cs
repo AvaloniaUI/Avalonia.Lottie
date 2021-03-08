@@ -41,11 +41,11 @@ namespace LottieSharp.Animation.Content
             }
         }
 
-        public Color Color { get; set; } = Color.Transparent;
+        public Color Color { get; set; } = Colors.Transparent;
         public PaintStyle Style { get; set; }
         public ColorFilter ColorFilter { get; set; }
-        public CapStyle StrokeCap { get; set; }
-        public LineJoin StrokeJoin { get; set; }
+        public PenLineCap StrokeCap { get; set; }
+        public PenLineJoin StrokeJoin { get; set; }
         public float StrokeMiter { get; set; }
         public float StrokeWidth { get; set; }
         public PathEffect PathEffect { get; set; }

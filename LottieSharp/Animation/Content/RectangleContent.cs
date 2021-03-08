@@ -18,15 +18,16 @@ using LottieSharp.Value;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Numerics;
+using Avalonia;
 
 namespace LottieSharp.Animation.Content
 {
     internal class RectangleContent : IPathContent, IKeyPathElementContent
     {
         private readonly Path _path = new Path();
-        private RectangleF _rect;
+        private Rect _rect;
 
         private readonly LottieDrawable _lottieDrawable;
         private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;

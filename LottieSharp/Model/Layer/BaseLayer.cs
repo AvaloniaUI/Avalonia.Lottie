@@ -5,7 +5,8 @@ using LottieSharp.Value;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
+using Avalonia;
 
 namespace LottieSharp.Model.Layer
 {
@@ -44,10 +45,10 @@ namespace LottieSharp.Model.Layer
         private readonly Paint _subtractMaskPaint = new Paint(Paint.AntiAliasFlag);
         private readonly Paint _mattePaint = new Paint(Paint.AntiAliasFlag);
         private readonly Paint _clearPaint = new Paint();
-        protected RectangleF Rect;
-        private RectangleF _maskBoundsRect;
-        private RectangleF _matteBoundsRect;
-        private RectangleF _tempMaskBoundsRect;
+        protected Rect Rect;
+        private Rect _maskBoundsRect;
+        private Rect _matteBoundsRect;
+        private Rect _tempMaskBoundsRect;
         private readonly string _drawTraceName;
         internal Matrix3X3 BoundsMatrix = Matrix3X3.CreateIdentity();
         internal readonly LottieDrawable LottieDrawable;
@@ -150,7 +151,7 @@ namespace LottieSharp.Model.Layer
             _animations.Add(newAnimation);
         }
 
-        public virtual void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             BoundsMatrix.Set(parentMatrix);
             BoundsMatrix = MatrixExt.PreConcat(BoundsMatrix, Transform.Matrix);
@@ -244,7 +245,7 @@ namespace LottieSharp.Model.Layer
             LottieLog.EndSection("Layer.ClearLayer");
         }
 
-        private void IntersectBoundsWithMask(ref RectangleF rect, Matrix3X3 matrix)
+        private void IntersectBoundsWithMask(ref Rect rect, Matrix3X3 matrix)
         {
             RectExt.Set(ref _maskBoundsRect, 0, 0, 0, 0);
             if (!HasMasksOnThisLayer())
@@ -274,24 +275,24 @@ namespace LottieSharp.Model.Layer
                     default:
                         _path.ComputeBounds(ref _tempMaskBoundsRect);
                         // As we iterate through the masks, we want to calculate the union region of the masks.
-                        // We initialize the RectangleF with the first mask. If we don't call set() on the first call,
-                        // the RectangleF will always extend to (0,0).
+                        // We initialize the Rect with the first mask. If we don't call set() on the first call,
+                        // the Rect will always extend to (0,0).
                         if (i == 0)
                         {
                             RectExt.Set(ref _maskBoundsRect, _tempMaskBoundsRect);
                         }
                         else
                         {
-                            RectExt.Set(ref _maskBoundsRect, Math.Min(_maskBoundsRect.Left, _tempMaskBoundsRect.Left), Math.Min(_maskBoundsRect.Top, _tempMaskBoundsRect.Top), Math.Max(_maskBoundsRect.Right, _tempMaskBoundsRect.Right), Math.Max(_maskBoundsRect.Bottom, _tempMaskBoundsRect.Bottom));
+                            RectExt.Set(ref _maskBoundsRect, (float)Math.Min(_maskBoundsRect.Left, _tempMaskBoundsRect.Left), (float)Math.Min(_maskBoundsRect.Top, _tempMaskBoundsRect.Top), (float)Math.Max(_maskBoundsRect.Right, _tempMaskBoundsRect.Right), (float)Math.Max(_maskBoundsRect.Bottom, _tempMaskBoundsRect.Bottom));
                         }
                         break;
                 }
             }
 
-            RectExt.Set(ref rect, Math.Max(rect.Left, _maskBoundsRect.Left), Math.Max(rect.Top, _maskBoundsRect.Top), Math.Min(rect.Right, _maskBoundsRect.Right), Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
+            RectExt.Set(ref rect, (float)Math.Max(rect.Left, _maskBoundsRect.Left), (float)Math.Max(rect.Top, _maskBoundsRect.Top), (float)Math.Min(rect.Right, _maskBoundsRect.Right), (float)Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
         }
 
-        private void IntersectBoundsWithMatte(ref RectangleF rect, Matrix3X3 matrix)
+        private void IntersectBoundsWithMatte(ref Rect rect, Matrix3X3 matrix)
         {
             if (!HasMatteOnThisLayer())
             {
@@ -304,7 +305,7 @@ namespace LottieSharp.Model.Layer
                 return;
             }
             _matteLayer.GetBounds(ref _matteBoundsRect, matrix);
-            RectExt.Set(ref rect, Math.Max(rect.Left, _matteBoundsRect.Left), Math.Max(rect.Top, _matteBoundsRect.Top), Math.Min(rect.Right, _matteBoundsRect.Right), Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
+            RectExt.Set(ref rect, (float)Math.Max(rect.Left, _matteBoundsRect.Left), (float)Math.Max(rect.Top, _matteBoundsRect.Top), (float)Math.Min(rect.Right, _matteBoundsRect.Right), (float)Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
         }
 
         public abstract void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha);
@@ -313,7 +314,7 @@ namespace LottieSharp.Model.Layer
         {
             var num = 0;
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeAdd);
-            // Treat intersect masks like add masks. This is not corRectangleF but it's closer. 
+            // Treat intersect masks like add masks. This is not corRect but it's closer. 
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeIntersect);
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeSubtract);
 
@@ -332,7 +333,7 @@ namespace LottieSharp.Model.Layer
                     goto case Mask.MaskMode.MaskModeAdd;
                 case Mask.MaskMode.MaskModeAdd:
                 default:
-                    // As a hack, we treat all non-subtract masks like add masks. This is not corRectangleF but it's 
+                    // As a hack, we treat all non-subtract masks like add masks. This is not corRect but it's 
                     // better than nothing.
                     paint = _addMaskPaint;
                     break;

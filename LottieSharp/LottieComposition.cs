@@ -4,12 +4,13 @@ using LottieSharp.Model.Layer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
+
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 
 namespace LottieSharp
 {
@@ -37,7 +38,7 @@ namespace LottieSharp
         public List<Layer> Layers { get; private set; }
 
         // This is stored as a set to avoid duplicates.
-        public virtual RectangleF Bounds { get; private set; }
+        public virtual Rect Bounds { get; private set; }
         public float StartFrame { get; private set; }
         public float EndFrame { get; private set; }
         public float FrameRate { get; private set; }
@@ -71,7 +72,7 @@ namespace LottieSharp
             }
         }
 
-        public void Init(RectangleF bounds, float startFrame, float endFrame, float frameRate, List<Layer> layers, Dictionary<long, Layer> layerMap, Dictionary<string, List<Layer>> precomps, Dictionary<string, LottieImageAsset> images, Dictionary<int, FontCharacter> characters, Dictionary<string, Font> fonts)
+        public void Init(Rect bounds, float startFrame, float endFrame, float frameRate, List<Layer> layers, Dictionary<long, Layer> layerMap, Dictionary<string, List<Layer>> precomps, Dictionary<string, LottieImageAsset> images, Dictionary<int, FontCharacter> characters, Dictionary<string, Font> fonts)
         {
             Bounds = bounds;
             StartFrame = startFrame;

@@ -6,7 +6,9 @@ using LottieSharp.Utils;
 using LottieSharp.Value;
 
 using System.Collections.Generic;
-using System.Drawing;
+
+using Avalonia;
+using Avalonia.Media;
 
 namespace LottieSharp.Animation.Content
 {
@@ -66,7 +68,7 @@ namespace LottieSharp.Animation.Content
         public virtual void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("FillContent.Draw");
-            _paint.Color = _colorAnimation.Value ?? Color.White;
+            _paint.Color = _colorAnimation.Value ?? Colors.White;
             var alpha = (byte)(parentAlpha / 255f * _opacityAnimation.Value / 100f * 255);
             _paint.Alpha = alpha;
 
@@ -86,7 +88,7 @@ namespace LottieSharp.Animation.Content
             LottieLog.EndSection("FillContent.Draw");
         }
 
-        public virtual void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             _path.Reset();
             for (var i = 0; i < _paths.Count; i++)
@@ -95,7 +97,7 @@ namespace LottieSharp.Animation.Content
             }
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, outBounds.Left - 1, outBounds.Top - 1, outBounds.Right + 1, outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds, (float)outBounds.Left - 1, (float)outBounds.Top - 1, (float)outBounds.Right + 1, (float)outBounds.Bottom + 1);
         }
 
         public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)

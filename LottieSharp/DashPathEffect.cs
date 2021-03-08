@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using LottieSharp.Animation.Content;
 
 
@@ -14,13 +15,14 @@ namespace LottieSharp
             _phase = phase;
         }
 
-        public override void Apply(StrokeStyle StrokeStyle, Paint paint)
+        public override void Apply(DashStyle StrokeStyle, Paint paint)
         {
             if (paint.Style == Paint.PaintStyle.Stroke)
             {
                 //TODO: OID: Custom dash style is not exists in SharpDX
                 //StrokeStyle..CustomDashStyle = _intervals;
                 //StrokeStyle.DashOffset = _phase;
+                
             }
         }
     }

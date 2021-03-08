@@ -3,6 +3,7 @@ using LottieSharp.Model.Animatable;
 using LottieSharp.Model.Layer;
 
 using System.Collections.Generic;
+using Avalonia.Media;
 
 namespace LottieSharp.Model.Content
 {
@@ -15,17 +16,17 @@ namespace LottieSharp.Model.Content
             Unknown
         }
 
-        internal static CapStyle LineCapTypeToPaintCap(LineCapType lineCapType)
+        internal static PenLineCap LineCapTypeToPaintCap(LineCapType lineCapType)
         {
             switch (lineCapType)
             {
                 case LineCapType.Butt:
-                    return CapStyle.Flat;
+                    return PenLineCap.Flat;
                 case LineCapType.Round:
-                    return CapStyle.Round;
+                    return PenLineCap.Round;
                 case LineCapType.Unknown:
                 default:
-                    return CapStyle.Square;
+                    return PenLineCap.Square;
             }
         }
 
@@ -36,17 +37,17 @@ namespace LottieSharp.Model.Content
             Bevel
         }
 
-        internal static LineJoin LineJoinTypeToPaintLineJoin(LineJoinType lineJoinType)
+        internal static PenLineJoin LineJoinTypeToPaintLineJoin(LineJoinType lineJoinType)
         {
             switch (lineJoinType)
             {
                 case LineJoinType.Bevel:
-                    return LineJoin.Bevel;
+                    return PenLineJoin.Bevel;
                 case LineJoinType.Miter:
-                    return LineJoin.Miter;
+                    return PenLineJoin.Miter;
                 case LineJoinType.Round:
                 default:
-                    return LineJoin.Round;
+                    return PenLineJoin.Round;
             }
         }
 

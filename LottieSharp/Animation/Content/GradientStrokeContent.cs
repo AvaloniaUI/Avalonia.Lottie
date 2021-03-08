@@ -13,8 +13,9 @@ using System;
 */
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Numerics;
+using Avalonia;
 
 namespace LottieSharp.Animation.Content
 {
@@ -27,7 +28,7 @@ namespace LottieSharp.Animation.Content
 
         private readonly Dictionary<long, LinearGradient> _linearGradientCache = new Dictionary<long, LinearGradient>();
         private readonly Dictionary<long, RadialGradient> _radialGradientCache = new Dictionary<long, RadialGradient>();
-        private RectangleF _boundsRect;
+        private Rect _boundsRect;
 
         private readonly GradientType _type;
         private readonly int _cacheSteps;

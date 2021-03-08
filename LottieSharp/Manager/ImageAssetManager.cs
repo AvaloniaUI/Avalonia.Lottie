@@ -25,9 +25,9 @@ namespace LottieSharp.Manager
         private readonly string _imagesFolder;
         private IImageAssetDelegate _delegate;
         private readonly Dictionary<string, LottieImageAsset> _imageAssets;
-        private readonly RenderTarget _context;
+        private readonly RenderTargetBitmap _context;
 
-        internal ImageAssetManager(string imagesFolder, IImageAssetDelegate @delegate, Dictionary<string, LottieImageAsset> imageAssets, RenderTarget context)
+        internal ImageAssetManager(string imagesFolder, IImageAssetDelegate @delegate, Dictionary<string, LottieImageAsset> imageAssets, RenderTargetBitmap context)
         {
             _imagesFolder = imagesFolder;
             _context = context;
@@ -120,7 +120,7 @@ namespace LottieSharp.Manager
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine($"data URL did not have corRectangleF base64 format. {e}", LottieLog.Tag);
+                        Debug.WriteLine($"data URL did not have corRect base64 format. {e}", LottieLog.Tag);
                         return null;
                     }
 

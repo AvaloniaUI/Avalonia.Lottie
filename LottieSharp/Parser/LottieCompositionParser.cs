@@ -2,8 +2,9 @@
 using LottieSharp.Model.Layer;
 
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Text.RegularExpressions;
+using Avalonia;
 
 namespace LottieSharp.Parser
 {
@@ -77,7 +78,7 @@ namespace LottieSharp.Parser
 
             var scaledWidth = (int)(width * scale);
             var scaledHeight = (int)(height * scale);
-            var bounds = new RectangleF(0, 0, scaledWidth, scaledHeight);
+            var bounds = new Rect(0, 0, scaledWidth, scaledHeight);
 
             composition.Init(bounds, startFrame, endFrame, frameRate, layers, layerMap, precomps, images, characters, fonts);
 

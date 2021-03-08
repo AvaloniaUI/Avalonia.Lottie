@@ -4,7 +4,8 @@ using LottieSharp.Value;
 
 
 using System;
-using System.Drawing;
+
+using Avalonia;
 using Avalonia.Media.Imaging;
 
 namespace LottieSharp.Model.Layer
@@ -12,8 +13,8 @@ namespace LottieSharp.Model.Layer
     internal class ImageLayer : BaseLayer
     {
         private readonly Paint _paint = new Paint(Paint.AntiAliasFlag | Paint.FilterBitmapFlag);
-        private RectangleF _src;
-        private RectangleF _dst;
+        private Rect _src;
+        private Rect _dst;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
 
         internal ImageLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
@@ -42,13 +43,13 @@ namespace LottieSharp.Model.Layer
             canvas.Restore();
         }
 
-        public override void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             var bitmap = Bitmap;
             if (bitmap != null)
             {
-                RectExt.Set(ref outBounds, outBounds.Left, outBounds.Top, Math.Min(outBounds.Right, PixelWidth), Math.Min(outBounds.Bottom, PixelHeight));
+                RectExt.Set(ref outBounds, (float)outBounds.Left, (float)outBounds.Top, (float)Math.Min(outBounds.Right, PixelWidth), (float)Math.Min(outBounds.Bottom, PixelHeight));
                 BoundsMatrix.MapRect(ref outBounds);
             }
         }

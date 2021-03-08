@@ -1,5 +1,6 @@
-﻿using System.Drawing;
+﻿
 using System.Numerics;
+using Avalonia;
 using LottieSharp.Animation.Content;
 using LottieSharp.Animation.Keyframe;
 
@@ -53,7 +54,7 @@ namespace LottieSharp.Model.Layer
                 _points[2] = new Vector2(LayerModel.SolidWidth, LayerModel.SolidHeight);
                 _points[3] = new Vector2(0, LayerModel.SolidHeight);
 
-                // We can't map RectangleF here because if there is rotation on the transform then we aren't 
+                // We can't map Rect here because if there is rotation on the transform then we aren't 
                 // actually drawing a rect. 
                 parentMatrix.MapPoints(ref _points);
                 _path.Reset();
@@ -67,7 +68,7 @@ namespace LottieSharp.Model.Layer
             }
         }
 
-        public override void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref Rect, 0, 0, LayerModel.SolidWidth, LayerModel.SolidHeight);

@@ -4,8 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Numerics;
+using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.TextFormatting;
@@ -32,18 +33,18 @@ namespace LottieSharp.Animation.Content
 
         class ClipSave
         {
-            public ClipSave(RectangleF rect, IDisposable layer)
+            public ClipSave(Rect rect, IDisposable layer)
             {
-                RectangleF = rect;
+                Rect = rect;
                 Layer = layer;
             }
 
-            public RectangleF RectangleF { get; }
+            public Rect Rect { get; }
             public IDisposable Layer { get; }
         }
 
         private readonly Stack<ClipSave> _clipSaves = new Stack<ClipSave>();
-        private RectangleF _currentClip;
+        private Rect _currentClip;
 
         class RenderTargetSave
         {
@@ -85,7 +86,7 @@ namespace LottieSharp.Animation.Content
 
             Width = width;
             Height = height;
-            _currentClip = new RectangleF(0, 0, Width, Height);
+            _currentClip = new Rect(0, 0, Width, Height);
         }
 
         public float Width { get; private set; }
@@ -119,11 +120,11 @@ namespace LottieSharp.Animation.Content
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
                 {
-                    CurrentRenderTarget.DrawRectangle(new RectangleF((float)x1, (float)y1, (float)(x2 - x1), (float)(y2 - y1)), brush, paint.StrokeWidth, GetStrokeStyle(paint));
+                    CurrentRenderTarget.DrawRectangle(new Rect((float)x1, (float)y1, (float)(x2 - x1), (float)(y2 - y1)), brush, paint.StrokeWidth, GetStrokeStyle(paint));
                 }
                 else
                 {
-                    CurrentRenderTarget.FillRectangle(new RectangleF((float)x1, (float)y1, (float)(x2 - x1), (float)(y2 - y1)), brush);
+                    CurrentRenderTarget.FillRectangle(new Rect((float)x1, (float)y1, (float)(x2 - x1), (float)(y2 - y1)), brush);
                 }
             }
 
@@ -149,7 +150,7 @@ namespace LottieSharp.Animation.Content
             return style;
         }
 
-        internal void DrawRect(RectangleF rect, Paint paint)
+        internal void DrawRect(Rect rect, Paint paint)
         {
             UpdateDrawingSessionWithFlags(paint.Flags);
             CurrentRenderTarget.Transform = GetCurrentTransform();
@@ -192,7 +193,7 @@ namespace LottieSharp.Animation.Content
             }
         }
 
-        public Disposable PushMask(RectangleF rect, float alpha, Path path = null)
+        public Disposable PushMask(Rect rect, float alpha, Path path = null)
         {
             if (alpha >= 1 && path == null)
             {
@@ -241,13 +242,13 @@ namespace LottieSharp.Animation.Content
             };
         }
 
-        public bool ClipRect(RectangleF rect)
+        public bool ClipRect(Rect rect)
         {
             _currentClip.Intersects(rect);
             return _currentClip.IsEmpty == false;
         }
 
-        public void ClipReplaceRect(RectangleF rect)
+        public void ClipReplaceRect(Rect rect)
         {
             _currentClip = rect;
         }
@@ -264,7 +265,7 @@ namespace LottieSharp.Animation.Content
             SaveClip(255);
         }
 
-        public void SaveLayer(RectangleF bounds, Paint paint, int flags, Path path = null)
+        public void SaveLayer(Rect bounds, Paint paint, int flags, Path path = null)
         {
             _flagSaves.Push(flags);
             if ((flags & MatrixSaveFlag) == MatrixSaveFlag)
@@ -292,7 +293,7 @@ namespace LottieSharp.Animation.Content
 
         }
 
-        private RenderTargetHolder CreateRenderTarget(RectangleF bounds, int index)
+        private RenderTargetHolder CreateRenderTarget(Rect bounds, int index)
         {
             if (!_renderTargets.TryGetValue(index, out var rendertarget))
             {
@@ -360,7 +361,7 @@ namespace LottieSharp.Animation.Content
             //if ((flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag)
             //{
             //    using (var brush = new SolidColorBrush(CurrentRenderTarget, new RawColor4(0, 0, 0, 0.3f)))
-            //        CurrentRenderTarget.FillRectangle(new RectangleF(0, 0, 100, 100), brush);
+            //        CurrentRenderTarget.FillRectangle(new Rect(0, 0, 100, 100), brush);
             //}
 
 
@@ -372,7 +373,7 @@ namespace LottieSharp.Animation.Content
             if ((flags & ClipSaveFlag) == ClipSaveFlag)
             {
                 var clipSave = _clipSaves.Pop();
-                _currentClip = clipSave.RectangleF;
+                _currentClip = clipSave.Rect;
                 clipSave.Layer.Dispose();
             }
 
@@ -396,7 +397,7 @@ namespace LottieSharp.Animation.Content
 
                 CurrentRenderTarget.DrawImage(drawingSession.Bitmap,
                     new RawVector2(0, 0),
-                    new RectangleF(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
+                    new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
                     //renderTargetSave.PaintAlpha / 255f,
                     InterpolationMode.Linear,
                     canvasComposite);
@@ -404,7 +405,7 @@ namespace LottieSharp.Animation.Content
                 //CurrentRenderTarget.DrawBitmap(drawingSession.Bitmap, 255f, InterpolationMode.Linear);
 
 
-                //var rect = new RawRectangleF(0, 0, rt.Size.Width, rt.Size.Height);
+                //var rect = new RawRect(0, 0, rt.Size.Width, rt.Size.Height);
                 ////using (var brush = new SolidColorBrush(CurrentRenderTarget, Color.Black))
                 ////    CurrentRenderTarget.FillOpacityMask(rt, brush, OpacityMaskContent.Graphics, rect, rect);
                 //CurrentRenderTarget.DrawImage(rt, rect, renderTargetSave.PaintAlpha / 255f, BitmapInterpolationMode.Linear, rect);
@@ -418,7 +419,7 @@ namespace LottieSharp.Animation.Content
 
         }
 
-        public void DrawBitmap(Bitmap bitmap, RectangleF src, RectangleF dst, Paint paint)
+        public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
             UpdateDrawingSessionWithFlags(paint.Flags);
             CurrentRenderTarget.Transform = GetCurrentTransform();
@@ -431,7 +432,7 @@ namespace LottieSharp.Animation.Content
             CurrentRenderTarget.DrawBitmap(bitmap, dst, paint.Alpha / 255f, BitmapInterpolationMode.NearestNeighbor, src);
         }
 
-        public void GetClipBounds(ref RectangleF bounds)
+        public void GetClipBounds(ref Rect bounds)
         {
             RectExt.Set(ref bounds, _currentClip.X, _currentClip.Y, _currentClip.Width, _currentClip.Height);
         }
@@ -476,7 +477,7 @@ namespace LottieSharp.Animation.Content
             _matrix.Set(matrix);
         }
 
-        public RectangleF DrawText(char character, Paint paint)
+        public Rect DrawText(char character, Paint paint)
         {
             var gradient = paint.Shader as Gradient;
             var brush = gradient != null ? gradient.GetBrush(CurrentRenderTarget, paint.Alpha) : new SolidColorBrush(CurrentRenderTarget, paint.Color);
@@ -502,7 +503,7 @@ namespace LottieSharp.Animation.Content
                     //LineSpacing = 0
                 };
                 var textLayout = new TextLayout(factory, text, textFormat, 0.0f, 0.0f);
-                CurrentRenderTarget.DrawText(text, textFormat, new RectangleF(0, 0, 0, 0), finalBrush);
+                CurrentRenderTarget.DrawText(text, textFormat, new Rect(0, 0, 0, 0), finalBrush);
 
                 if (gradient == null)
                 {
@@ -511,7 +512,7 @@ namespace LottieSharp.Animation.Content
                 }
 
                 //TODO: OID: LayoutBound is not exists in text layout
-                return new RectangleF(0, 0, textLayout.DetermineMinWidth(), 0);
+                return new Rect(0, 0, textLayout.DetermineMinWidth(), 0);
             }
         }
 

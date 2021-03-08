@@ -7,7 +7,8 @@ using LottieSharp.Value;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
+using Avalonia;
 
 namespace LottieSharp.Animation.Content
 {
@@ -118,7 +119,7 @@ namespace LottieSharp.Animation.Content
             }
         }
 
-        public void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             _contentGroup.GetBounds(ref outBounds, parentMatrix);
         }

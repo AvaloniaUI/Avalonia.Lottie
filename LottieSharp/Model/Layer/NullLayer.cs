@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿
+using Avalonia;
 using LottieSharp.Animation.Content;
 
 
@@ -15,7 +16,7 @@ namespace LottieSharp.Model.Layer
             // Do nothing.
         }
 
-        public override void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref outBounds, 0, 0, 0, 0);
