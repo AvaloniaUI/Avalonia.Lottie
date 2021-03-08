@@ -20,6 +20,7 @@ namespace Avalonia.Lottie.Sample
 #endif
         }
 
+        
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
