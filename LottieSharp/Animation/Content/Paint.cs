@@ -1,6 +1,4 @@
 
-
-using SharpDX.Direct2D1;
 using System;
 using Avalonia.Media;
 
@@ -36,8 +34,7 @@ namespace LottieSharp.Animation.Content
             set
             {
                 var color = Color;
-                color.A = value;
-                Color = color;
+                Color = new Color(value, Color.R, Color.G, Color.B);
             }
         }
 
