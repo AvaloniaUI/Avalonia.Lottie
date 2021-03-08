@@ -1,6 +1,8 @@
 ﻿using LottieSharp.Animation.Content;
-using SharpDX;
+
 using System;
+using System.Numerics;
+using Avalonia.Media;
 
 //TODO: OID: Totally replaced with new file
 

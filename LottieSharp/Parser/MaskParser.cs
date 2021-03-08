@@ -8,14 +8,14 @@ namespace LottieSharp.Parser
     {
         internal static Mask Parse(JsonReader reader, LottieComposition composition)
         {
-            Mask.MaskMode maskMode = Mask.MaskMode.MaskModeAdd;
+            var maskMode = Mask.MaskMode.MaskModeAdd;
             AnimatableShapeValue maskPath = null;
             AnimatableIntegerValue opacity = null;
 
             reader.BeginObject();
             while (reader.HasNext())
             {
-                string mode = reader.NextName();
+                var mode = reader.NextName();
                 switch (mode)
                 {
                     case "mode":

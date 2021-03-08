@@ -12,16 +12,16 @@ namespace LottieSharp.Parser
             string name = null;
             AnimatableGradientColorValue color = null;
             AnimatableIntegerValue opacity = null;
-            GradientType gradientType = GradientType.Linear;
+            var gradientType = GradientType.Linear;
             AnimatablePointValue startPoint = null;
             AnimatablePointValue endPoint = null;
             AnimatableFloatValue width = null;
-            ShapeStroke.LineCapType capType = ShapeStroke.LineCapType.Unknown;
-            ShapeStroke.LineJoinType joinType = ShapeStroke.LineJoinType.Round;
+            var capType = ShapeStroke.LineCapType.Unknown;
+            var joinType = ShapeStroke.LineJoinType.Round;
             AnimatableFloatValue offset = null;
-            float miterLimit = 0f;
+            var miterLimit = 0f;
 
-            List<AnimatableFloatValue> lineDashPattern = new List<AnimatableFloatValue>();
+            var lineDashPattern = new List<AnimatableFloatValue>();
 
             while (reader.HasNext())
             {
@@ -31,7 +31,7 @@ namespace LottieSharp.Parser
                         name = reader.NextString();
                         break;
                     case "g":
-                        int points = -1;
+                        var points = -1;
                         reader.BeginObject();
                         while (reader.HasNext())
                         {

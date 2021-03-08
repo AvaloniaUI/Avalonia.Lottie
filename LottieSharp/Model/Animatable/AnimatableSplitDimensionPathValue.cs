@@ -1,5 +1,6 @@
-﻿using LottieSharp.Animation.Keyframe;
-using SharpDX;
+﻿using System.Numerics;
+using LottieSharp.Animation.Keyframe;
+
 
 namespace LottieSharp.Model.Animatable
 {

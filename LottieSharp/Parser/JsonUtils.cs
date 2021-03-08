@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using Avalonia.Media;
 
 namespace LottieSharp.Parser
 {
@@ -28,7 +30,7 @@ namespace LottieSharp.Parser
 
         internal static List<Vector2> JsonToPoints(JsonReader reader, float scale)
         {
-            List<Vector2> points = new List<Vector2>();
+            var points = new List<Vector2>();
 
             reader.BeginArray();
             while (reader.Peek() == JsonToken.StartArray)
@@ -56,8 +58,8 @@ namespace LottieSharp.Parser
 
         private static Vector2 JsonNumbersToPoint(JsonReader reader, float scale)
         {
-            float x = reader.NextDouble();
-            float y = reader.NextDouble();
+            var x = reader.NextDouble();
+            var y = reader.NextDouble();
             while (reader.HasNext())
             {
                 reader.SkipValue();
@@ -82,8 +84,8 @@ namespace LottieSharp.Parser
 
         private static Vector2 JsonObjectToPoint(JsonReader reader, float scale)
         {
-            float x = 0f;
-            float y = 0f;
+            var x = 0f;
+            var y = 0f;
             reader.BeginObject();
             while (reader.HasNext())
             {
@@ -106,7 +108,7 @@ namespace LottieSharp.Parser
 
         internal static float ValueFromObject(JsonReader reader)
         {
-            JsonToken token = reader.Peek();
+            var token = reader.Peek();
             switch (token)
             {
                 case JsonToken.Integer:
@@ -114,7 +116,7 @@ namespace LottieSharp.Parser
                     return reader.NextDouble();
                 case JsonToken.StartArray:
                     reader.BeginArray();
-                    float val = reader.NextDouble();
+                    var val = reader.NextDouble();
                     while (reader.HasNext())
                     {
                         reader.SkipValue();

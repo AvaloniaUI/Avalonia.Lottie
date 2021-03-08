@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
-using SharpDX;
+﻿using Avalonia.Media;
+using Newtonsoft.Json;
+
 
 namespace LottieSharp.Parser
 {
@@ -9,7 +10,7 @@ namespace LottieSharp.Parser
 
         public Color? Parse(JsonReader reader, float scale)
         {
-            bool isArray = reader.Peek() == JsonToken.StartArray;
+            var isArray = reader.Peek() == JsonToken.StartArray;
             if (isArray)
             {
                 reader.BeginArray();

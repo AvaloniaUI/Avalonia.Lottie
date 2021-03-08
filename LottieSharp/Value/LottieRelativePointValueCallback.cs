@@ -1,6 +1,6 @@
 ﻿using LottieSharp.Utils;
-using SharpDX;
 using System;
+using System.Numerics;
 
 namespace LottieSharp.Value
 {

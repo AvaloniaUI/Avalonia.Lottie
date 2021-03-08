@@ -13,7 +13,7 @@ namespace LottieSharp.Parser
             // Unfortunately, for an ellipse, d is before "ty" which means that it will get parsed 
             // before we are in the ellipse parser. 
             // "d" is 2 for normal and 3 for reversed. 
-            int d = 2;
+            var d = 2;
             while (reader.HasNext())
             {
                 switch (reader.NextName())

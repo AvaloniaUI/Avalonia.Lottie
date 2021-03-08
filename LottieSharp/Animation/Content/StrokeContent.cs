@@ -1,9 +1,10 @@
-﻿using LottieSharp.Animation.Keyframe;
+﻿using Avalonia.Media;
+using LottieSharp.Animation.Keyframe;
 using LottieSharp.Model;
 using LottieSharp.Model.Content;
 using LottieSharp.Model.Layer;
 using LottieSharp.Value;
-using SharpDX;
+
 
 namespace LottieSharp.Animation.Content
 {

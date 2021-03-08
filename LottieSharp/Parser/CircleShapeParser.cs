@@ -1,6 +1,7 @@
-﻿using LottieSharp.Model.Animatable;
+﻿using System.Numerics;
+using LottieSharp.Model.Animatable;
 using LottieSharp.Model.Content;
-using SharpDX;
+
 
 namespace LottieSharp.Parser
 {
@@ -11,7 +12,7 @@ namespace LottieSharp.Parser
             string name = null;
             IAnimatableValue<Vector2?, Vector2?> position = null;
             AnimatablePointValue size = null;
-            bool reversed = d == 3;
+            var reversed = d == 3;
 
             while (reader.HasNext())
             {

@@ -5,10 +5,11 @@ using LottieSharp.Model.Content;
 using LottieSharp.Model.Layer;
 using LottieSharp.Utils;
 using LottieSharp.Value;
-using SharpDX;
-using SharpDX.Direct2D1;
+
+
 using System;
 using System.Collections.Generic;
+using Avalonia;
 
 namespace LottieSharp.Animation.Content
 {
@@ -16,7 +17,7 @@ namespace LottieSharp.Animation.Content
     {
         private readonly Path _path = new Path();
         private readonly Path _trimPathPath = new Path();
-        private RectangleF _rect;
+        private Rect _rect;
         private readonly LottieDrawable _lottieDrawable;
         private readonly BaseLayer _layer;
         private readonly List<PathGroup> _pathGroups = new List<PathGroup>();
@@ -266,7 +267,7 @@ namespace LottieSharp.Animation.Content
             LottieLog.EndSection("StrokeContent.ApplyTrimPath");
         }
 
-        public void GetBounds(ref RectangleF outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             LottieLog.BeginSection("StrokeContent.GetBounds");
             _path.Reset();

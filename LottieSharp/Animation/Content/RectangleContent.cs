@@ -9,15 +9,17 @@ Before:
 using LottieSharp.Value;
 After:
 using LottieSharp.Value;
-using SharpDX;
-using SharpDX;
+
+
 using System;
 using System.Collections.Generic;
 */
 using LottieSharp.Value;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
 
 namespace LottieSharp.Animation.Content
 {

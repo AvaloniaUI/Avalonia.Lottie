@@ -1,5 +1,5 @@
-﻿using SharpDX;
-using SharpDX.Direct2D1;
+﻿
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,10 +7,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Avalonia.Media.Imaging;
+
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
 using System.Threading.Tasks;
-using SharpDX.Direct2D1;
+
 After:
 using System.Threading.Tasks;
 */

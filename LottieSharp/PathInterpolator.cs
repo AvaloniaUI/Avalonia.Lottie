@@ -70,7 +70,7 @@ namespace LottieSharp
             {
                 return 1;
             }
-            // Do a binary search for the corRectangleF x to interpolate between.
+            // Do a binary search for the corRect x to interpolate between.
             int startIndex = 0;
             int endIndex = _mX.Length - 1;
 

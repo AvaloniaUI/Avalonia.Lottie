@@ -1,14 +1,16 @@
 ﻿
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
-using SharpDX;
+
 using Newtonsoft.Json;
 After:
 using Newtonsoft.Json;
-using SharpDX;
+
 */
+
+using System.Numerics;
 using Newtonsoft.Json;
-using SharpDX;
+
 
 namespace LottieSharp.Parser
 {
@@ -22,7 +24,7 @@ namespace LottieSharp.Parser
 
         public Vector2? Parse(JsonReader reader, float scale)
         {
-            JsonToken token = reader.Peek();
+            var token = reader.Peek();
             if (token == JsonToken.StartArray)
             {
                 return JsonUtils.JsonToPoint(reader, scale);

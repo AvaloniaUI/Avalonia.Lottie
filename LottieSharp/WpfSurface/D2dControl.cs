@@ -1,16 +1,13 @@
-﻿using SharpDX.Direct2D1;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
+using Avalonia;
+using Avalonia.Interactivity;
 
 namespace LottieSharp.WpfSurface
 {
-    public abstract class D2dControl : System.Windows.Controls.Image, IDisposable
+    public abstract class D2dControl : Avalonia.Controls.Image, IDisposable
     {
         // - field -----------------------------------------------------------------------
 
@@ -82,7 +79,7 @@ namespace LottieSharp.WpfSurface
             base.Loaded += Window_Loaded;
             base.Unloaded += Window_Closing;
 
-            base.Stretch = System.Windows.Media.Stretch.Fill;
+            base.Stretch = Avalonia.Media.Stretch.Fill;
         }
 
         public abstract void Render(RenderTarget target);
@@ -265,7 +262,7 @@ namespace LottieSharp.WpfSurface
                 return;
             }
 
-            System.Windows.Media.CompositionTarget.Rendering += OnRendering;
+            Avalonia.Media.CompositionTarget.Rendering += OnRendering;
             renderTimer.Start();
         }
 
@@ -276,7 +273,7 @@ namespace LottieSharp.WpfSurface
                 return;
             }
 
-            System.Windows.Media.CompositionTarget.Rendering -= OnRendering;
+            Avalonia.Media.CompositionTarget.Rendering -= OnRendering;
             renderTimer.Stop();
         }
 

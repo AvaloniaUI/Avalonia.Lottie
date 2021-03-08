@@ -1,9 +1,10 @@
 ﻿using LottieSharp.Animation.Content;
 using LottieSharp.Animation.Keyframe;
 using LottieSharp.Value;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace LottieSharp.Model.Layer
 {

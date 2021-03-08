@@ -1,24 +1,29 @@
-﻿using SharpDX;
+﻿
 using System;
+using Avalonia;
 
 namespace LottieSharp
 {
     public static class RectExt
     {
-        public static void Set(ref RectangleF rect, float left, float top, float right, float bottom)
+        public static void Set(ref Rect rect, float left, float top, float right, float bottom)
         {
-            rect.X = left;
-            rect.Y = top;
-            rect.Width = Math.Abs(right - left);
-            rect.Height = Math.Abs(bottom - top);
+            rect = new Rect(left, top, Math.Abs(right - left), Math.Abs(bottom - top));
+            //
+            // rect.X = left;
+            // rect.Y = top;
+            // rect.Width = Math.Abs(right - left);
+            // rect.Height = Math.Abs(bottom - top);
         }
 
-        public static void Set(ref RectangleF rect, RectangleF newRect)
+        public static void Set(ref Rect rect, Rect newRect)
         {
-            rect.X = newRect.X;
-            rect.Y = newRect.Y;
-            rect.Width = newRect.Width;
-            rect.Height = newRect.Height;
+            rect = new Rect(newRect.X, newRect.Y, newRect.Width, newRect.Height);
+            //
+            // rect.X = newRect.X;
+            // rect.Y = newRect.Y;
+            // rect.Width = newRect.Width;
+            // rect.Height = newRect.Height;
         }
     }
 }

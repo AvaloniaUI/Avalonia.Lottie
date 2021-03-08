@@ -7,7 +7,7 @@ namespace LottieSharp.Parser
         internal static MergePaths Parse(JsonReader reader)
         {
             string name = null;
-            MergePaths.MergePathsMode mode = MergePaths.MergePathsMode.Add;
+            var mode = MergePaths.MergePathsMode.Add;
 
             while (reader.HasNext())
             {

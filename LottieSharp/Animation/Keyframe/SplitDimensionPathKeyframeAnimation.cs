@@ -1,6 +1,7 @@
 ﻿using LottieSharp.Value;
-using SharpDX;
+
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace LottieSharp.Animation.Keyframe
 {

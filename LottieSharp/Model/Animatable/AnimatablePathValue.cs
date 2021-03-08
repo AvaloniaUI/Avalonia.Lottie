@@ -1,8 +1,9 @@
 ﻿using LottieSharp.Animation.Keyframe;
 using LottieSharp.Value;
-using SharpDX;
+
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace LottieSharp.Model.Animatable
 {

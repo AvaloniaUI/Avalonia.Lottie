@@ -8,7 +8,7 @@ namespace LottieSharp.Parser
         internal static ShapePath Parse(JsonReader reader, LottieComposition composition)
         {
             string name = null;
-            int ind = 0;
+            var ind = 0;
             AnimatableShapeValue shape = null;
 
             while (reader.HasNext())

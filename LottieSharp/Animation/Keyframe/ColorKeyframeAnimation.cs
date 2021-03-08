@@ -1,7 +1,8 @@
 ﻿using LottieSharp.Utils;
 using LottieSharp.Value;
-using SharpDX;
+
 using System.Collections.Generic;
+using Avalonia.Media;
 
 namespace LottieSharp.Animation.Keyframe
 {

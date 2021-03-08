@@ -13,12 +13,12 @@ namespace LottieSharp.Parser
             AnimatableColorValue color = null;
             AnimatableFloatValue width = null;
             AnimatableIntegerValue opacity = null;
-            ShapeStroke.LineCapType capType = ShapeStroke.LineCapType.Unknown;
-            ShapeStroke.LineJoinType joinType = ShapeStroke.LineJoinType.Round;
+            var capType = ShapeStroke.LineCapType.Unknown;
+            var joinType = ShapeStroke.LineJoinType.Round;
             AnimatableFloatValue offset = null;
-            float miterLimit = 0f;
+            var miterLimit = 0f;
 
-            List<AnimatableFloatValue> lineDashPattern = new List<AnimatableFloatValue>();
+            var lineDashPattern = new List<AnimatableFloatValue>();
 
             while (reader.HasNext())
             {

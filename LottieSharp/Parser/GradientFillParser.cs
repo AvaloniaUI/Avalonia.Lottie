@@ -10,10 +10,10 @@ namespace LottieSharp.Parser
             string name = null;
             AnimatableGradientColorValue color = null;
             AnimatableIntegerValue opacity = null;
-            GradientType gradientType = GradientType.Linear;
+            var gradientType = GradientType.Linear;
             AnimatablePointValue startPoint = null;
             AnimatablePointValue endPoint = null;
-            PathFillType fillType = PathFillType.EvenOdd;
+            var fillType = PathFillType.EvenOdd;
 
             while (reader.HasNext())
             {
@@ -23,7 +23,7 @@ namespace LottieSharp.Parser
                         name = reader.NextString();
                         break;
                     case "g":
-                        int points = -1;
+                        var points = -1;
                         reader.BeginObject();
                         while (reader.HasNext())
                         {

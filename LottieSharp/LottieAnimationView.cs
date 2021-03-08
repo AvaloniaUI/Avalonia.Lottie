@@ -1,7 +1,7 @@
 ﻿using LottieSharp.Model;
 using LottieSharp.Value;
-using SharpDX;
-using SharpDX.Direct2D1;
+
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,8 +9,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia;
+using Avalonia
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+
+..Controls;
 
 namespace LottieSharp
 {
@@ -310,7 +315,7 @@ namespace LottieSharp
                 {
                     _viewbox = new Viewbox
                     {
-                        Stretch = System.Windows.Media.Stretch.Uniform,
+                        Stretch = Avalonia.Media.Stretch.Uniform,
                         StretchDirection = StretchDirection.DownOnly
                     };
                     Content = _viewbox;

@@ -1,11 +1,12 @@
 ﻿using LottieSharp.Model.Animatable;
 using LottieSharp.Model.Content;
 using LottieSharp.Value;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Avalonia.Media;
 
 namespace LottieSharp.Model.Layer
 {

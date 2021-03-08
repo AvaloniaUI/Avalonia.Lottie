@@ -1,8 +1,9 @@
 ﻿using LottieSharp.Model.Animatable;
 using LottieSharp.Value;
 using Newtonsoft.Json;
-using SharpDX;
+
 using System.Diagnostics;
+using System.Numerics;
 
 namespace LottieSharp.Parser
 {
@@ -18,7 +19,7 @@ namespace LottieSharp.Parser
             AnimatableFloatValue startOpacity = null;
             AnimatableFloatValue endOpacity = null;
 
-            bool isObject = reader.Peek() == JsonToken.StartObject;
+            var isObject = reader.Peek() == JsonToken.StartObject;
             if (isObject)
             {
                 reader.BeginObject();

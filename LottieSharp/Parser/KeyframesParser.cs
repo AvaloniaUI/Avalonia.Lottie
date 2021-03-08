@@ -9,7 +9,7 @@ namespace LottieSharp.Parser
     {
         internal static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition, float scale, IValueParser<T> valueParser)
         {
-            List<Keyframe<T>> keyframes = new List<Keyframe<T>>();
+            var keyframes = new List<Keyframe<T>>();
 
             if (reader.Peek() == JsonToken.String)
             {
@@ -66,8 +66,8 @@ namespace LottieSharp.Parser
         /// <param name="keyframes"></param>
         public static void SetEndFrames<TU, TV>(List<TU> keyframes) where TU : Keyframe<TV>
         {
-            int size = keyframes.Count;
-            for (int i = 0; i < size - 1; i++)
+            var size = keyframes.Count;
+            for (var i = 0; i < size - 1; i++)
             {
                 // In the json, the keyframes only contain their starting frame. 
                 var keyframe = keyframes[i];

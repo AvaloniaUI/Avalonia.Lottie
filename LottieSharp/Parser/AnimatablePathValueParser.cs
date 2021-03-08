@@ -1,8 +1,9 @@
 ﻿using LottieSharp.Model.Animatable;
 using LottieSharp.Value;
 using Newtonsoft.Json;
-using SharpDX;
+
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace LottieSharp.Parser
 {
@@ -10,7 +11,7 @@ namespace LottieSharp.Parser
     {
         public static AnimatablePathValue Parse(JsonReader reader, LottieComposition composition)
         {
-            List<Keyframe<Vector2?>> keyframes = new List<Keyframe<Vector2?>>();
+            var keyframes = new List<Keyframe<Vector2?>>();
             if (reader.Peek() == JsonToken.StartArray)
             {
                 reader.BeginArray();
@@ -40,7 +41,7 @@ namespace LottieSharp.Parser
             AnimatableFloatValue xAnimation = null;
             AnimatableFloatValue yAnimation = null;
 
-            bool hasExpressions = false;
+            var hasExpressions = false;
 
             reader.BeginObject();
             while (reader.Peek() != JsonToken.EndObject)

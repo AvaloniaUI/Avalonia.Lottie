@@ -8,10 +8,10 @@ namespace LottieSharp.Parser
         internal static ShapeFill Parse(JsonReader reader, LottieComposition composition)
         {
             AnimatableColorValue color = null;
-            bool fillEnabled = false;
+            var fillEnabled = false;
             AnimatableIntegerValue opacity = null;
             string name = null;
-            int fillTypeInt = 1;
+            var fillTypeInt = 1;
 
             while (reader.HasNext())
             {

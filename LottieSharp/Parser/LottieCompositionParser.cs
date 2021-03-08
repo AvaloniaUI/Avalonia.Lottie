@@ -1,7 +1,8 @@
 ﻿using LottieSharp.Model;
 using LottieSharp.Model.Layer;
-using SharpDX;
+
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace LottieSharp.Parser
@@ -11,17 +12,17 @@ namespace LottieSharp.Parser
         public static LottieComposition Parse(JsonReader reader)
         {
             var scale = Utils.Utils.DpScale();
-            float startFrame = 0f;
-            float endFrame = 0f;
-            float frameRate = 0f;
-            Dictionary<long, Layer> layerMap = new Dictionary<long, Layer>();
-            List<Layer> layers = new List<Layer>();
-            int width = 0;
-            int height = 0;
-            Dictionary<string, List<Layer>> precomps = new Dictionary<string, List<Layer>>();
-            Dictionary<string, LottieImageAsset> images = new Dictionary<string, LottieImageAsset>();
-            Dictionary<string, Font> fonts = new Dictionary<string, Font>();
-            Dictionary<int, FontCharacter> characters = new Dictionary<int, FontCharacter>();
+            var startFrame = 0f;
+            var endFrame = 0f;
+            var frameRate = 0f;
+            var layerMap = new Dictionary<long, Layer>();
+            var layers = new List<Layer>();
+            var width = 0;
+            var height = 0;
+            var precomps = new Dictionary<string, List<Layer>>();
+            var images = new Dictionary<string, LottieImageAsset>();
+            var fonts = new Dictionary<string, Font>();
+            var characters = new Dictionary<int, FontCharacter>();
             var composition = new LottieComposition();
 
             reader.BeginObject();
@@ -74,9 +75,9 @@ namespace LottieSharp.Parser
             }
             reader.EndObject();
 
-            int scaledWidth = (int)(width * scale);
-            int scaledHeight = (int)(height * scale);
-            RectangleF bounds = new RectangleF(0, 0, scaledWidth, scaledHeight);
+            var scaledWidth = (int)(width * scale);
+            var scaledHeight = (int)(height * scale);
+            var bounds = new RectangleF(0, 0, scaledWidth, scaledHeight);
 
             composition.Init(bounds, startFrame, endFrame, frameRate, layers, layerMap, precomps, images, characters, fonts);
 

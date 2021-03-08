@@ -1,10 +1,11 @@
 ﻿using LottieSharp.Model;
 using LottieSharp.Model.Content;
 using Newtonsoft.Json;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace LottieSharp.Parser
 {
@@ -21,7 +22,7 @@ namespace LottieSharp.Parser
                 reader.BeginArray();
             }
 
-            bool closed = false;
+            var closed = false;
             List<Vector2> pointsArray = null;
             List<Vector2> inTangents = null;
             List<Vector2> outTangents = null;
@@ -63,12 +64,12 @@ namespace LottieSharp.Parser
                 return new ShapeData(new Vector2(), false, new List<CubicCurveData>());
             }
 
-            int length = pointsArray.Count;
+            var length = pointsArray.Count;
             var vertex = pointsArray[0];
             var initialPoint = vertex;
-            List<CubicCurveData> curves = new List<CubicCurveData>(length);
+            var curves = new List<CubicCurveData>(length);
 
-            for (int i = 1; i < length; i++)
+            for (var i = 1; i < length; i++)
             {
                 vertex = pointsArray[i];
                 var previousVertex = pointsArray[i - 1];

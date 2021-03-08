@@ -1,5 +1,6 @@
-﻿using LottieSharp.Model;
-using SharpDX;
+﻿using Avalonia.Media;
+using LottieSharp.Model;
+
 
 namespace LottieSharp.Parser
 {
@@ -12,14 +13,14 @@ namespace LottieSharp.Parser
             string text = null;
             string fontName = null;
             double size = 0;
-            int justification = 0;
-            int tracking = 0;
+            var justification = 0;
+            var tracking = 0;
             double lineHeight = 0;
             double baselineShift = 0;
-            Color fillColor = Color.Transparent;
-            Color strokeColor = Color.Transparent;
-            int strokeWidth = 0;
-            bool strokeOverFill = true;
+            var fillColor = Colors.Transparent;
+            var strokeColor = Colors.Transparent;
+            var strokeWidth = 0;
+            var strokeOverFill = true;
 
             reader.BeginObject();
             while (reader.HasNext())

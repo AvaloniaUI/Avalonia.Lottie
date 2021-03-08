@@ -1,7 +1,9 @@
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.Mathematics.Interop;
+
+
+
 using System;
+using System.Numerics;
+using Avalonia.Media;
 
 namespace LottieSharp
 {

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using Avalonia.;
 
 namespace LottieSharp.Sample
 {

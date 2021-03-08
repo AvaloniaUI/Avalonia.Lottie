@@ -1,9 +1,17 @@
-﻿using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX.Mathematics.Interop;
+﻿
+
+
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Media.TextFormatting;
+using Avalonia.Visuals.Media.Imaging;
+using LottieSharp.Model.Layer;
+using Color = System.Drawing.Color;
 
 
 namespace LottieSharp.Animation.Content

@@ -9,13 +9,13 @@ namespace LottieSharp.Parser
 
         public ScaleXy Parse(JsonReader reader, float scale)
         {
-            bool isArray = reader.Peek() == JsonToken.StartArray;
+            var isArray = reader.Peek() == JsonToken.StartArray;
             if (isArray)
             {
                 reader.BeginArray();
             }
-            float sx = reader.NextDouble();
-            float sy = reader.NextDouble();
+            var sx = reader.NextDouble();
+            var sy = reader.NextDouble();
             while (reader.HasNext())
             {
                 reader.SkipValue();

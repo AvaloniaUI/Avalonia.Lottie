@@ -9,12 +9,12 @@ namespace LottieSharp.Parser
     {
         internal static FontCharacter Parse(JsonReader reader, LottieComposition composition)
         {
-            char character = '\0';
+            var character = '\0';
             double size = 0;
             double width = 0;
             String style = null;
             String fontFamily = null;
-            List<ShapeGroup> shapes = new List<ShapeGroup>();
+            var shapes = new List<ShapeGroup>();
 
             reader.BeginObject();
             while (reader.HasNext())

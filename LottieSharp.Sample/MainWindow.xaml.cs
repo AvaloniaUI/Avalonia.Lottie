@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia.;
+using Avalonia..Controls;
 
 namespace LottieSharp.Sample
 {
@@ -54,9 +54,9 @@ namespace LottieSharp.Sample
 
         private void LoadImageAssetsFolder_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            using (var dialog = new Avalonia..Forms.FolderBrowserDialog())
             {
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                if (dialog.ShowDialog() == Avalonia..Forms.DialogResult.OK)
                     ImageAssetsFolderTextBox.Text = dialog.SelectedPath;
             }
         }

@@ -8,7 +8,7 @@ namespace LottieSharp.Parser
         internal static ShapeTrimPath Parse(JsonReader reader, LottieComposition composition)
         {
             string name = null;
-            ShapeTrimPath.Type type = ShapeTrimPath.Type.Simultaneously;
+            var type = ShapeTrimPath.Type.Simultaneously;
             AnimatableFloatValue start = null;
             AnimatableFloatValue end = null;
             AnimatableFloatValue offset = null;

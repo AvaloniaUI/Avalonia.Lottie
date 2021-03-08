@@ -1,8 +1,9 @@
 ﻿using LottieSharp.Utils;
 using LottieSharp.Value;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace LottieSharp.Parser
 {
@@ -69,9 +70,9 @@ namespace LottieSharp.Parser
             Vector2? cp1 = null;
             Vector2? cp2 = null;
             float startFrame = 0;
-            T startValue = default(T);
-            T endValue = default(T);
-            bool hold = false;
+            var startValue = default(T);
+            var endValue = default(T);
+            var hold = false;
             IInterpolator interpolator;
 
             // Only used by PathKeyframe 
@@ -127,7 +128,7 @@ namespace LottieSharp.Parser
                 cp2 = new Vector2(MiscUtils.Clamp(cp2.Value.X, -scale, scale),
                     MiscUtils.Clamp(cp2.Value.Y, -MaxCpValue, MaxCpValue));
 
-                int hash = Utils.Utils.HashFor(cp1.Value.X, cp1.Value.Y, cp2.Value.X, cp2.Value.Y);
+                var hash = Utils.Utils.HashFor(cp1.Value.X, cp1.Value.Y, cp2.Value.X, cp2.Value.Y);
                 if (GetInterpolator(hash, out var interpolatorRef) == false ||
                     interpolatorRef.TryGetTarget(out interpolator) == false)
                 {
@@ -160,7 +161,7 @@ namespace LottieSharp.Parser
 
         private static Keyframe<T> ParseStaticValue<T>(JsonReader reader, float scale, IValueParser<T> valueParser)
         {
-            T value = valueParser.Parse(reader, scale);
+            var value = valueParser.Parse(reader, scale);
             return new Keyframe<T>(value);
         }
     }

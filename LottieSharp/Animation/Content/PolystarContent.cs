@@ -7,16 +7,17 @@ using LottieSharp.Value;
 
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
-using SharpDX;
+
 After:
-using SharpDX;
-using SharpDX;
+
+
 using System;
 using System.Collections.Generic;
 */
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace LottieSharp.Animation.Content
 {

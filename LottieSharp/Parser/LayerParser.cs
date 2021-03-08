@@ -2,8 +2,9 @@
 using LottieSharp.Model.Content;
 using LottieSharp.Model.Layer;
 using LottieSharp.Value;
-using SharpDX;
+
 using System.Collections.Generic;
+using Avalonia.Media;
 
 namespace LottieSharp.Parser
 {
@@ -18,30 +19,30 @@ namespace LottieSharp.Parser
         public static Layer Parse(JsonReader reader, LottieComposition composition)
         {
             string layerName = null;
-            Layer.LayerType layerType = Layer.LayerType.Unknown;
+            var layerType = Layer.LayerType.Unknown;
             string refId = null;
             long layerId = 0;
-            int solidWidth = 0;
-            int solidHeight = 0;
-            Color solidColor = Color.Transparent;
-            int preCompWidth = 0;
-            int preCompHeight = 0;
+            var solidWidth = 0;
+            var solidHeight = 0;
+            var solidColor = Colors.Transparent;
+            var preCompWidth = 0;
+            var preCompHeight = 0;
             long parentId = -1;
-            float timeStretch = 1f;
-            float startFrame = 0f;
-            float inFrame = 0f;
-            float outFrame = 0f;
+            var timeStretch = 1f;
+            var startFrame = 0f;
+            var inFrame = 0f;
+            var outFrame = 0f;
             string cl = null;
-            bool hidden = false;
+            var hidden = false;
 
-            Layer.MatteType matteType = Layer.MatteType.None;
+            var matteType = Layer.MatteType.None;
             AnimatableTransform transform = null;
             AnimatableTextFrame text = null;
             AnimatableTextProperties textProperties = null;
             AnimatableFloatValue timeRemapping = null;
 
-            List<Mask> masks = new List<Mask>();
-            List<IContentModel> shapes = new List<IContentModel>();
+            var masks = new List<Mask>();
+            var shapes = new List<IContentModel>();
 
             reader.BeginObject();
             while (reader.HasNext())
@@ -58,7 +59,7 @@ namespace LottieSharp.Parser
                         refId = reader.NextString();
                         break;
                     case "ty":
-                        int layerTypeInt = reader.NextInt();
+                        var layerTypeInt = reader.NextInt();
                         if (layerTypeInt < (int)Layer.LayerType.Unknown)
                         {
                             layerType = (Layer.LayerType)layerTypeInt;
@@ -136,7 +137,7 @@ namespace LottieSharp.Parser
                         break;
                     case "ef":
                         reader.BeginArray();
-                        List<string> effectNames = new List<string>();
+                        var effectNames = new List<string>();
                         while (reader.HasNext())
                         {
                             reader.BeginObject();
@@ -199,20 +200,21 @@ namespace LottieSharp.Parser
             inFrame /= timeStretch;
             outFrame /= timeStretch;
 
-            List<Keyframe<float?>> inOutKeyframes = new List<Keyframe<float?>>();
+            var inOutKeyframes = new List<Keyframe<float?>>();
+            
             // Before the in frame 
             if (inFrame > 0)
             {
-                Keyframe<float?> preKeyframe = new Keyframe<float?>(composition, 0f, 0f, null, 0f, inFrame);
+                var preKeyframe = new Keyframe<float?>(composition, 0f, 0f, null, 0f, inFrame);
                 inOutKeyframes.Add(preKeyframe);
             }
 
             // The + 1 is because the animation should be visible on the out frame itself. 
             outFrame = (outFrame > 0 ? outFrame : composition.EndFrame);
-            Keyframe<float?> visibleKeyframe = new Keyframe<float?>(composition, 1f, 1f, null, inFrame, outFrame);
+            var visibleKeyframe = new Keyframe<float?>(composition, 1f, 1f, null, inFrame, outFrame);
             inOutKeyframes.Add(visibleKeyframe);
 
-            Keyframe<float?> outKeyframe = new Keyframe<float?>(composition, 0f, 0f, null, outFrame, float.MaxValue);
+            var outKeyframe = new Keyframe<float?>(composition, 0f, 0f, null, outFrame, float.MaxValue);
             inOutKeyframes.Add(outKeyframe);
 
             if (layerName.EndsWith(".ai") || "ai".Equals(cl))

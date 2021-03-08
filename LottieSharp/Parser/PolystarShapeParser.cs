@@ -1,6 +1,7 @@
-﻿using LottieSharp.Model.Animatable;
+﻿using System.Numerics;
+using LottieSharp.Model.Animatable;
 using LottieSharp.Model.Content;
-using SharpDX;
+
 
 namespace LottieSharp.Parser
 {
@@ -9,7 +10,7 @@ namespace LottieSharp.Parser
         internal static PolystarShape Parse(JsonReader reader, LottieComposition composition)
         {
             string name = null;
-            PolystarShape.Type type = PolystarShape.Type.Polygon;
+            var type = PolystarShape.Type.Polygon;
             AnimatableFloatValue points = null;
             IAnimatableValue<Vector2?, Vector2?> position = null;
             AnimatableFloatValue rotation = null;

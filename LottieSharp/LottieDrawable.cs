@@ -6,12 +6,14 @@ using LottieSharp.Parser;
 using LottieSharp.Utils;
 using LottieSharp.Value;
 using LottieSharp.WpfSurface;
-using SharpDX;
+
 using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 
 namespace LottieSharp
 {

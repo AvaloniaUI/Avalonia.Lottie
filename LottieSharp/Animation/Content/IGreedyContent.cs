@@ -14,7 +14,7 @@ namespace LottieSharp.Animation.Content
         /// the content should be removed from the iterator.
         /// 
         /// The contents should be iterated by calling hasPrevious() and previous() so that the list of
-        /// contents is traversed from bottom to top which is the corRectangleF order for handling AE logic.
+        /// contents is traversed from bottom to top which is the corRect order for handling AE logic.
         /// </summary>
         void AbsorbContent(List<IContent> contents);
     }

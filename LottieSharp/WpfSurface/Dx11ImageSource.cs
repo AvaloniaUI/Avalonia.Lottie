@@ -1,7 +1,7 @@
-﻿using SharpDX.Direct3D9;
+﻿
 using System;
 using System.Threading;
-using System.Windows.Interop;
+using Avalonia.Interop;
 
 namespace LottieSharp.WpfSurface
 {
@@ -31,7 +31,7 @@ namespace LottieSharp.WpfSurface
             IsFrontBufferAvailableChanged += Dx11ImageSource_IsFrontBufferAvailableChanged;
         }
 
-        private void Dx11ImageSource_IsFrontBufferAvailableChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        private void Dx11ImageSource_IsFrontBufferAvailableChanged(object sender, Avalonia.DependencyPropertyChangedEventArgs e)
         {
             //UpdateBackBuffer();
         }
@@ -64,7 +64,7 @@ namespace LottieSharp.WpfSurface
                     {
                         Thread.Sleep(RenderWait);
                     }
-                    base.AddDirtyRect(new System.Windows.Int32Rect(0, 0, base.PixelWidth, base.PixelHeight));
+                    base.AddDirtyRect(new Avalonia.Int32Rect(0, 0, base.PixelWidth, base.PixelHeight));
                     base.Unlock();
                 }
             }

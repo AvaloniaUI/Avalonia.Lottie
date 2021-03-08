@@ -1,14 +1,16 @@
 ﻿
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
-using SharpDX;
+
 using LottieSharp.Utils;
 After:
 using LottieSharp.Utils;
-using SharpDX;
+
 */
+
+using System.Numerics;
 using LottieSharp.Utils;
-using SharpDX;
+
 
 namespace LottieSharp.Value
 {

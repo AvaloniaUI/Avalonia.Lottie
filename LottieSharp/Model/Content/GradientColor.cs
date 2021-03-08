@@ -1,5 +1,6 @@
-﻿using LottieSharp.Utils;
-using SharpDX;
+﻿using Avalonia.Media;
+using LottieSharp.Utils;
+
 
 namespace LottieSharp.Model.Content
 {

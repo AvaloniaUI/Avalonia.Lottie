@@ -1,7 +1,8 @@
 ﻿using LottieSharp.Utils;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace LottieSharp.Model.Content
 {

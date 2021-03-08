@@ -1,13 +1,15 @@
-using SharpDX;
+
 
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
 using System;
 After:
-using SharpDX;
+
 */
-using SharpDX.Direct2D1;
+
 using System;
+using System.Numerics;
+using Avalonia.Media;
 
 namespace LottieSharp.Animation.Content
 {

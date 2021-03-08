@@ -1,6 +1,7 @@
-﻿using SharpDX.DirectWrite;
+﻿
 using System;
 using System.Collections.Generic;
+using Avalonia.Media;
 
 namespace LottieSharp.Manager
 {

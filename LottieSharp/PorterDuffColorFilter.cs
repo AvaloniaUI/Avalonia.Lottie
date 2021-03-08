@@ -1,6 +1,7 @@
-﻿using LottieSharp.Animation.Content;
-using SharpDX;
-using SharpDX.Direct2D1;
+﻿using Avalonia.Media;
+using LottieSharp.Animation.Content;
+
+
 
 namespace LottieSharp
 {

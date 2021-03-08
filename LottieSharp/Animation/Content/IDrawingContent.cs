@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿using System.Drawing;
+
 
 namespace LottieSharp.Animation.Content
 {

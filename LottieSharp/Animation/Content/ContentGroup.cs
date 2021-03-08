@@ -4,9 +4,10 @@ using LottieSharp.Model.Animatable;
 using LottieSharp.Model.Content;
 using LottieSharp.Model.Layer;
 using LottieSharp.Value;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace LottieSharp.Animation.Content

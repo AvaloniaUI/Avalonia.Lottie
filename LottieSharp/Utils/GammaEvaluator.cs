@@ -1,5 +1,6 @@
-﻿using SharpDX;
+﻿
 using System;
+using Avalonia.Media;
 
 namespace LottieSharp.Utils
 {

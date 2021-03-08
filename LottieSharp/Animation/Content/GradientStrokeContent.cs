@@ -1,18 +1,20 @@
 ﻿using LottieSharp.Animation.Keyframe;
 using LottieSharp.Model.Content;
 using LottieSharp.Model.Layer;
-using SharpDX;
+
 
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
 using LottieSharp.Animation.Keyframe;
 using LottieSharp.Model.Content;
 After:
-using SharpDX;
+
 using System;
 */
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
 
 namespace LottieSharp.Animation.Content
 {

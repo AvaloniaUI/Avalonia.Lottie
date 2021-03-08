@@ -2,9 +2,10 @@
 using LottieSharp.Animation.Keyframe;
 using LottieSharp.Model.Content;
 using LottieSharp.Value;
-using SharpDX;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace LottieSharp.Model.Layer
 {

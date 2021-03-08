@@ -8,7 +8,7 @@ namespace LottieSharp.Parser
         internal static ShapeGroup Parse(JsonReader reader, LottieComposition composition)
         {
             string name = null;
-            List<IContentModel> items = new List<IContentModel>();
+            var items = new List<IContentModel>();
 
             while (reader.HasNext())
             {
@@ -21,7 +21,7 @@ namespace LottieSharp.Parser
                         reader.BeginArray();
                         while (reader.HasNext())
                         {
-                            IContentModel newItem = ContentModelParser.Parse(reader, composition);
+                            var newItem = ContentModelParser.Parse(reader, composition);
                             if (newItem != null)
                             {
                                 items.Add(newItem);

@@ -2,15 +2,16 @@
 
 /* Unmerged change from project 'LottieSharp (netcoreapp3.0)'
 Before:
-using SharpDX;
+
 using LottieSharp.Value;
 After:
 using LottieSharp.Value;
-using SharpDX;
+
 */
 using LottieSharp.Value;
-using SharpDX;
+
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace LottieSharp.Model.Animatable
 {
