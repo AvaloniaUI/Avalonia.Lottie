@@ -43,10 +43,10 @@ namespace LottieSharp
         /// <param name="context"></param>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static async Task<LottieResult<LottieComposition>> FromUrlAsync(IDrawingContextImpl renderTarget,
+        public static async Task<LottieResult<LottieComposition>> FromUrlAsync(
             string url, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await NetworkFetcher.FetchAsync(renderTarget, url, cancellationToken).ConfigureAwait(false);
+            return await NetworkFetcher.FetchAsync(url, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -59,7 +59,8 @@ namespace LottieSharp
         /// <param name="fileName"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async Task<LottieResult<LottieComposition>> FromAsset(string fileName, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromAsset(string fileName,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return await CacheAsync(fileName, () => { return FromAssetSync(fileName); },
                 cancellationToken).ConfigureAwait(false);
