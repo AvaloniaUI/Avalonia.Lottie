@@ -17,7 +17,7 @@ namespace LottieSharp
             IContour Copy();
             float[] Points { get; }
             PathIterator.ContourType Type { get; }
-            void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed);
+            void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed);
             void Offset(float dx, float dy);
         }
 
@@ -71,7 +71,7 @@ namespace LottieSharp
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Arc;
 
-            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
                 canvasPathBuilder.ArcTo(
                     new Point(_endPoint.X, _endPoint.Y), 
@@ -183,7 +183,7 @@ namespace LottieSharp
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Bezier;
 
-            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
                 canvasPathBuilder.CubicBezierTo( 
                     new Point(_control1.X, _control1.Y) ,
@@ -234,7 +234,7 @@ namespace LottieSharp
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Line;
 
-            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
                 canvasPathBuilder.LineTo(new Point(_points[0], _points[1]));
                 closed = false;
@@ -266,7 +266,7 @@ namespace LottieSharp
                 return new MoveToContour(_points[0], _points[1]);
             }
 
-            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
                 if (!closed)
                 {
@@ -308,7 +308,7 @@ namespace LottieSharp
                 return new CloseContour();
             }
 
-            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
                 if (!closed)
                 {
@@ -351,7 +351,7 @@ namespace LottieSharp
             }
         }
 
-        public IGeometryImpl GetGeometry()
+        public PathGeometry GetGeometry()
         {
             var fill = FillType == PathFillType.Winding
                 ? FillRule.NonZero
@@ -359,7 +359,7 @@ namespace LottieSharp
             
             var geometry = new PathGeometry();
 
-            using var canvasPathBuilder = (IStreamGeometryContextImpl)geometry.Open();
+            using var canvasPathBuilder = geometry.Open();
             canvasPathBuilder.SetFillRule(fill);
 
             var closed = true;
@@ -373,7 +373,7 @@ namespace LottieSharp
                 canvasPathBuilder.EndFigure(true);
 
  
-            return (IGeometryImpl)geometry;
+            return geometry;
         }
 
         public void ComputeBounds(ref Rect rect)

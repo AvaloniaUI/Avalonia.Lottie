@@ -25,7 +25,7 @@ namespace LottieSharp
         /// Warn to Debug. Keeps track of messages so they are only logged once ever.
         /// </summary>
         /// <param name="msg"></param>
-        [Conditional("DEBUG")]
+        // [Conditional("DEBUG")]
         public static void Warn(string msg)
         {
             if (_loggedMessages.Contains(msg))
@@ -60,7 +60,7 @@ namespace LottieSharp
             get => _traceEnabled;
         }
 
-        [Conditional("DEBUG")]
+        // [Conditional("DEBUG")]
         internal static void BeginSection(string section)
         {
             TryResetTrace();
@@ -112,7 +112,7 @@ namespace LottieSharp
             return 0f;
         }
 
-        [Conditional("DEBUG")]
+        // [Conditional("DEBUG")]
         private static void TryResetTrace()
         {
             if (_shouldResetTrace && _traceDepth == 0)
@@ -127,7 +127,7 @@ namespace LottieSharp
             }
         }
 
-        [Conditional("DEBUG")]
+        // [Conditional("DEBUG")]
         private static void BatchedDebugWriteLine(string message)
         {
             Msgs.Enqueue($"{new string(' ', _traceDepth)}{message}");

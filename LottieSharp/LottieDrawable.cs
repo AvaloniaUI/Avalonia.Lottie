@@ -4,11 +4,12 @@ using LottieSharp.Model;
 using LottieSharp.Model.Layer;
 using LottieSharp.Parser;
 using LottieSharp.Utils;
-using LottieSharp.Value; 
+using LottieSharp.Value;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -48,6 +49,7 @@ namespace LottieSharp
         private bool _performanceTrackingEnabled;
         private BitmapCanvas _bitmapCanvas;
         private bool _forceSoftwareRenderer;
+        private RenderTargetBitmap _backingBitmap;
 
         /// <summary>
         /// This value used used with the <see cref="RepeatCount"/> property to repeat
@@ -184,8 +186,14 @@ namespace LottieSharp
                 {
                     t.Invoke(composition);
                 }
+
                 _lazyCompositionTasks.Clear();
                 composition.PerformanceTrackingEnabled = _performanceTrackingEnabled;
+
+                _backingBitmap =
+                    new RenderTargetBitmap(
+                        new PixelSize((int) _composition.Bounds.Width, (int) _composition.Bounds.Height),
+                        new Vector(96, 96));
             }
 
             return true;
@@ -207,7 +215,8 @@ namespace LottieSharp
 
         private void BuildCompositionLayer()
         {
-            _compositionLayer = new CompositionLayer(this, LayerParser.Parse(_composition), _composition.Layers, _composition);
+            _compositionLayer =
+                new CompositionLayer(this, LayerParser.Parse(_composition), _composition.Layers, _composition);
         }
 
         public void ClearComposition()
@@ -255,17 +264,31 @@ namespace LottieSharp
         //    }
         //}
 
-        public override void Render(DrawingContext target)
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            if (_composition != null)
+            {
+                return new Size(_composition.Bounds.Width * _scale, _composition.Bounds.Height * _scale);
+            }
+
+            return base.MeasureOverride(availableSize);
+        }
+
+        public override void Render(DrawingContext renderCtx)
         {
             lock (this)
             {
-                if (_bitmapCanvas == null)
+                if (_bitmapCanvas is null || _backingBitmap is null)
                 {
                     return;
                 }
 
-                using (_bitmapCanvas.CreateSession(_composition.Bounds.Width, _composition.Bounds.Height,  target.PlatformImpl))
+                using (var ctxi = _backingBitmap.CreateDrawingContext(null))
+                using (var ctx = new DrawingContext(ctxi, false))
+                using (_bitmapCanvas.CreateSession(_composition.Bounds.Width, _composition.Bounds.Height,
+                    ctx.PlatformImpl))
                 {
+
                     _bitmapCanvas.Clear(Colors.Transparent);
                     LottieLog.BeginSection("Drawable.Draw");
                     if (_compositionLayer == null)
@@ -295,8 +318,8 @@ namespace LottieSharp
                         // left corner, we need to scale up and translate the canvas to zoom in on the top left 
                         // corner. 
                         _bitmapCanvas.Save();
-                        var halfWidth = (float)_composition.Bounds.Width / 2f;
-                        var halfHeight = (float)_composition.Bounds.Height / 2f;
+                        var halfWidth = (float) _composition.Bounds.Width / 2f;
+                        var halfHeight = (float) _composition.Bounds.Height / 2f;
                         var scaledHalfWidth = halfWidth * scale;
                         var scaledHalfHeight = halfHeight * scale;
                         _bitmapCanvas.Translate(
@@ -316,11 +339,13 @@ namespace LottieSharp
                         _bitmapCanvas.RestoreAll();
                     }
                 }
+
+
+                renderCtx.DrawImage(_backingBitmap ,_composition.Bounds, _composition.Bounds);
+                
             }
-            
-            
+
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
-            base.Render(target);
         }
 
         public void Start()
@@ -343,12 +368,10 @@ namespace LottieSharp
         {
             if (_compositionLayer == null)
             {
-                _lazyCompositionTasks.Add(c =>
-                {
-                    PlayAnimation();
-                });
+                _lazyCompositionTasks.Add(c => { PlayAnimation(); });
                 return;
             }
+
             _animator.PlayAnimation();
         }
 
@@ -366,12 +389,10 @@ namespace LottieSharp
         {
             if (_compositionLayer == null)
             {
-                _lazyCompositionTasks.Add(c =>
-                {
-                    ResumeAnimation();
-                });
+                _lazyCompositionTasks.Add(c => { ResumeAnimation(); });
                 return;
             }
+
             _animator.ResumeAnimation();
         }
 
@@ -387,6 +408,7 @@ namespace LottieSharp
                     _lazyCompositionTasks.Add(c => MinFrame = value);
                     return;
                 }
+
                 _animator.MinFrame = value;
             }
 
@@ -402,12 +424,10 @@ namespace LottieSharp
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c =>
-                    {
-                        MinProgress = value;
-                    });
+                    _lazyCompositionTasks.Add(c => { MinProgress = value; });
                     return;
                 }
+
                 MinFrame = MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, value);
             }
         }
@@ -424,6 +444,7 @@ namespace LottieSharp
                     _lazyCompositionTasks.Add(c => MaxFrame = value);
                     return;
                 }
+
                 _animator.MaxFrame = value;
             }
 
@@ -444,12 +465,10 @@ namespace LottieSharp
 
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c =>
-                    {
-                        MaxProgress = value;
-                    });
+                    _lazyCompositionTasks.Add(c => { MaxProgress = value; });
                     return;
                 }
+
                 MaxFrame = MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, value);
             }
         }
@@ -467,6 +486,7 @@ namespace LottieSharp
                 _lazyCompositionTasks.Add(c => SetMinAndMaxFrame(minFrame, maxFrame));
                 return;
             }
+
             _animator.SetMinAndMaxFrames(minFrame, maxFrame);
         }
 
@@ -489,14 +509,12 @@ namespace LottieSharp
 
             if (_composition == null)
             {
-                _lazyCompositionTasks.Add(c =>
-                {
-                    SetMinAndMaxProgress(minProgress, maxProgress);
-                });
+                _lazyCompositionTasks.Add(c => { SetMinAndMaxProgress(minProgress, maxProgress); });
                 return;
             }
-            SetMinAndMaxFrame((int)MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, minProgress),
-                (int)MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, maxProgress));
+
+            SetMinAndMaxFrame((int) MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, minProgress),
+                (int) MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, maxProgress));
         }
 
         /// <summary>
@@ -553,10 +571,7 @@ namespace LottieSharp
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c =>
-                    {
-                        Frame = value;
-                    });
+                    _lazyCompositionTasks.Add(c => { Frame = value; });
                     return;
                 }
 
@@ -575,12 +590,10 @@ namespace LottieSharp
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c =>
-                    {
-                        Progress = value;
-                    });
+                    _lazyCompositionTasks.Add(c => { Progress = value; });
                     return;
                 }
+
                 Frame = MiscUtils.Lerp(_composition.StartFrame, _composition.EndFrame, value);
             }
         }
@@ -712,10 +725,11 @@ namespace LottieSharp
             {
                 return;
             }
+
             Width = _composition.Bounds.Width * _scale;
             Height = _composition.Bounds.Height * _scale;
             _bitmapCanvas?.Dispose();
-            _bitmapCanvas = new BitmapCanvas((float)Width, (float)Height);
+            _bitmapCanvas = new BitmapCanvas((float) Width, (float) Height);
         }
 
         public virtual void CancelAnimation()
@@ -730,9 +744,9 @@ namespace LottieSharp
             _animator.PauseAnimation();
         }
 
-        public int IntrinsicWidth => _composition == null ? -1 : (int)(_composition.Bounds.Width * _scale);
+        public int IntrinsicWidth => _composition == null ? -1 : (int) (_composition.Bounds.Width * _scale);
 
-        public int IntrinsicHeight => _composition == null ? -1 : (int)(_composition.Bounds.Height * _scale);
+        public int IntrinsicHeight => _composition == null ? -1 : (int) (_composition.Bounds.Height * _scale);
 
         /// <summary>
         /// Takes a <see cref="KeyPath"/>, potentially with wildcards or globstars and resolve it to a list of 
@@ -752,6 +766,7 @@ namespace LottieSharp
                 Debug.WriteLine("Cannot resolve KeyPath. Composition is not set yet.", LottieLog.Tag);
                 return new List<KeyPath>();
             }
+
             var keyPaths = new List<KeyPath>();
             _compositionLayer.ResolveKeyPath(keyPath, 0, keyPaths, new KeyPath());
             return keyPaths;
@@ -772,12 +787,10 @@ namespace LottieSharp
         {
             if (_compositionLayer == null)
             {
-                _lazyCompositionTasks.Add(c =>
-                {
-                    AddValueCallback(keyPath, property, callback);
-                });
+                _lazyCompositionTasks.Add(c => { AddValueCallback(keyPath, property, callback); });
                 return;
             }
+
             bool invalidate;
             if (keyPath.GetResolvedElement() != null)
             {
@@ -792,8 +805,10 @@ namespace LottieSharp
                 {
                     elements[i].GetResolvedElement().AddValueCallback(property, callback);
                 }
+
                 invalidate = elements.Any();
             }
+
             if (invalidate)
             {
                 InvalidateSelf();
@@ -835,9 +850,12 @@ namespace LottieSharp
             var bm = ImageAssetManager;
             if (bm == null)
             {
-                Debug.WriteLine("Cannot update bitmap. Most likely the drawable is not added to a View " + "which prevents Lottie from getting a Context.", LottieLog.Tag);
+                Debug.WriteLine(
+                    "Cannot update bitmap. Most likely the drawable is not added to a View " +
+                    "which prevents Lottie from getting a Context.", LottieLog.Tag);
                 return null;
             }
+
             var ret = bm.UpdateBitmap(id, bitmap);
             InvalidateSelf();
             return ret;
@@ -845,7 +863,7 @@ namespace LottieSharp
 
         internal virtual Bitmap GetImageAsset(string id)
         {
-            return ImageAssetManager?.BitmapForId( id);
+            return ImageAssetManager?.BitmapForId(id);
         }
 
         private ImageAssetManager ImageAssetManager
@@ -865,6 +883,7 @@ namespace LottieSharp
                     {
                         clonedDict.Add(entry.Key, entry.Value);
                     }
+
                     _imageAssetManager = new ImageAssetManager(ImageAssetsFolder, _imageAssetDelegate, clonedDict);
                 }
 
@@ -881,7 +900,7 @@ namespace LottieSharp
         }
 
         private FontAssetManager FontAssetManager => _fontAssetManager ??
-            (_fontAssetManager = new FontAssetManager(_fontAssetDelegate));
+                                                     (_fontAssetManager = new FontAssetManager(_fontAssetDelegate));
 
         /**
         * If there are masks or mattes, we can't scale the animation larger than the canvas or else 
@@ -889,15 +908,15 @@ namespace LottieSharp
         */
         private float GetMaxScale(BitmapCanvas canvas)
         {
-            var maxScaleX = (float)canvas.Width / (float)_composition.Bounds.Width;
-            var maxScaleY = (float)canvas.Height / (float)_composition.Bounds.Height;
+            var maxScaleX = (float) canvas.Width / (float) _composition.Bounds.Width;
+            var maxScaleY = (float) canvas.Height / (float) _composition.Bounds.Height;
             return Math.Min(maxScaleX, maxScaleY);
         }
 
         protected void Dispose(bool disposing)
         {
             // base.Dispose(disposing);
-            
+
             _imageAssetManager?.Dispose();
             _imageAssetManager = null;
 
@@ -936,6 +955,7 @@ namespace LottieSharp
                 {
                     hashCode = hashCode * 31 * ContentName.GetHashCode();
                 }
+
                 return hashCode;
             }
 
@@ -951,7 +971,7 @@ namespace LottieSharp
                     return false;
                 }
 
-                var other = (ColorFilterData)obj;
+                var other = (ColorFilterData) obj;
 
                 return GetHashCode() == other.GetHashCode() && ColorFilter == other.ColorFilter;
             }

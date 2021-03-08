@@ -11,7 +11,7 @@ namespace LottieSharp
     public class TextDelegate
     {
         private readonly Dictionary<string, string> _stringMap = new();
-        private readonly LottieAnimationView _animationView;
+        // private readonly LottieAnimationView _animationView;
         private readonly LottieDrawable _drawable;
         private bool _cacheText = true;
 
@@ -20,20 +20,20 @@ namespace LottieSharp
         /// </summary>
         internal TextDelegate()
         {
-            _animationView = null;
+            // _animationView = null;
             _drawable = null;
         }
 
-        public TextDelegate(LottieAnimationView animationView)
-        {
-            _animationView = animationView;
-            _drawable = null;
-        }
+        // public TextDelegate(LottieAnimationView animationView)
+        // {
+        //     _animationView = animationView;
+        //     _drawable = null;
+        // }
 
         public TextDelegate(LottieDrawable drawable)
         {
             _drawable = drawable;
-            _animationView = null;
+            // _animationView = null;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace LottieSharp
 
         private void Invalidate()
         {
-            _animationView?.InvalidateArrange(); // Equivalent?
+            // _animationView?.InvalidateArrange(); // Equivalent?
             _drawable?.InvalidateSelf();
         }
     }
