@@ -25,7 +25,7 @@ namespace LottieSharp.Parser
                 reader.SkipValue();
             }
             reader.EndArray();
-            return new Color(r, g, b, (byte)255);
+            return new Color((byte)255, r, g, b);
         }
 
         internal static List<Vector2> JsonToPoints(JsonReader reader, float scale)

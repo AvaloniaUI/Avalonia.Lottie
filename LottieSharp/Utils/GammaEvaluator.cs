@@ -77,7 +77,7 @@ namespace LottieSharp.Utils
             g = OECF_sRGB(g) * 255.0f;
             b = OECF_sRGB(b) * 255.0f;
 
-            return new Color((byte)Math.Round(r), (byte)Math.Round(g), (byte)Math.Round(b), (byte)Math.Round(a));
+            return new Color((byte)Math.Round(a), (byte)Math.Round(r), (byte)Math.Round(g), (byte)Math.Round(b));
         }
     }
 }

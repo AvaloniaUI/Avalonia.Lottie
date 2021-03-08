@@ -31,7 +31,7 @@ namespace LottieSharp.Parser
                 b *= 255;
                 a *= 255;
             }
-            return new Color((byte)r, (byte)g, (byte)b, (byte)a);
+            return new Color((byte)a, (byte)r, (byte)g, (byte)b);
         }
     }
 }

@@ -86,7 +86,7 @@ namespace LottieSharp.Parser
                         break;
                     case 3:
                         var b = (byte)(value * 255);
-                        colors[colorIndex] = new Color(r, g, b, (byte)255);
+                        colors[colorIndex] = new Color((byte)255, r, g, b);
                         break;
                 }
             }

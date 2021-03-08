@@ -172,7 +172,7 @@ namespace LottieSharp.Utils
             var g = (byte)Convert.ToUInt32(hex.Substring(index, 2), 16);
             index += 2;
             var b = (byte)Convert.ToUInt32(hex.Substring(index, 2), 16);
-            return new Color(r, g, b, a);
+            return new Color(a, r, g, b);
         }
 
         public static bool IsAtLeastVersion(int major, int minor, int patch, int minMajor, int minMinor, int minPatch)
