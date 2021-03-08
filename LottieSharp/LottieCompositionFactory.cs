@@ -2,8 +2,6 @@
 using LottieSharp.Network;
 using LottieSharp.Parser;
 using LottieSharp.Utils;
-
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 
 namespace LottieSharp
 {
@@ -23,14 +23,12 @@ namespace LottieSharp
     /// </summary>
     public static class LottieCompositionFactory
     {
-        static ImagingFactory imagingFactory = new ImagingFactory();
-
         /// <summary>
         /// Keep a map of cache keys to in-progress tasks and return them for new requests. 
         /// Without this, simultaneous requests to parse a composition will trigger multiple parallel 
         /// parse tasks prior to the cache getting populated. 
         /// </summary>
-        private static readonly Dictionary<string, Task<LottieResult<LottieComposition>>> _taskCache = new Dictionary<string, Task<LottieResult<LottieComposition>>>();
+        private static readonly Dictionary<string, Task<LottieResult<LottieComposition>>> _taskCache = new();
 
         static LottieCompositionFactory()
         {
@@ -45,7 +43,8 @@ namespace LottieSharp
         /// <param name="context"></param>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static async Task<LottieResult<LottieComposition>> FromUrlAsync(RenderTarget renderTarget, string url, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromUrlAsync(IDrawingContextImpl renderTarget,
+            string url, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await NetworkFetcher.FetchAsync(renderTarget, url, cancellationToken).ConfigureAwait(false);
         }
@@ -60,12 +59,10 @@ namespace LottieSharp
         /// <param name="fileName"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async Task<LottieResult<LottieComposition>> FromAsset(RenderTarget renderTarget, string fileName, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromAsset(string fileName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CacheAsync(fileName, () =>
-            {
-                return FromAssetSync(renderTarget, fileName);
-            }, cancellationToken).ConfigureAwait(false);
+            return await CacheAsync(fileName, () => { return FromAssetSync(fileName); },
+                cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -76,15 +73,16 @@ namespace LottieSharp
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static LottieResult<LottieComposition> FromAssetSync(RenderTarget renderTarget, string fileName)
+        public static LottieResult<LottieComposition> FromAssetSync(string fileName)
         {
             try
             {
-                string cacheKey = "asset_" + fileName;
+                var cacheKey = "asset_" + fileName;
                 if (fileName.EndsWith(".zip"))
                 {
-                    return FromZipStreamSync(renderTarget, new Ionic.Zip.ZipFile(fileName), cacheKey);
+                    return FromZipStreamSync(new Ionic.Zip.ZipFile(fileName), cacheKey);
                 }
+
                 return FromJsonInputStreamSync(File.OpenRead(fileName), cacheKey);
             }
             catch (IOException e)
@@ -100,12 +98,11 @@ namespace LottieSharp
         /// <param name="stream"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async Task<LottieResult<LottieComposition>> FromJsonInputStreamAsync(Stream stream, string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromJsonInputStreamAsync(Stream stream,
+            string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CacheAsync(cacheKey, () =>
-            {
-                return FromJsonInputStreamSync(stream, cacheKey);
-            }, cancellationToken).ConfigureAwait(false);
+            return await CacheAsync(cacheKey, () => { return FromJsonInputStreamSync(stream, cacheKey); },
+                cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -116,7 +113,8 @@ namespace LottieSharp
             return FromJsonInputStreamSync(stream, cacheKey, true);
         }
 
-        private static LottieResult<LottieComposition> FromJsonInputStreamSync(Stream stream, string cacheKey, bool close)
+        private static LottieResult<LottieComposition> FromJsonInputStreamSync(Stream stream, string cacheKey,
+            bool close)
         {
             try
             {
@@ -137,12 +135,11 @@ namespace LottieSharp
         /// <param name="json"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async Task<LottieResult<LottieComposition>> FromJsonString(string json, string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromJsonString(string json, string cacheKey,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CacheAsync(cacheKey, () =>
-            {
-                return FromJsonStringSync(json, cacheKey);
-            }, cancellationToken).ConfigureAwait(false);
+            return await CacheAsync(cacheKey, () => { return FromJsonStringSync(json, cacheKey); }, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -156,12 +153,11 @@ namespace LottieSharp
             return FromJsonReaderSync(new JsonReader(new StringReader(json)), cacheKey);
         }
 
-        public static async Task<LottieResult<LottieComposition>> FromJsonReader(JsonReader reader, string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromJsonReader(JsonReader reader, string cacheKey,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CacheAsync(cacheKey, () =>
-            {
-                return FromJsonReaderSync(reader, cacheKey);
-            }, cancellationToken).ConfigureAwait(false);
+            return await CacheAsync(cacheKey, () => { return FromJsonReaderSync(reader, cacheKey); }, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -173,7 +169,7 @@ namespace LottieSharp
         {
             try
             {
-                LottieComposition composition = LottieCompositionParser.Parse(reader);
+                var composition = LottieCompositionParser.Parse(reader);
                 LottieCompositionCache.Instance.Put(cacheKey, composition);
                 return new LottieResult<LottieComposition>(composition);
             }
@@ -183,12 +179,12 @@ namespace LottieSharp
             }
         }
 
-        public static async Task<LottieResult<LottieComposition>> FromZipStreamAsync(RenderTarget renderTarget, Ionic.Zip.ZipFile inputStream, string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<LottieResult<LottieComposition>> FromZipStreamAsync(
+            Ionic.Zip.ZipFile inputStream, string cacheKey,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CacheAsync(cacheKey, () =>
-            {
-                return FromZipStreamSync(renderTarget, inputStream, cacheKey);
-            }, cancellationToken).ConfigureAwait(false);
+            return await CacheAsync(cacheKey, () => { return FromZipStreamSync(inputStream, cacheKey); },
+                cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -200,11 +196,12 @@ namespace LottieSharp
         /// <param name="inputStream"></param>
         /// <param name="cacheKey"></param>
         /// <returns></returns>
-        public static LottieResult<LottieComposition> FromZipStreamSync(RenderTarget renderTarget, Ionic.Zip.ZipFile inputStream, string cacheKey)
+        public static LottieResult<LottieComposition> FromZipStreamSync(
+            Ionic.Zip.ZipFile inputStream, string cacheKey)
         {
             try
             {
-                return FromZipStreamSyncInternal(renderTarget, inputStream, cacheKey);
+                return FromZipStreamSyncInternal(inputStream, cacheKey);
             }
             finally
             {
@@ -212,39 +209,26 @@ namespace LottieSharp
             }
         }
 
-        private static LottieResult<LottieComposition> FromZipStreamSyncInternal(RenderTarget renderTarget, Ionic.Zip.ZipFile inputStream, string cacheKey)
+        private static LottieResult<LottieComposition> FromZipStreamSyncInternal(Ionic.Zip.ZipFile inputStream,
+            string cacheKey)
         {
             LottieComposition composition = null;
-            Dictionary<string, SharpDX.Direct2D1.Bitmap> images = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
+            Dictionary<string, Bitmap> images = new();
 
             try
             {
-                foreach (Ionic.Zip.ZipEntry entry in inputStream.Entries)
+                foreach (var entry in inputStream.Entries)
                 {
-                    if (entry.FileName.Contains("__MACOSX"))
-                    {
-                        continue;
-                    }
-                    else if (entry.FileName.Contains(".json"))
+                    if (entry.FileName.Contains(".json"))
                     {
                         using var reader = entry.OpenReader();
                         composition = FromJsonInputStreamSync(reader, cacheKey, false).Value;
                     }
                     else if (entry.FileName.Contains(".png"))
                     {
-                        string[] splitName = entry.FileName.Split('/');
-                        string name = splitName[splitName.Length - 1];
-
-                        using (var decoder = new SharpDX.WIC.BitmapDecoder(imagingFactory, entry.InputStream, DecodeOptions.CacheOnDemand))
-                        {
-                            var bitmap = SharpDX.Direct2D1.Bitmap.FromWicBitmap(renderTarget, decoder.Preview);
-
-                            images[name] = bitmap;
-                        }
-                    }
-                    else
-                    {
-                        continue;
+                        var splitName = entry.FileName.Split('/');
+                        var name = splitName[^1];
+                        images[name] = new Bitmap(entry.InputStream);
                     }
                 }
             }
@@ -260,7 +244,7 @@ namespace LottieSharp
 
             foreach (var e in images)
             {
-                LottieImageAsset imageAsset = FindImageAssetForFileName(composition, e.Key);
+                var imageAsset = FindImageAssetForFileName(composition, e.Key);
                 if (imageAsset != null)
                 {
                     imageAsset.Bitmap = e.Value;
@@ -272,7 +256,8 @@ namespace LottieSharp
             {
                 if (entry.Value.Bitmap == null)
                 {
-                    return new LottieResult<LottieComposition>(new ArgumentException("There is no image for " + entry.Value.FileName));
+                    return new LottieResult<LottieComposition>(
+                        new ArgumentException("There is no image for " + entry.Value.FileName));
                 }
             }
 
@@ -289,6 +274,7 @@ namespace LottieSharp
                     return asset;
                 }
             }
+
             return null;
         }
 
@@ -297,7 +283,9 @@ namespace LottieSharp
         /// If not, create a new task for the callable. 
         /// Then, add the new task to the task cache and set up listeners to it gets cleared when done. 
         /// </summary>
-        private static async Task<LottieResult<LottieComposition>> CacheAsync(string cacheKey, Func<LottieResult<LottieComposition>> callable, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<LottieResult<LottieComposition>> CacheAsync(string cacheKey,
+            Func<LottieResult<LottieComposition>> callable,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_taskCache.ContainsKey(cacheKey))
             {
