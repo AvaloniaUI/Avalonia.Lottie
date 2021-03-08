@@ -22,6 +22,7 @@ namespace LottieSharp.Animation.Content
         class RenderTargetHolder
         {
             public IDrawingContextImpl DrawingContext { get; set; }
+            public RenderTargetBitmap Bitmap { get; set; }
         }
 
         class ClipSave
@@ -63,13 +64,13 @@ namespace LottieSharp.Animation.Content
         internal IDrawingContextImpl CurrentDrawingContext =>
             _canvasDrawingSessions.Count > 0 ? _canvasDrawingSessions.Peek()?.DrawingContext : null;
 
-        public BitmapCanvas(float width, float height)
+        public BitmapCanvas(double width, double height)
         {
             //OutputRenderTarget = renderTarget;
             UpdateClip(width, height);
         }
 
-        private void UpdateClip(float width, float height)
+        private void UpdateClip(double width, double height)
         {
             if (Math.Abs(width - Width) > 0 || Math.Abs(height - Height) > 0)
             {
@@ -81,8 +82,8 @@ namespace LottieSharp.Animation.Content
             _currentClip = new Rect(0, 0, Width, Height);
         }
 
-        public float Width { get; private set; }
-        public float Height { get; private set; }
+        public double Width { get; private set; }
+        public double Height { get; private set; }
 
         public static int MatrixSaveFlag = 0b00001;
 
@@ -94,7 +95,7 @@ namespace LottieSharp.Animation.Content
         public static int AllSaveFlag = 0b11111;
 
 
-        internal IDisposable CreateSession(float width, float height, IDrawingContextImpl drawingSession)
+        internal IDisposable CreateSession(double width, double height, IDrawingContextImpl drawingSession)
         {
             _canvasDrawingSessions.Clear();
             //_renderTarget = drawingSession;
@@ -175,7 +176,7 @@ namespace LottieSharp.Animation.Content
             // }
         }
 
-        public Disposable PushMask(Rect rect, float alpha, Path path = null)
+        public Disposable PushMask(Rect rect, double alpha, Path path = null)
         {
             if (alpha >= 1 && path == null)
             {
@@ -284,26 +285,29 @@ namespace LottieSharp.Animation.Content
                 //    new Size2F(bounds.Width, bounds.Height),
                 //    new Size2((int)Utils.Utils.Dpi(), (int)Utils.Utils.Dpi()),
                 //    new PixelFormat(SharpDX.DXGI.Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied));
-
-
-                var rt = new DeviceContext(CurrentDrawingContext.Device,
-                    DeviceContextOptions.EnableMultithreadedOptimizations);
                 
                 
+                 var bitmap = new RenderTargetBitmap(new PixelSize((int)bounds.Width, (int)bounds.Height), new Vector(96, 96));
 
-                var bitmap = new Bitmap1(
-                    rt,
-                    new Size2((int) bounds.Width, (int) bounds.Height),
-                    null, 0,
-                    new BitmapProperties1
-                    {
-                        DpiX = CurrentDrawingContext.DotsPerInch.Width,
-                        DpiY = CurrentDrawingContext.DotsPerInch.Height,
-                        PixelFormat = CurrentDrawingContext.PixelFormat,
-                        BitmapOptions = BitmapOptions.Target
-                    });
+                 var rt = bitmap.CreateDrawingContext(null);
+                
+                // var rt = new DeviceContext(CurrentDrawingContext.Device,
+                //     DeviceContextOptions.EnableMultithreadedOptimizations);
+                //
+                // var bitmap = new Bitmap1(
+                //     rt,
+                //     new Size2((int) bounds.Width, (int) bounds.Height),
+                //     null, 0,
+                //     new BitmapProperties1
+                //     {
+                //         DpiX = CurrentDrawingContext.DotsPerInch.Width,
+                //         DpiY = CurrentDrawingContext.DotsPerInch.Height,
+                //         PixelFormat = CurrentDrawingContext.PixelFormat,
+                //         BitmapOptions = BitmapOptions.Target
+                //     });
  
-                rt.Target = bitmap;
+                // rt.Target = bitmap;
+                
                 rendertarget = new RenderTargetHolder
                 {
                     DrawingContext = rt,
@@ -311,8 +315,8 @@ namespace LottieSharp.Animation.Content
                 };
                 _renderTargets.Add(index, rendertarget);
             }
-
-            rendertarget.DrawingContext.BeginDraw();
+            
+            // rendertarget.DrawingContext.BeginDraw();
             return rendertarget;
         }
 
@@ -364,8 +368,8 @@ namespace LottieSharp.Animation.Content
             if ((flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag)
             {
                 var drawingSession = _canvasDrawingSessions.Pop();
-                drawingSession.DrawingContext.Flush();
-                drawingSession.DrawingContext.EndDraw();
+                // drawingSession.DrawingContext.Flush();
+                // drawingSession.DrawingContext.EndDraw();
 
                 var renderTargetSave = _renderTargetSaves.Pop();
 
@@ -373,18 +377,22 @@ namespace LottieSharp.Animation.Content
                 CurrentDrawingContext.Transform = GetCurrentTransform();
 
 
-                var canvasComposite = CompositeMode.SourceOver;
-                if (renderTargetSave.PaintXfermode != null)
-                {
-                    canvasComposite = PorterDuff.ToCanvasComposite(renderTargetSave.PaintXfermode.Mode);
-                }
+                // var canvasComposite = CompositeMode.SourceOver;
+                // if (renderTargetSave.PaintXfermode != null)
+                // {
+                //     canvasComposite = PorterDuff.ToCanvasComposite(renderTargetSave.PaintXfermode.Mode);
+                // }
 
-                CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
-                    new RawVector2(0, 0),
-                    new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
-                    //renderTargetSave.PaintAlpha / 255f,
-                    InterpolationMode.Linear,
-                    canvasComposite);
+                CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl,1,
+                      new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) ,
+                      new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height));
+                
+                // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
+                //     new RawVector2(0, 0),
+                //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
+                //     //renderTargetSave.PaintAlpha / 255f,
+                //     InterpolationMode.Linear,
+                //     canvasComposite);
 
                 //CurrentRenderTarget.DrawBitmap(drawingSession.Bitmap, 255f, InterpolationMode.Linear);
 
@@ -398,7 +406,7 @@ namespace LottieSharp.Animation.Content
                 //renderTargetSave.RenderTarget.Dispose();
             }
 
-            CurrentDrawingContext.Flush();
+            // CurrentDrawingContext.Flush();
         }
 
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
@@ -446,14 +454,14 @@ namespace LottieSharp.Animation.Content
         //         : AntialiasMode.Aliased;
         // }
 
-        public void Translate(float dx, float dy)
+        public void Translate(double dx, double dy)
         {
-            _matrix = MatrixExt.PreTranslate(_matrix, dx, dy);
+            _matrix = MatrixExt.PreTranslate(_matrix, (float)dx, (float)dy);
         }
 
-        public void Scale(float sx, float sy, float px, float py)
+        public void Scale(double sx, double sy, double px, double py)
         {
-            _matrix = MatrixExt.PreScale(_matrix, sx, sy, px, py);
+            _matrix = MatrixExt.PreScale(_matrix, (float)sx, (float)sy, (float)px, (float)py);
         }
 
         public void SetMatrix(Matrix3X3 matrix)
@@ -513,16 +521,16 @@ namespace LottieSharp.Animation.Content
 
         private void Dispose(bool disposing)
         {
-            // foreach (var renderTarget in _renderTargets)
-            // {
-            //     renderTarget.Value.DrawingContext.Dispose();
-            //     renderTarget.Value.DrawingContext = null;
-            //
-            //     renderTarget.Value.Bitmap.Dispose();
-            //     renderTarget.Value.Bitmap = null;
-            // }
-            //
-            // _renderTargets.Clear();
+            foreach (var renderTarget in _renderTargets)
+            {
+                renderTarget.Value.DrawingContext.Dispose();
+                renderTarget.Value.DrawingContext = null;
+            
+                renderTarget.Value.Bitmap.Dispose();
+                renderTarget.Value.Bitmap = null;
+            }
+            
+            _renderTargets.Clear();
         }
 
         public void Dispose()

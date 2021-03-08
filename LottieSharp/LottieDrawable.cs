@@ -4,10 +4,7 @@ using LottieSharp.Model;
 using LottieSharp.Model.Layer;
 using LottieSharp.Parser;
 using LottieSharp.Utils;
-using LottieSharp.Value;
-using LottieSharp.WpfSurface;
-
-using SharpDX.Direct2D1;
+using LottieSharp.Value; 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +12,8 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
 using LottieSharp;
 using Typeface = Avalonia.Media.Typeface;
 
@@ -256,7 +255,7 @@ namespace LottieSharp
         //    }
         //}
 
-        public override void Render(DrawingContext context)
+        public override void Render(DrawingContext target)
         {
             lock (this)
             {
@@ -265,9 +264,9 @@ namespace LottieSharp
                     return;
                 }
 
-                using (_bitmapCanvas.CreateSession(target.Size.Width, target.Size.Height, (DeviceContext)target))
+                using (_bitmapCanvas.CreateSession(_composition.Bounds.Width, _composition.Bounds.Height,  target.PlatformImpl))
                 {
-                    _bitmapCanvas.Clear(Color.Transparent);
+                    _bitmapCanvas.Clear(Colors.Transparent);
                     LottieLog.BeginSection("Drawable.Draw");
                     if (_compositionLayer == null)
                     {
@@ -318,6 +317,10 @@ namespace LottieSharp
                     }
                 }
             }
+            
+            
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+            base.Render(target);
         }
 
         public void Start()
@@ -842,14 +845,14 @@ namespace LottieSharp
 
         internal virtual Bitmap GetImageAsset(string id)
         {
-            return ImageAssetManager?.BitmapForId(this.RenderTarget, id);
+            return ImageAssetManager?.BitmapForId( id);
         }
 
         private ImageAssetManager ImageAssetManager
         {
             get
             {
-                if (_imageAssetManager != null && !_imageAssetManager.HasSameContext(RenderTarget))
+                if (_imageAssetManager != null)
                 {
                     _imageAssetManager.RecycleBitmaps();
                     _imageAssetManager = null;
@@ -862,7 +865,7 @@ namespace LottieSharp
                     {
                         clonedDict.Add(entry.Key, entry.Value);
                     }
-                    _imageAssetManager = new ImageAssetManager(ImageAssetsFolder, _imageAssetDelegate, clonedDict, RenderTarget);
+                    _imageAssetManager = new ImageAssetManager(ImageAssetsFolder, _imageAssetDelegate, clonedDict);
                 }
 
                 return _imageAssetManager;
@@ -891,9 +894,9 @@ namespace LottieSharp
             return Math.Min(maxScaleX, maxScaleY);
         }
 
-        protected override void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
+            // base.Dispose(disposing);
             
             _imageAssetManager?.Dispose();
             _imageAssetManager = null;
