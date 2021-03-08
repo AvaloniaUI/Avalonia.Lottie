@@ -25,12 +25,11 @@ namespace LottieSharp.Manager
         private readonly string _imagesFolder;
         private IImageAssetDelegate _delegate;
         private readonly Dictionary<string, LottieImageAsset> _imageAssets;
-        private readonly RenderTargetBitmap _context;
-
-        internal ImageAssetManager(string imagesFolder, IImageAssetDelegate @delegate, Dictionary<string, LottieImageAsset> imageAssets, RenderTargetBitmap context)
+　
+        internal ImageAssetManager(string imagesFolder, IImageAssetDelegate @delegate, Dictionary<string, LottieImageAsset> imageAssets)
         {
             _imagesFolder = imagesFolder;
-            _context = context;
+            
             if (!string.IsNullOrEmpty(imagesFolder) && _imagesFolder[_imagesFolder.Length - 1] != '/')
             {
                 _imagesFolder += '/';
@@ -83,7 +82,7 @@ namespace LottieSharp.Manager
             }
         }
 
-        internal virtual Bitmap BitmapForId(RenderTarget renderTarget, string id)
+        internal virtual Bitmap BitmapForId(　 string id)
         {
             lock (this)
             {
@@ -124,7 +123,7 @@ namespace LottieSharp.Manager
                         return null;
                     }
 
-                    bitmap = LoadFromBuffer(renderTarget, data);
+                    bitmap = LoadFromBuffer(　data);
 
                     PutBitmap(id, bitmap);
                     return bitmap;
@@ -145,7 +144,7 @@ namespace LottieSharp.Manager
                     return null;
                 }
 
-                bitmap = LoadFromStream(renderTarget, @is);
+                bitmap = LoadFromStream(　@is);
 
                 @is.Dispose();
 
@@ -155,51 +154,18 @@ namespace LottieSharp.Manager
             }
         }
 
-        public static Bitmap LoadFromBuffer(RenderTarget renderTarget, byte[] buffer)
+        public static Bitmap LoadFromBuffer(byte[] buffer)
         {
             // Loads from file using System.Drawing.Image
             using (var stream = new MemoryStream(buffer))
-                return LoadFromStream(renderTarget, stream);
+                return LoadFromStream(stream);
         }
 
-        public static Bitmap LoadFromStream(RenderTarget renderTarget, Stream stream)
-        {
-            // Loads from file using System.Drawing.Image
-            using (var bitmap = (System.Drawing.Bitmap)System.Drawing.Image.FromStream(stream))
-            {
-                var sourceArea = new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height);
-                var bitmapProperties = new BitmapProperties(new SharpDX.Direct2D1.PixelFormat(SharpDX.DXGI.Format.R8G8B8A8_UNorm, AlphaMode.Premultiplied));
-                var size = new SharpDX.Size2(bitmap.Width, bitmap.Height);
+        public static Bitmap LoadFromStream( Stream stream)
+        { 
 
-                // Transform pixels from BGRA to RGBA
-                var stride = bitmap.Width * sizeof(int);
-                using (var tempStream = new DataStream(bitmap.Height * stride, true, true))
-                {
-                    // Lock System.Drawing.Bitmap
-                    var bitmapData = bitmap.LockBits(sourceArea, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
-
-                    // Convert all pixels 
-                    for (var y = 0; y < bitmap.Height; y++)
-                    {
-                        var offset = bitmapData.Stride * y;
-                        for (var x = 0; x < bitmap.Width; x++)
-                        {
-                            // Not optimized 
-                            var B = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            var G = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            var R = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            var A = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            var rgba = R | (G << 8) | (B << 16) | (A << 24);
-                            tempStream.Write(rgba);
-                        }
-
-                    }
-                    bitmap.UnlockBits(bitmapData);
-                    tempStream.Position = 0;
-
-                    return new Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
-                }
-            }
+                    return new Bitmap(stream);
+              
         }
 
         internal virtual void RecycleBitmaps()
@@ -215,12 +181,7 @@ namespace LottieSharp.Manager
                 }
             }
         }
-
-        public bool HasSameContext(RenderTarget context)
-        {
-            return context == null && _context == null || _context.Equals(context);
-        }
-
+　
         private Bitmap PutBitmap(string key, Bitmap bitmap)
         {
             lock (this)
