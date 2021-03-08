@@ -17,20 +17,24 @@ namespace LottieSharp
         {
             _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
             _path = path;
-
-            using (var factory = new Factory(FactoryType.SingleThreaded))
-                _geometry = _path.GetGeometry(factory);
-            Length = _geometry.ComputeLength();
+            //
+            // using (var factory = new Factory(FactoryType.SingleThreaded))
+            //     _geometry = _path.GetGeometry(factory);
+            // TODO: HACK HACK HACK
+            Length = (float)_geometry.Bounds.Size.Width;  //_geometry.ComputeLength();
         }
 
         public void SetPath(Path path)
         {
             _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
             _path = path;
-            _geometry?.Dispose();
-            using (var factory = new Factory(FactoryType.SingleThreaded))
-                _geometry = _path.GetGeometry(factory);
-            Length = _geometry.ComputeLength();
+            // _geometry?.Dispose();
+            // using (var factory = new Factory(FactoryType.SingleThreaded))
+            //     _geometry = _path.GetGeometry(factory);
+            // Length = _geometry.ComputeLength();
+            
+            // TODO: HACK HACK HACK
+            Length = (float)_geometry.Bounds.Size.Width;  //_geometry.ComputeLength();
         }
 
         public float Length { get; private set; }
@@ -44,10 +48,13 @@ namespace LottieSharp
             if (distance > length)
                 distance = length;
 
-            RawVector2 vectOutput;
-            var vect2 = _geometry.ComputePointAtLength(distance, out vectOutput);
-
-            return new Vector2(vect2.X, vect2.Y);
+            // RawVector2 vectOutput;
+            // var vect2 = _geometry.ComputePointAtLength(distance, out vectOutput);
+            
+            // TODO: HACK HACK HACK
+    
+            return new Vector2(0, 0);
+            // return new Vector2(vect2.X, vect2.Y);
         }
 
         public bool GetSegment(float startD, float stopD, ref Path dst, bool startWithMoveTo)
