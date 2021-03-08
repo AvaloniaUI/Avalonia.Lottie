@@ -16,7 +16,7 @@ namespace LottieSharp.Parser
 {
     internal class PointFParser : IValueParser<Vector2?>
     {
-        internal static readonly PointFParser Instance = new PointFParser();
+        internal static readonly PointFParser Instance = new();
 
         private PointFParser()
         {

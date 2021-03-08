@@ -6,6 +6,6 @@ namespace LottieSharp
 {
     public abstract class ColorFilter
     {
-        public abstract Brush Apply(BitmapCanvas dst, Brush brush);
+        public abstract Brush Apply(BitmapCanvas dst, IBrush brush);
     }
 }

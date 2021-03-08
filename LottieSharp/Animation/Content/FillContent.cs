@@ -14,10 +14,10 @@ namespace LottieSharp.Animation.Content
 {
     internal class FillContent : IDrawingContent, IKeyPathElementContent
     {
-        private readonly Path _path = new Path();
-        private readonly Paint _paint = new Paint(Paint.AntiAliasFlag);
+        private readonly Path _path = new();
+        private readonly Paint _paint = new(Paint.AntiAliasFlag);
         private readonly BaseLayer _layer;
-        private readonly List<IPathContent> _paths = new List<IPathContent>();
+        private readonly List<IPathContent> _paths = new();
         private readonly IBaseKeyframeAnimation<Color?, Color?> _colorAnimation;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;

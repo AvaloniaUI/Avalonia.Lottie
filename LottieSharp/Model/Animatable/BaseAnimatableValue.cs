@@ -12,7 +12,7 @@ namespace LottieSharp.Model.Animatable
         /// <summary>
         /// Create a default static animatable path.
         /// </summary>
-        internal BaseAnimatableValue(TV value) : this(new List<Keyframe<TV>> { new Keyframe<TV>(value) })
+        internal BaseAnimatableValue(TV value) : this(new List<Keyframe<TV>> { new(value) })
         {
         }
 

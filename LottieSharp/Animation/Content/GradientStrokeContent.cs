@@ -26,8 +26,8 @@ namespace LottieSharp.Animation.Content
         /// </summary>
         private const int CacheStepsMs = 32;
 
-        private readonly Dictionary<long, LinearGradient> _linearGradientCache = new Dictionary<long, LinearGradient>();
-        private readonly Dictionary<long, RadialGradient> _radialGradientCache = new Dictionary<long, RadialGradient>();
+        private readonly Dictionary<long, LinearGradient> _linearGradientCache = new();
+        private readonly Dictionary<long, RadialGradient> _radialGradientCache = new();
         private Rect _boundsRect;
 
         private readonly GradientType _type;
@@ -78,7 +78,7 @@ namespace LottieSharp.Animation.Content
             get
             {
                 var gradientHash = GradientHash;
-                if (_linearGradientCache.TryGetValue(gradientHash, out LinearGradient gradient))
+                if (_linearGradientCache.TryGetValue(gradientHash, out var gradient))
                 {
                     return gradient;
                 }
@@ -102,7 +102,7 @@ namespace LottieSharp.Animation.Content
             get
             {
                 var gradientHash = GradientHash;
-                if (_radialGradientCache.TryGetValue(gradientHash, out RadialGradient gradient))
+                if (_radialGradientCache.TryGetValue(gradientHash, out var gradient))
                 {
                     return gradient;
                 }

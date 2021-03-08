@@ -17,7 +17,7 @@ namespace LottieSharp.Parser
         private const float MaxCpValue = 100;
         private static readonly IInterpolator LinearInterpolator = new LinearInterpolator();
 
-        private static readonly object Lock = new object();
+        private static readonly object Lock = new();
         private static Dictionary<int, WeakReference<IInterpolator>> _pathInterpolatorCache;
 
         // https://github.com/airbnb/lottie-android/issues/464 

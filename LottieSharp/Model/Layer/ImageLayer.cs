@@ -12,7 +12,7 @@ namespace LottieSharp.Model.Layer
 {
     internal class ImageLayer : BaseLayer
     {
-        private readonly Paint _paint = new Paint(Paint.AntiAliasFlag | Paint.FilterBitmapFlag);
+        private readonly Paint _paint = new(Paint.AntiAliasFlag | Paint.FilterBitmapFlag);
         private Rect _src;
         private Rect _dst;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;

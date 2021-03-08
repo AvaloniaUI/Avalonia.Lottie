@@ -15,7 +15,7 @@ namespace LottieSharp
         public float M32;
         public float M33;
 
-        public static Matrix3X3 CreateIdentity() => new Matrix3X3
+        public static Matrix3X3 CreateIdentity() => new()
         {
             M11 = 1,
             M12 = 0,
@@ -56,7 +56,7 @@ namespace LottieSharp
 
         public static Matrix3X3 operator *(Matrix3X3 m1, Matrix3X3 m2)
         {
-            return new Matrix3X3
+            return new()
             {
                 M11 = m1.M11 * m2.M11 + m1.M12 * m2.M21 + m1.M13 * m2.M31,
                 M12 = m1.M11 * m2.M12 + m1.M12 * m2.M22 + m1.M13 * m2.M32,
@@ -72,7 +72,7 @@ namespace LottieSharp
 
         public Vector2 Transform(Vector2 v)
         {
-            return new Vector2(
+            return new(
                 v.X * M11 + v.Y * M12 + M13,
                 v.X * M21 + v.Y * M22 + M23);
         }

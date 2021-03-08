@@ -31,7 +31,7 @@ namespace LottieSharp.Animation.Content
         /// </summary>
         private const float PolystarMagicNumber = .47829f;
         private const float PolygonMagicNumber = .25f;
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
 
         private readonly LottieDrawable _lottieDrawable;
         private readonly PolystarShape.Type _type;

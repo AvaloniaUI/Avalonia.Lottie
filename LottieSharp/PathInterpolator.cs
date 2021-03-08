@@ -17,7 +17,7 @@ namespace LottieSharp
 
         private void InitCubic(float x1, float y1, float x2, float y2)
         {
-            Path path = new Path();
+            var path = new Path();
             path.MoveTo(0, 0);
             path.CubicTo(x1, y1, x2, y2, 1f, 1f);
             InitPath(path);
@@ -25,9 +25,9 @@ namespace LottieSharp
 
         private void InitPath(Path path)
         {
-            float[] pointComponents = path.Approximate(Precision);
+            var pointComponents = path.Approximate(Precision);
 
-            int numPoints = pointComponents.Length / 3;
+            var numPoints = pointComponents.Length / 3;
             if (pointComponents[1] != 0 || pointComponents[2] != 0
                                         || pointComponents[pointComponents.Length - 2] != 1
                                         || pointComponents[pointComponents.Length - 1] != 1)
@@ -39,12 +39,12 @@ namespace LottieSharp
             _mY = new float[numPoints];
             float prevX = 0;
             float prevFraction = 0;
-            int componentIndex = 0;
-            for (int i = 0; i < numPoints; i++)
+            var componentIndex = 0;
+            for (var i = 0; i < numPoints; i++)
             {
-                float fraction = pointComponents[componentIndex++];
-                float x = pointComponents[componentIndex++];
-                float y = pointComponents[componentIndex++];
+                var fraction = pointComponents[componentIndex++];
+                var x = pointComponents[componentIndex++];
+                var y = pointComponents[componentIndex++];
                 if (fraction == prevFraction && x != prevX)
                 {
                     throw new ArgumentException("The Path cannot have discontinuity in the X axis.");
@@ -71,12 +71,12 @@ namespace LottieSharp
                 return 1;
             }
             // Do a binary search for the corRect x to interpolate between.
-            int startIndex = 0;
-            int endIndex = _mX.Length - 1;
+            var startIndex = 0;
+            var endIndex = _mX.Length - 1;
 
             while (endIndex - startIndex > 1)
             {
-                int midIndex = (startIndex + endIndex) / 2;
+                var midIndex = (startIndex + endIndex) / 2;
                 if (t < _mX[midIndex])
                 {
                     endIndex = midIndex;
@@ -87,17 +87,17 @@ namespace LottieSharp
                 }
             }
 
-            float xRange = _mX[endIndex] - _mX[startIndex];
+            var xRange = _mX[endIndex] - _mX[startIndex];
             if (xRange == 0)
             {
                 return _mY[startIndex];
             }
 
-            float tInRange = t - _mX[startIndex];
-            float fraction = tInRange / xRange;
+            var tInRange = t - _mX[startIndex];
+            var fraction = tInRange / xRange;
 
-            float startY = _mY[startIndex];
-            float endY = _mY[endIndex];
+            var startY = _mY[startIndex];
+            var endY = _mY[endIndex];
             return startY + (fraction * (endY - startY));
         }
     }

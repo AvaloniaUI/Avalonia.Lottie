@@ -8,7 +8,7 @@ namespace LottieSharp.Model.Content
 {
     public class ShapeData
     {
-        private readonly List<CubicCurveData> _curves = new List<CubicCurveData>();
+        private readonly List<CubicCurveData> _curves = new();
         private Vector2 _initialPoint;
         private bool _closed;
 
@@ -54,8 +54,8 @@ namespace LottieSharp.Model.Content
 
             if (_curves.Count == 0)
             {
-                int points = Math.Min(shapeData1.Curves.Count, shapeData2.Curves.Count);
-                for (int i = 0; i < points; i++)
+                var points = Math.Min(shapeData1.Curves.Count, shapeData2.Curves.Count);
+                for (var i = 0; i < points; i++)
                 {
                     _curves.Add(new CubicCurveData());
                 }

@@ -5,11 +5,11 @@ namespace LottieSharp.Animation.Content
 {
     internal class MergePathsContent : IPathContent, IGreedyContent
     {
-        private readonly Path _firstPath = new Path();
-        private readonly Path _remainderPath = new Path();
-        private readonly Path _path = new Path();
+        private readonly Path _firstPath = new();
+        private readonly Path _remainderPath = new();
+        private readonly Path _path = new();
 
-        private readonly List<IPathContent> _pathContents = new List<IPathContent>();
+        private readonly List<IPathContent> _pathContents = new();
         private readonly MergePaths _mergePaths;
 
         internal MergePathsContent(MergePaths mergePaths)

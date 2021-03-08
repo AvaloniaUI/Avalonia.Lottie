@@ -6,7 +6,7 @@ namespace LottieSharp.Parser
 {
     internal class ColorParser : IValueParser<Color?>
     {
-        internal static readonly ColorParser Instance = new ColorParser();
+        internal static readonly ColorParser Instance = new();
 
         public Color? Parse(JsonReader reader, float scale)
         {

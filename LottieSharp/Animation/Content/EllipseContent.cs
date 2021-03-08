@@ -25,7 +25,7 @@ namespace LottieSharp.Animation.Content
     {
         private const float EllipseControlPointPercentage = 0.55228f;
 
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
 
         private readonly LottieDrawable _lottieDrawable;
         private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _sizeAnimation;

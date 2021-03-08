@@ -11,12 +11,12 @@ namespace LottieSharp.Value
     {
         public override int? GetValue(LottieFrameInfo<int?> frameInfo)
         {
-            int originalValue = MiscUtils.Lerp(
+            var originalValue = MiscUtils.Lerp(
                 frameInfo.StartValue.Value,
                 frameInfo.EndValue.Value,
                 frameInfo.InterpolatedKeyframeProgress
             );
-            int newValue = GetOffset(frameInfo);
+            var newValue = GetOffset(frameInfo);
             return originalValue + newValue;
         }
 

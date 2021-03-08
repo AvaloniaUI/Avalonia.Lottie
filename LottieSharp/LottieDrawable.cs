@@ -31,10 +31,10 @@ namespace LottieSharp
     {
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
         private LottieComposition _composition;
-        private readonly LottieValueAnimator _animator = new LottieValueAnimator();
+        private readonly LottieValueAnimator _animator = new();
         private float _scale = 1f;
 
-        private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new List<Action<LottieComposition>>();
+        private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
         private ImageAssetManager _imageAssetManager;
         private IImageAssetDelegate _imageAssetDelegate;
         private FontAssetManager _fontAssetManager;
@@ -272,9 +272,9 @@ namespace LottieSharp
                     }
 
                     var scale = _scale;
-                    float extraScale = 1f;
+                    var extraScale = 1f;
 
-                    float maxScale = GetMaxScale(_bitmapCanvas);
+                    var maxScale = GetMaxScale(_bitmapCanvas);
                     if (scale > maxScale)
                     {
                         scale = maxScale;
@@ -293,10 +293,10 @@ namespace LottieSharp
                         // left corner, we need to scale up and translate the canvas to zoom in on the top left 
                         // corner. 
                         _bitmapCanvas.Save();
-                        float halfWidth = (float)_composition.Bounds.Width / 2f;
-                        float halfHeight = (float)_composition.Bounds.Height / 2f;
-                        float scaledHalfWidth = halfWidth * scale;
-                        float scaledHalfHeight = halfHeight * scale;
+                        var halfWidth = (float)_composition.Bounds.Width / 2f;
+                        var halfHeight = (float)_composition.Bounds.Height / 2f;
+                        var scaledHalfWidth = halfWidth * scale;
+                        var scaledHalfHeight = halfHeight * scale;
                         _bitmapCanvas.Translate(
                             Scale * halfWidth - scaledHalfWidth,
                             Scale * halfHeight - scaledHalfHeight);
@@ -780,9 +780,9 @@ namespace LottieSharp
             }
             else
             {
-                List<KeyPath> elements = ResolveKeyPath(keyPath);
+                var elements = ResolveKeyPath(keyPath);
 
-                for (int i = 0; i < elements.Count; i++)
+                for (var i = 0; i < elements.Count; i++)
                 {
                     elements[i].GetResolvedElement().AddValueCallback(property, callback);
                 }

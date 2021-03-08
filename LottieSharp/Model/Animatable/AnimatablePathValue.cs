@@ -16,7 +16,7 @@ namespace LottieSharp.Model.Animatable
         /// </summary>
         public AnimatablePathValue()
         {
-            _keyframes = new List<Keyframe<Vector2?>> { new Keyframe<Vector2?>(new Vector2(0, 0)) };
+            _keyframes = new List<Keyframe<Vector2?>> { new(new Vector2(0, 0)) };
         }
 
         public AnimatablePathValue(List<Keyframe<Vector2?>> keyframes)

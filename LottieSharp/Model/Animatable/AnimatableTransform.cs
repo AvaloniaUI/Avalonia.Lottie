@@ -49,7 +49,7 @@ namespace LottieSharp.Model.Animatable
 
         public virtual TransformKeyframeAnimation CreateAnimation()
         {
-            return new TransformKeyframeAnimation(this);
+            return new(this);
         }
 
         public IContent ToContent(LottieDrawable drawable, BaseLayer layer)

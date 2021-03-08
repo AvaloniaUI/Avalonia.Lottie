@@ -38,13 +38,13 @@ namespace LottieSharp.Model.Layer
             }
         }
 
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
         internal Matrix3X3 Matrix = Matrix3X3.CreateIdentity();
-        private readonly Paint _contentPaint = new Paint(Paint.AntiAliasFlag);
-        private readonly Paint _addMaskPaint = new Paint(Paint.AntiAliasFlag);
-        private readonly Paint _subtractMaskPaint = new Paint(Paint.AntiAliasFlag);
-        private readonly Paint _mattePaint = new Paint(Paint.AntiAliasFlag);
-        private readonly Paint _clearPaint = new Paint();
+        private readonly Paint _contentPaint = new(Paint.AntiAliasFlag);
+        private readonly Paint _addMaskPaint = new(Paint.AntiAliasFlag);
+        private readonly Paint _subtractMaskPaint = new(Paint.AntiAliasFlag);
+        private readonly Paint _mattePaint = new(Paint.AntiAliasFlag);
+        private readonly Paint _clearPaint = new();
         protected Rect Rect;
         private Rect _maskBoundsRect;
         private Rect _matteBoundsRect;
@@ -58,7 +58,7 @@ namespace LottieSharp.Model.Layer
         private BaseLayer _parentLayer;
         private List<BaseLayer> _parentLayers;
 
-        private readonly List<IBaseKeyframeAnimation> _animations = new List<IBaseKeyframeAnimation>();
+        private readonly List<IBaseKeyframeAnimation> _animations = new();
         internal readonly TransformKeyframeAnimation Transform;
         private bool _visible = true;
         private bool disposedValue;
@@ -342,7 +342,7 @@ namespace LottieSharp.Model.Layer
             var size = _mask.Masks.Count;
 
             var hasMask = false;
-            for (int i = 0; i < size; i++)
+            for (var i = 0; i < size; i++)
             {
                 if (_mask.Masks[i].GetMaskMode() == maskMode)
                 {
@@ -410,7 +410,7 @@ namespace LottieSharp.Model.Layer
                 Transform.Progress = value;
                 if (_mask != null)
                 {
-                    for (int i = 0; i < _mask.MaskAnimations.Count; i++)
+                    for (var i = 0; i < _mask.MaskAnimations.Count; i++)
                     {
                         _mask.MaskAnimations[i].Progress = value;
                     }
@@ -422,7 +422,7 @@ namespace LottieSharp.Model.Layer
                 if (_matteLayer != null)
                 {
                     // The matte layer's time stretch is pre-calculated.
-                    float matteTimeStretch = _matteLayer.LayerModel.TimeStretch;
+                    var matteTimeStretch = _matteLayer.LayerModel.TimeStretch;
                     _matteLayer.Progress = value * matteTimeStretch;
                 }
                 for (var i = 0; i < _animations.Count; i++)
@@ -479,7 +479,7 @@ namespace LottieSharp.Model.Layer
 
             if (keyPath.PropagateToChildren(Name, depth))
             {
-                int newDepth = depth + keyPath.IncrementDepthBy(Name, depth);
+                var newDepth = depth + keyPath.IncrementDepthBy(Name, depth);
                 ResolveChildKeyPath(keyPath, newDepth, accumulator, currentPartialKeyPath);
             }
         }

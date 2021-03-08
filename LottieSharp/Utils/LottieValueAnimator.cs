@@ -93,13 +93,13 @@ namespace LottieSharp.Utils
                 return;
             }
 
-            long now = SystemnanoTime();
-            long timeSinceFrame = now - _lastFrameTimeNs;
-            float frameDuration = FrameDurationNs;
-            float dFrames = timeSinceFrame / frameDuration;
+            var now = SystemnanoTime();
+            var timeSinceFrame = now - _lastFrameTimeNs;
+            var frameDuration = FrameDurationNs;
+            var dFrames = timeSinceFrame / frameDuration;
 
             _frame += IsReversed ? -dFrames : dFrames;
-            bool ended = !MiscUtils.Contains(_frame, MinFrame, MaxFrame);
+            var ended = !MiscUtils.Contains(_frame, MinFrame, MaxFrame);
             _frame = MiscUtils.Clamp(_frame, MinFrame, MaxFrame);
 
             _lastFrameTimeNs = now;
@@ -224,8 +224,8 @@ namespace LottieSharp.Utils
 
         public void SetMinAndMaxFrames(float minFrame, float maxFrame)
         {
-            float compositionMinFrame = _composition == null ? -float.MaxValue : _composition.StartFrame;
-            float compositionMaxFrame = _composition == null ? float.MaxValue : _composition.EndFrame;
+            var compositionMinFrame = _composition == null ? -float.MaxValue : _composition.StartFrame;
+            var compositionMaxFrame = _composition == null ? float.MaxValue : _composition.EndFrame;
             _minFrame = MiscUtils.Clamp(minFrame, compositionMinFrame, compositionMaxFrame);
             _maxFrame = MiscUtils.Clamp(maxFrame, compositionMinFrame, compositionMaxFrame);
             Frame = MiscUtils.Clamp(_frame, minFrame, maxFrame);

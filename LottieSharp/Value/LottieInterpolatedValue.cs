@@ -20,7 +20,7 @@
 
         public override T GetValue(LottieFrameInfo<T> frameInfo)
         {
-            float progress = _interpolator.GetInterpolation(frameInfo.OverallProgress);
+            var progress = _interpolator.GetInterpolation(frameInfo.OverallProgress);
             return InterpolateValue(_startValue, _endValue, progress);
         }
 

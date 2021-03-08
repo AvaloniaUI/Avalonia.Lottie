@@ -43,7 +43,7 @@ namespace LottieSharp.Animation.Content
         }
 
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
         private Rect _rect;
 
         private readonly List<IContent> _contents;
@@ -228,8 +228,8 @@ namespace LottieSharp.Animation.Content
 
             if (keyPath.PropagateToChildren(Name, depth))
             {
-                int newDepth = depth + keyPath.IncrementDepthBy(Name, depth);
-                for (int i = 0; i < _contents.Count; i++)
+                var newDepth = depth + keyPath.IncrementDepthBy(Name, depth);
+                for (var i = 0; i < _contents.Count; i++)
                 {
                     var content = _contents[i];
                     if (content is IKeyPathElement element)

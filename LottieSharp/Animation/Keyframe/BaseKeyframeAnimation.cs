@@ -92,7 +92,7 @@ namespace LottieSharp.Animation.Keyframe
                 var keyframe = _keyframes[_keyframes.Count - 1];
                 if (_progress < keyframe.StartProgress)
                 {
-                    for (int i = _keyframes.Count - 1; i >= 0; i--)
+                    for (var i = _keyframes.Count - 1; i >= 0; i--)
                     {
                         keyframe = _keyframes[i];
                         if (keyframe.ContainsProgress(_progress))

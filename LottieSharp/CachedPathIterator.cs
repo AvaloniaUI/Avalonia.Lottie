@@ -208,7 +208,7 @@ namespace LottieSharp
 
         public virtual CachedPathIterator Iterator()
         {
-            return new CachedPathIterator(this);
+            return new(this);
         }
 
         /// <summary>

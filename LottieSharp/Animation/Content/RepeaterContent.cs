@@ -15,7 +15,7 @@ namespace LottieSharp.Animation.Content
     public class RepeaterContent : IDrawingContent, IPathContent, IGreedyContent, IKeyPathElementContent
     {
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
 
         private readonly LottieDrawable _lottieDrawable;
         private readonly BaseLayer _layer;

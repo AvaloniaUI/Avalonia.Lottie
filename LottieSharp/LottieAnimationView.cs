@@ -277,8 +277,8 @@ namespace LottieSharp
 
             EnableMergePathsForKitKatAndAbove(false);
 
-            SimpleColorFilter filter = new SimpleColorFilter(ColorFilter);
-            KeyPath keyPath = new KeyPath("**");
+            var filter = new SimpleColorFilter(ColorFilter);
+            var keyPath = new KeyPath("**");
             var callback = new LottieValueCallback<ColorFilter>(filter);
             AddValueCallback(keyPath, LottieProperty.ColorFilter, callback);
 

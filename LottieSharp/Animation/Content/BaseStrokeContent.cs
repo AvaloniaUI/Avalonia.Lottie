@@ -16,14 +16,14 @@ namespace LottieSharp.Animation.Content
 {
     public abstract class BaseStrokeContent : IDrawingContent, IKeyPathElementContent
     {
-        private readonly Path _path = new Path();
-        private readonly Path _trimPathPath = new Path();
+        private readonly Path _path = new();
+        private readonly Path _trimPathPath = new();
         private Rect _rect;
         private readonly LottieDrawable _lottieDrawable;
         private readonly BaseLayer _layer;
-        private readonly List<PathGroup> _pathGroups = new List<PathGroup>();
+        private readonly List<PathGroup> _pathGroups = new();
         private readonly float[] _dashPatternValues;
-        internal readonly Paint Paint = new Paint(Paint.AntiAliasFlag);
+        internal readonly Paint Paint = new(Paint.AntiAliasFlag);
 
         private readonly IBaseKeyframeAnimation<float?, float?> _widthAnimation;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
@@ -363,7 +363,7 @@ namespace LottieSharp.Animation.Content
         /// </summary>
         private sealed class PathGroup
         {
-            internal readonly List<IPathContent> Paths = new List<IPathContent>();
+            internal readonly List<IPathContent> Paths = new();
             internal readonly TrimPathContent TrimPath;
 
             internal PathGroup(TrimPathContent trimPath)

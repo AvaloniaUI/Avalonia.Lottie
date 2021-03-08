@@ -8,7 +8,7 @@ namespace LottieSharp.Animation.Content
 {
     internal class ShapeContent : IPathContent
     {
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
 
         private readonly LottieDrawable _lottieDrawable;
         private readonly IBaseKeyframeAnimation<ShapeData, Path> _shapeAnimation;

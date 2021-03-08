@@ -55,7 +55,7 @@ namespace LottieSharp
 
         public bool NextBoolean()
         {
-            bool value = false;
+            var value = false;
             if (ValueType == typeof(bool))
                 value = (bool)Value;
             Read();
@@ -117,10 +117,10 @@ namespace LottieSharp
 
         public void SkipValue()
         {
-            int count = 0;
+            var count = 0;
             do
             {
-                JsonToken token = TokenType;
+                var token = TokenType;
                 if (token == JsonToken.StartArray || token == JsonToken.StartObject)
                 {
                     count++;

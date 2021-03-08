@@ -66,7 +66,7 @@ namespace LottieSharp.Model
         /// <returns></returns>
         internal KeyPath AddKey(string key)
         {
-            KeyPath newKeyPath = new KeyPath(this);
+            var newKeyPath = new KeyPath(this);
             newKeyPath._keys.Add(key);
             return newKeyPath;
         }
@@ -78,7 +78,7 @@ namespace LottieSharp.Model
         /// <returns></returns>
         internal KeyPath Resolve(IKeyPathElement element)
         {
-            KeyPath keyPath = new KeyPath(this)
+            var keyPath = new KeyPath(this)
             {
                 _resolvedElement = element
             };
@@ -168,17 +168,17 @@ namespace LottieSharp.Model
             {
                 return false;
             }
-            bool isLastDepth = depth == _keys.Count - 1;
-            string keyAtDepth = _keys[depth];
-            bool isGlobstar = keyAtDepth.Equals("**");
+            var isLastDepth = depth == _keys.Count - 1;
+            var keyAtDepth = _keys[depth];
+            var isGlobstar = keyAtDepth.Equals("**");
 
             if (!isGlobstar)
             {
-                bool matches = keyAtDepth.Equals(key) || keyAtDepth.Equals("*");
+                var matches = keyAtDepth.Equals(key) || keyAtDepth.Equals("*");
                 return (isLastDepth || (depth == _keys.Count - 2 && EndsWithGlobstar())) && matches;
             }
 
-            bool isGlobstarButNextKeyMatches = !isLastDepth && _keys[depth + 1].Equals(key);
+            var isGlobstarButNextKeyMatches = !isLastDepth && _keys[depth + 1].Equals(key);
             if (isGlobstarButNextKeyMatches)
             {
                 return depth == _keys.Count - 2 ||

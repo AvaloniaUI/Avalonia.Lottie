@@ -8,7 +8,7 @@ namespace LottieSharp.Value
     /// <typeparam name="T"></typeparam>
     public class LottieValueCallback<T> : ILottieValueCallback<T>
     {
-        private readonly LottieFrameInfo<T> _frameInfo = new LottieFrameInfo<T>();
+        private readonly LottieFrameInfo<T> _frameInfo = new();
 
         IBaseKeyframeAnimation _animation;
 

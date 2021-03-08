@@ -6,7 +6,7 @@ namespace LottieSharp.Parser
 {
     public class DocumentDataParser : IValueParser<DocumentData>
     {
-        public static readonly DocumentDataParser Instance = new DocumentDataParser();
+        public static readonly DocumentDataParser Instance = new();
 
         public DocumentData Parse(JsonReader reader, float scale)
         {

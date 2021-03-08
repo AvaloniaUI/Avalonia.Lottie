@@ -11,7 +11,7 @@ namespace LottieSharp.Parser
 {
     public class ShapeDataParser : IValueParser<ShapeData>
     {
-        public static readonly ShapeDataParser Instance = new ShapeDataParser();
+        public static readonly ShapeDataParser Instance = new();
 
         public ShapeData Parse(JsonReader reader, float scale)
         {

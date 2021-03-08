@@ -7,8 +7,8 @@ namespace LottieSharp.Network
     /// </summary>
     public class FileExtension
     {
-        public static FileExtension Json = new FileExtension(".json");
-        public static FileExtension Zip = new FileExtension(".zip");
+        public static FileExtension Json = new(".json");
+        public static FileExtension Zip = new(".zip");
 
         public string Extension { get; }
 
@@ -26,7 +26,7 @@ namespace LottieSharp.Network
 
         public static FileExtension ForFile(string filename)
         {
-            foreach (FileExtension e in new[] { Json, Zip })
+            foreach (var e in new[] { Json, Zip })
             {
                 if (filename.EndsWith(e.Extension))
                 {

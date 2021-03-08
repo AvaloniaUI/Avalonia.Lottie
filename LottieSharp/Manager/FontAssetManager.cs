@@ -11,10 +11,10 @@ namespace LottieSharp.Manager
 
         /// <summary>
         /// Pair is (fontName, fontStyle) </summary>
-        private readonly Dictionary<Tuple<string, string>, Typeface> _fontMap = new Dictionary<Tuple<string, string>, Typeface>();
+        private readonly Dictionary<Tuple<string, string>, Typeface> _fontMap = new();
         /// <summary>
         /// Map of font families to their fonts. Necessary to create a font with a different style </summary>
-        private readonly Dictionary<string, Typeface> _fontFamilies = new Dictionary<string, Typeface>();
+        private readonly Dictionary<string, Typeface> _fontFamilies = new();
         private FontAssetDelegate _delegate;
         private string _defaultFontFileExtension = ".ttf";
 

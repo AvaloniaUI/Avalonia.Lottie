@@ -22,7 +22,7 @@ namespace LottieSharp
 
         private static Matrix3X3 GetTranslate(float dx, float dy)
         {
-            return new Matrix3X3
+            return new()
             {
                 M11 = 1,
                 M13 = dx,
@@ -54,7 +54,7 @@ namespace LottieSharp
 
         private static Matrix3X3 GetRotate(double sin, double cos)
         {
-            return new Matrix3X3
+            return new()
             {
                 M11 = (float)cos,
                 M12 = (float)-sin,
@@ -78,7 +78,7 @@ namespace LottieSharp
 
         private static Matrix3X3 GetScale(float scaleX, float scaleY)
         {
-            return new Matrix3X3
+            return new()
             {
                 M11 = scaleX,
                 M22 = scaleY,
@@ -108,7 +108,7 @@ namespace LottieSharp
 
         public static void MapPoints(this Matrix3X3 matrix, ref Vector2[] points)
         {
-            for (int i = 0; i < points.Length; i++)
+            for (var i = 0; i < points.Length; i++)
             {
                 points[i] = matrix.Transform(points[i]);
             }

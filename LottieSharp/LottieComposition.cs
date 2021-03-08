@@ -27,8 +27,8 @@ namespace LottieSharp
     {
         public bool Disposed { get; set; }
 
-        private readonly PerformanceTracker _performanceTracker = new PerformanceTracker();
-        private readonly HashSet<string> _warnings = new HashSet<string>();
+        private readonly PerformanceTracker _performanceTracker = new();
+        private readonly HashSet<string> _warnings = new();
         private Dictionary<string, List<Layer>> _precomps;
         private Dictionary<string, LottieImageAsset> _images;
         /** Map of font names to fonts */
@@ -60,7 +60,7 @@ namespace LottieSharp
 
         internal virtual Layer LayerModelForId(long id)
         {
-            _layerMap.TryGetValue(id, out Layer layer);
+            _layerMap.TryGetValue(id, out var layer);
             return layer;
         }
 

@@ -27,7 +27,7 @@ namespace LottieSharp.Animation.Content
             _x0 = x0;
             _y0 = y0;
             _r = r;
-            _canvasGradientStopCollection = new();
+            _canvasGradientStopCollection = new GradientStops();
             for (var i = 0; i < colors.Length; i++)
             {
                 _canvasGradientStopCollection.Add(new GradientStop

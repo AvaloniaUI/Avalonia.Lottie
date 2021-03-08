@@ -5,7 +5,7 @@ namespace LottieSharp.Animation.Keyframe
 {
     internal class ValueCallbackKeyframeAnimation<TK, TA> : BaseKeyframeAnimation<TK, TA>
     {
-        private readonly LottieFrameInfo<TA> _frameInfo = new LottieFrameInfo<TA>();
+        private readonly LottieFrameInfo<TA> _frameInfo = new();
 
         internal ValueCallbackKeyframeAnimation(ILottieValueCallback<TA> valueCallback) : base(new List<Keyframe<TK>>())
         {

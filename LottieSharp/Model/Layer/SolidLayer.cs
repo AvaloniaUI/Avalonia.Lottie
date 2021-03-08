@@ -19,9 +19,9 @@ namespace LottieSharp.Model.Layer
 {
     internal class SolidLayer : BaseLayer
     {
-        private readonly Paint _paint = new Paint();
+        private readonly Paint _paint = new();
         private Vector2[] _points = new Vector2[4];
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
 
         internal SolidLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)

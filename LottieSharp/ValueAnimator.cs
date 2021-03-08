@@ -102,7 +102,7 @@ namespace LottieSharp
 
         protected long SystemnanoTime()
         {
-            long nano = 10000L * DateTime.Now.Ticks;
+            var nano = 10000L * DateTime.Now.Ticks;
             nano /= TimeSpan.TicksPerMillisecond;
             nano *= 100L;
             return nano;

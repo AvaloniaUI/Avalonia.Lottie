@@ -10,7 +10,7 @@ namespace LottieSharp
     /// </summary>
     public class TextDelegate
     {
-        private readonly Dictionary<string, string> _stringMap = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _stringMap = new();
         private readonly LottieAnimationView _animationView;
         private readonly LottieDrawable _drawable;
         private bool _cacheText = true;

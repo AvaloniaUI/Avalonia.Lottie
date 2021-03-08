@@ -2,7 +2,7 @@
 {
     public class FloatParser : IValueParser<float?>
     {
-        public static readonly FloatParser Instance = new FloatParser();
+        public static readonly FloatParser Instance = new();
 
         public float? Parse(JsonReader reader, float scale)
         {

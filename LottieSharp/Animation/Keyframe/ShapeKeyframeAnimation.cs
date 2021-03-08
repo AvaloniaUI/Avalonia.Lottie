@@ -7,8 +7,8 @@ namespace LottieSharp.Animation.Keyframe
 {
     internal class ShapeKeyframeAnimation : BaseKeyframeAnimation<ShapeData, Path>
     {
-        private readonly ShapeData _tempShapeData = new ShapeData();
-        private readonly Path _tempPath = new Path();
+        private readonly ShapeData _tempShapeData = new();
+        private readonly Path _tempPath = new();
 
         internal ShapeKeyframeAnimation(List<Keyframe<ShapeData>> keyframes) : base(keyframes)
         {

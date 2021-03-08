@@ -463,10 +463,10 @@ namespace LottieSharp
         {
             var pathIteratorFactory = new CachedPathIteratorFactory(new FullPathIterator(this));
             var pathIterator = pathIteratorFactory.Iterator();
-            float[] points = new float[8];
+            var points = new float[8];
             var segmentPoints = new List<Vector2>();
             var lengths = new List<float>();
-            float errorSquared = precision * precision;
+            var errorSquared = precision * precision;
             while (!pathIterator.Done)
             {
                 var type = pathIterator.CurrentSegment(points);
@@ -494,7 +494,7 @@ namespace LottieSharp
 
             if (!segmentPoints.Any())
             {
-                int numVerbs = Contours.Count;
+                var numVerbs = Contours.Count;
                 if (numVerbs == 1)
                 {
                     AddMove(segmentPoints, lengths, Contours[0].Points);
@@ -506,7 +506,7 @@ namespace LottieSharp
                 }
             }
 
-            float totalLength = lengths.Last();
+            var totalLength = lengths.Last();
             if (totalLength == 0)
             {
                 // Lone Move instructions should still be able to animate at the same value.
@@ -520,7 +520,7 @@ namespace LottieSharp
 
             var approximation = new float[approximationArraySize];
 
-            int approximationIndex = 0;
+            var approximationIndex = 0;
             for (var i = 0; i < numPoints; i++)
             {
                 var point = segmentPoints[i];
@@ -534,32 +534,32 @@ namespace LottieSharp
 
         static float QuadraticCoordinateCalculation(float t, float p0, float p1, float p2)
         {
-            float oneMinusT = 1 - t;
+            var oneMinusT = 1 - t;
             return oneMinusT * ((oneMinusT * p0) + (t * p1)) + t * ((oneMinusT * p1) + (t * p2));
         }
 
         static Vector2 QuadraticBezierCalculation(float t, float[] points)
         {
-            float x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
-            float y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
+            var x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
+            var y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
             return new Vector2(x, y);
         }
 
         static float CubicCoordinateCalculation(float t, float p0, float p1, float p2, float p3)
         {
-            float oneMinusT = 1 - t;
-            float oneMinusTSquared = oneMinusT * oneMinusT;
-            float oneMinusTCubed = oneMinusTSquared * oneMinusT;
-            float tSquared = t * t;
-            float tCubed = tSquared * t;
+            var oneMinusT = 1 - t;
+            var oneMinusTSquared = oneMinusT * oneMinusT;
+            var oneMinusTCubed = oneMinusTSquared * oneMinusT;
+            var tSquared = t * t;
+            var tCubed = tSquared * t;
             return (oneMinusTCubed * p0) + (3 * oneMinusTSquared * t * p1)
                                          + (3 * oneMinusT * tSquared * p2) + (tCubed * p3);
         }
 
         static Vector2 CubicBezierCalculation(float t, float[] points)
         {
-            float x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
-            float y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
+            var x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
+            var y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
             return new Vector2(x, y);
         }
 
@@ -588,7 +588,7 @@ namespace LottieSharp
             }
 
             var vector2 = new Vector2(toPoint[0], toPoint[1]);
-            float length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
+            var length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
             segmentPoints.Add(vector2);
             lengths.Add(length);
         }
@@ -609,11 +609,11 @@ namespace LottieSharp
 
             var tToPoint = new List<KeyValuePair<float, Vector2>>
             {
-                new KeyValuePair<float, Vector2>(0, bezierFunction(0, points)),
-                new KeyValuePair<float, Vector2>(1, bezierFunction(1, points))
+                new(0, bezierFunction(0, points)),
+                new(1, bezierFunction(1, points))
             };
 
-            for (int i = 0; i < tToPoint.Count - 1; i++)
+            for (var i = 0; i < tToPoint.Count - 1; i++)
             {
                 bool needsSubdivision;
                 do
@@ -651,13 +651,13 @@ namespace LottieSharp
             float t1, Vector2 p1, out float midT, out Vector2 midPoint, float errorSquared)
         {
             midT = (t1 + t0) / 2;
-            float midX = (p1.X + p0.X) / 2;
-            float midY = (p1.Y + p0.Y) / 2;
+            var midX = (p1.X + p0.X) / 2;
+            var midY = (p1.Y + p0.Y) / 2;
 
             midPoint = bezierFunction(midT, points);
-            float xError = midPoint.X - midX;
-            float yError = midPoint.Y - midY;
-            float midErrorSquared = (xError * xError) + (yError * yError);
+            var xError = midPoint.X - midX;
+            var yError = midPoint.Y - midY;
+            var midErrorSquared = (xError * xError) + (yError * yError);
             return midErrorSquared > errorSquared;
         }
     }

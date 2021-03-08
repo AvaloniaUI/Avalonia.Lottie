@@ -14,7 +14,7 @@ namespace LottieSharp.Model.Layer
         internal ShapeLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
         {
             // Naming this __container allows it to be ignored in KeyPath matching. 
-            ShapeGroup shapeGroup = new ShapeGroup("__container", layerModel.Shapes);
+            var shapeGroup = new ShapeGroup("__container", layerModel.Shapes);
             _contentGroup = new ContentGroup(lottieDrawable, this, shapeGroup);
             _contentGroup.SetContents(new List<IContent>(), new List<IContent>());
         }

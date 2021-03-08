@@ -18,12 +18,12 @@ namespace LottieSharp
 
         public static Typeface Create(Typeface typeface, FontStyle style, FontWeight weight)
         {
-            return new Typeface(typeface.FontFamily, style, weight);
+            return new(typeface.FontFamily, style, weight);
         }
 
         public static Typeface CreateFromAsset(string path)
         {
-            return new Typeface(path, FontStyle.Normal, FontWeight.Normal);
+            return new(path, FontStyle.Normal, FontWeight.Normal);
         }
     }
 }

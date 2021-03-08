@@ -12,7 +12,7 @@ namespace LottieSharp.Model.Layer
     internal class CompositionLayer : BaseLayer
     {
         private IBaseKeyframeAnimation<float?, float?> _timeRemapping;
-        private readonly List<BaseLayer> _layers = new List<BaseLayer>();
+        private readonly List<BaseLayer> _layers = new();
         private Rect _newClipRect;
 
         private bool? _hasMatte;
@@ -72,7 +72,7 @@ namespace LottieSharp.Model.Layer
                 {
                     continue;
                 }
-                if (layerMap.TryGetValue(layerView.LayerModel.ParentId, out BaseLayer parentLayer))
+                if (layerMap.TryGetValue(layerView.LayerModel.ParentId, out var parentLayer))
                 {
                     layerView.ParentLayer = parentLayer;
                 }
@@ -198,7 +198,7 @@ namespace LottieSharp.Model.Layer
 
         internal override void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
         {
-            for (int i = 0; i < _layers.Count; i++)
+            for (var i = 0; i < _layers.Count; i++)
             {
                 _layers[i].ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath);
             }

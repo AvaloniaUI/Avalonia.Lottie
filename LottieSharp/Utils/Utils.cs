@@ -11,8 +11,8 @@ namespace LottieSharp.Utils
     public static class Utils
     {
         public const int SecondInNanos = 1000000000;
-        private static Path _tempPath = new Path();
-        private static Path _tempPath2 = new Path();
+        private static Path _tempPath = new();
+        private static Path _tempPath2 = new();
         private static Vector2[] _points = new Vector2[2];
         private static readonly float Sqrt2 = (float)Math.Sqrt(2);
         private static float _dpScale = -1;
@@ -200,7 +200,7 @@ namespace LottieSharp.Utils
 
         internal static int HashFor(float a, float b, float c, float d)
         {
-            int result = 17;
+            var result = 17;
             if (a != 0)
             {
                 result = (int)(31 * result * a);
@@ -249,7 +249,7 @@ namespace LottieSharp.Utils
 
         internal static DisplayInformation GetForCurrentView()
         {
-            return new DisplayInformation { ResolutionScale = ResolutionScale.Scale100Percent, ScreenHeightInRawPixels = 500, ScreenWidthInRawPixels = 2000, LogicalDpi = 1f };
+            return new() { ResolutionScale = ResolutionScale.Scale100Percent, ScreenHeightInRawPixels = 500, ScreenWidthInRawPixels = 2000, LogicalDpi = 1f };
         }
     }
 

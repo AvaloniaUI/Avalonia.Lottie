@@ -5,9 +5,9 @@
         //private static readonly int _cacheSizeMB = 10;
         private static readonly int _cacheSizeCount = 10;
 
-        public static LottieCompositionCache Instance { get; } = new LottieCompositionCache();
+        public static LottieCompositionCache Instance { get; } = new();
 
-        private readonly LruCache<string, LottieComposition> _cache = new LruCache<string, LottieComposition>(_cacheSizeCount);//1024 * 1024 * _cacheSizeMB);
+        private readonly LruCache<string, LottieComposition> _cache = new(_cacheSizeCount);//1024 * 1024 * _cacheSizeMB);
 
         internal LottieCompositionCache()
         {

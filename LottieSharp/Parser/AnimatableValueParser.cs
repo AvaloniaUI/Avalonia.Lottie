@@ -13,42 +13,42 @@ namespace LottieSharp.Parser
 
         public static AnimatableFloatValue ParseFloat(JsonReader reader, LottieComposition composition, bool isDp)
         {
-            return new AnimatableFloatValue(Parse(reader, isDp ? Utils.Utils.DpScale() : 1f, composition, FloatParser.Instance));
+            return new(Parse(reader, isDp ? Utils.Utils.DpScale() : 1f, composition, FloatParser.Instance));
         }
 
         internal static AnimatableIntegerValue ParseInteger(JsonReader reader, LottieComposition composition)
         {
-            return new AnimatableIntegerValue(Parse(reader, composition, IntegerParser.Instance));
+            return new(Parse(reader, composition, IntegerParser.Instance));
         }
 
         internal static AnimatablePointValue ParsePoint(JsonReader reader, LottieComposition composition)
         {
-            return new AnimatablePointValue(Parse(reader, Utils.Utils.DpScale(), composition, PointFParser.Instance));
+            return new(Parse(reader, Utils.Utils.DpScale(), composition, PointFParser.Instance));
         }
 
         internal static AnimatableScaleValue ParseScale(JsonReader reader, LottieComposition composition)
         {
-            return new AnimatableScaleValue(Parse(reader, composition, ScaleXyParser.Instance));
+            return new(Parse(reader, composition, ScaleXyParser.Instance));
         }
 
         internal static AnimatableShapeValue ParseShapeData(JsonReader reader, LottieComposition composition)
         {
-            return new AnimatableShapeValue(Parse(reader, Utils.Utils.DpScale(), composition, ShapeDataParser.Instance));
+            return new(Parse(reader, Utils.Utils.DpScale(), composition, ShapeDataParser.Instance));
         }
 
         internal static AnimatableTextFrame ParseDocumentData(JsonReader reader, LottieComposition composition)
         {
-            return new AnimatableTextFrame(Parse(reader, composition, DocumentDataParser.Instance));
+            return new(Parse(reader, composition, DocumentDataParser.Instance));
         }
 
         internal static AnimatableColorValue ParseColor(JsonReader reader, LottieComposition composition)
         {
-            return new AnimatableColorValue(Parse(reader, composition, ColorParser.Instance));
+            return new(Parse(reader, composition, ColorParser.Instance));
         }
 
         internal static AnimatableGradientColorValue ParseGradientColor(JsonReader reader, LottieComposition composition, int points)
         {
-            return new AnimatableGradientColorValue(Parse(reader, composition, new GradientColorParser(points)));
+            return new(Parse(reader, composition, new GradientColorParser(points)));
         }
 
         /// <summary>

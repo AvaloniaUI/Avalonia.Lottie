@@ -31,13 +31,13 @@ namespace LottieSharp.Animation.Content
         private const int CacheStepsMs = 32;
 
         private readonly BaseLayer _layer;
-        private readonly Dictionary<long, LinearGradient> _linearGradientCache = new Dictionary<long, LinearGradient>();
-        private readonly Dictionary<long, RadialGradient> _radialGradientCache = new Dictionary<long, RadialGradient>();
+        private readonly Dictionary<long, LinearGradient> _linearGradientCache = new();
+        private readonly Dictionary<long, RadialGradient> _radialGradientCache = new();
         private readonly Matrix3X3 _shaderMatrix = Matrix3X3.CreateIdentity();
-        private readonly Path _path = new Path();
-        private readonly Paint _paint = new Paint(Paint.AntiAliasFlag);
+        private readonly Path _path = new();
+        private readonly Paint _paint = new(Paint.AntiAliasFlag);
         //private Rect _boundsRect;
-        private readonly List<IPathContent> _paths = new List<IPathContent>();
+        private readonly List<IPathContent> _paths = new();
         private readonly GradientType _type;
         private readonly IBaseKeyframeAnimation<GradientColor, GradientColor> _colorAnimation;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
@@ -145,7 +145,7 @@ namespace LottieSharp.Animation.Content
             get
             {
                 var gradientHash = GradientHash;
-                if (_linearGradientCache.TryGetValue(gradientHash, out LinearGradient gradient))
+                if (_linearGradientCache.TryGetValue(gradientHash, out var gradient))
                 {
                     return gradient;
                 }
@@ -165,7 +165,7 @@ namespace LottieSharp.Animation.Content
             get
             {
                 var gradientHash = GradientHash;
-                if (_radialGradientCache.TryGetValue(gradientHash, out RadialGradient gradient))
+                if (_radialGradientCache.TryGetValue(gradientHash, out var gradient))
                 {
                     return gradient;
                 }

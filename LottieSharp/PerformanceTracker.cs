@@ -19,7 +19,7 @@ namespace LottieSharp
 
         private bool _enabled;
         public event EventHandler<FrameRenderedEventArgs> FrameRendered;
-        private readonly Dictionary<string, MeanCalculator> _layerRenderTimes = new Dictionary<string, MeanCalculator>();
+        private readonly Dictionary<string, MeanCalculator> _layerRenderTimes = new();
         private readonly IComparer<Tuple<string, float?>> _floatComparator = new ComparatorAnonymousInnerClass();
 
         private class ComparatorAnonymousInnerClass : IComparer<Tuple<string, float?>>

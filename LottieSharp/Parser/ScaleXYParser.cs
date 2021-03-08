@@ -5,7 +5,7 @@ namespace LottieSharp.Parser
 {
     public class ScaleXyParser : IValueParser<ScaleXy>
     {
-        public static readonly ScaleXyParser Instance = new ScaleXyParser();
+        public static readonly ScaleXyParser Instance = new();
 
         public ScaleXy Parse(JsonReader reader, float scale)
         {

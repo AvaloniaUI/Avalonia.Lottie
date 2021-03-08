@@ -172,24 +172,24 @@ namespace LottieSharp.Manager
                 var size = new SharpDX.Size2(bitmap.Width, bitmap.Height);
 
                 // Transform pixels from BGRA to RGBA
-                int stride = bitmap.Width * sizeof(int);
+                var stride = bitmap.Width * sizeof(int);
                 using (var tempStream = new DataStream(bitmap.Height * stride, true, true))
                 {
                     // Lock System.Drawing.Bitmap
                     var bitmapData = bitmap.LockBits(sourceArea, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
 
                     // Convert all pixels 
-                    for (int y = 0; y < bitmap.Height; y++)
+                    for (var y = 0; y < bitmap.Height; y++)
                     {
-                        int offset = bitmapData.Stride * y;
-                        for (int x = 0; x < bitmap.Width; x++)
+                        var offset = bitmapData.Stride * y;
+                        for (var x = 0; x < bitmap.Width; x++)
                         {
                             // Not optimized 
-                            byte B = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            byte G = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            byte R = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            byte A = Marshal.ReadByte(bitmapData.Scan0, offset++);
-                            int rgba = R | (G << 8) | (B << 16) | (A << 24);
+                            var B = Marshal.ReadByte(bitmapData.Scan0, offset++);
+                            var G = Marshal.ReadByte(bitmapData.Scan0, offset++);
+                            var R = Marshal.ReadByte(bitmapData.Scan0, offset++);
+                            var A = Marshal.ReadByte(bitmapData.Scan0, offset++);
+                            var rgba = R | (G << 8) | (B << 16) | (A << 24);
                             tempStream.Write(rgba);
                         }
 

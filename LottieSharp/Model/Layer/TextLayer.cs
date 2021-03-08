@@ -23,16 +23,16 @@ namespace LottieSharp.Model.Layer
     internal class TextLayer : BaseLayer
     {
         //private Rect _rectF;
-        private readonly Paint _fillPaint = new Paint(Paint.AntiAliasFlag)
+        private readonly Paint _fillPaint = new(Paint.AntiAliasFlag)
         {
             Style = Paint.PaintStyle.Fill
         };
-        private readonly Paint _strokePaint = new Paint(Paint.AntiAliasFlag)
+        private readonly Paint _strokePaint = new(Paint.AntiAliasFlag)
         {
             Style = Paint.PaintStyle.Stroke
         };
 
-        private readonly Dictionary<FontCharacter, List<ContentGroup>> _contentsForCharacter = new Dictionary<FontCharacter, List<ContentGroup>>();
+        private readonly Dictionary<FontCharacter, List<ContentGroup>> _contentsForCharacter = new();
         private readonly TextKeyframeAnimation _textAnimation;
         private readonly LottieDrawable _lottieDrawable;
         private readonly LottieComposition _composition;

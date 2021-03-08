@@ -5,8 +5,8 @@ namespace LottieSharp.Model
     public class LruCache<K, V>
     {
         private readonly int _capacity;
-        private Dictionary<K, LinkedListNode<LruCacheItem<K, V>>> _cacheMap = new Dictionary<K, LinkedListNode<LruCacheItem<K, V>>>();
-        private LinkedList<LruCacheItem<K, V>> _lruList = new LinkedList<LruCacheItem<K, V>>();
+        private Dictionary<K, LinkedListNode<LruCacheItem<K, V>>> _cacheMap = new();
+        private LinkedList<LruCacheItem<K, V>> _lruList = new();
 
         public LruCache(int capacity)
         {
@@ -17,9 +17,9 @@ namespace LottieSharp.Model
         {
             lock (this)
             {
-                if (_cacheMap.TryGetValue(key, out LinkedListNode<LruCacheItem<K, V>> node))
+                if (_cacheMap.TryGetValue(key, out var node))
                 {
-                    V value = node.Value.Value;
+                    var value = node.Value.Value;
                     _lruList.Remove(node);
                     _lruList.AddLast(node);
                     return value;

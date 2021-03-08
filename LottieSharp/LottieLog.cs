@@ -11,7 +11,7 @@ namespace LottieSharp
         /// <summary>
         /// Set to ensure that we only log each message one time max.
         /// </summary>
-        private static readonly List<string> _loggedMessages = new List<string>();
+        private static readonly List<string> _loggedMessages = new();
 
         private const int MaxDepth = 100;
         private static bool _traceEnabled;
@@ -36,7 +36,7 @@ namespace LottieSharp
             _loggedMessages.Add(msg);
         }
 
-        private static readonly Queue<string> Msgs = new Queue<string>();
+        private static readonly Queue<string> Msgs = new();
 
         public static bool TraceEnabled
         {
@@ -142,8 +142,8 @@ namespace LottieSharp
             }
         }
 
-        private static readonly System.DateTime Epoc = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
-        private static readonly StringBuilder Sb = new StringBuilder();
+        private static readonly System.DateTime Epoc = new(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+        private static readonly StringBuilder Sb = new();
 
         private static long CurrentUnixTime()
         {

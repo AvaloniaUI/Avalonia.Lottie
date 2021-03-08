@@ -26,7 +26,7 @@ namespace LottieSharp.Animation.Content
 {
     internal class RectangleContent : IPathContent, IKeyPathElementContent
     {
-        private readonly Path _path = new Path();
+        private readonly Path _path = new();
         private Rect _rect;
 
         private readonly LottieDrawable _lottieDrawable;
