@@ -15,6 +15,16 @@ namespace LottieSharp
             // rect.Width = Math.Abs(right - left);
             // rect.Height = Math.Abs(bottom - top);
         }
+        
+        public static void Set(ref Rect rect, double left, double top, double right, double bottom)
+        {
+            rect = new Rect(left, top, Math.Abs(right - left), Math.Abs(bottom - top));
+            //
+            // rect.X = left;
+            // rect.Y = top;
+            // rect.Width = Math.Abs(right - left);
+            // rect.Height = Math.Abs(bottom - top);
+        }
 
         public static void Set(ref Rect rect, Rect newRect)
         {
