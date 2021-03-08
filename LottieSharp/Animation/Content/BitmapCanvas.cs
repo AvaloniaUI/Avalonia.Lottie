@@ -23,6 +23,8 @@ namespace LottieSharp.Animation.Content
         {
             public IDrawingContextImpl DrawingContext { get; set; }
             public RenderTargetBitmap Bitmap { get; set; }
+            public double SessionHeight { get; set; }
+            public double SessionWidth { get; set; }
         }
 
         class ClipSave
@@ -93,16 +95,20 @@ namespace LottieSharp.Animation.Content
         //public static int FullColorLayerSaveFlag = 0b01000;
         public static int ClipToLayerSaveFlag = 0b10000;
         public static int AllSaveFlag = 0b11111;
-
-
+ 
         internal IDisposable CreateSession(double width, double height, IDrawingContextImpl drawingSession)
         {
             _canvasDrawingSessions.Clear();
             //_renderTarget = drawingSession;
-            _canvasDrawingSessions.Push(new RenderTargetHolder {DrawingContext = drawingSession});
+            _canvasDrawingSessions.Push(new RenderTargetHolder
+            {
+                SessionWidth = width,
+                SessionHeight = height,
+                DrawingContext = drawingSession
+            });
 
             UpdateClip(width, height);
-
+            
             return PushMask(_currentClip, 1f);
             //return new Disposable(() => { });
         }
@@ -155,12 +161,12 @@ namespace LottieSharp.Animation.Content
                         lineCap: paint.StrokeCap,
                         lineJoin: paint.StrokeJoin,
                         miterLimit: paint.StrokeMiter);
-                    CurrentDrawingContext.DrawGeometry(null, pen, geometry);
+                    CurrentDrawingContext.DrawGeometry(null, pen, geometry.PlatformImpl);
                 }
 
                 else
                 {
-                    CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry);
+                    CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry.PlatformImpl);
                 }
                 
                 
@@ -199,7 +205,7 @@ namespace LottieSharp.Animation.Content
                 //
                 // var layer = new Layer(CurrentDrawingContext);
 
-                CurrentDrawingContext.PushGeometryClip(geometery);
+                CurrentDrawingContext.PushGeometryClip(geometery.PlatformImpl);
 
                 return new Disposable(() =>
                 {
@@ -385,8 +391,7 @@ namespace LottieSharp.Animation.Content
 
                 CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl,1,
                       new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) ,
-                      new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height));
-                
+                      new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) );
                 // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
                 //     new RawVector2(0, 0),
                 //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
