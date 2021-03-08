@@ -16,12 +16,12 @@ namespace LottieSharp
             Mode = mode;
         }
 
-        public override Brush Apply(BitmapCanvas dst, Brush brush)
+        public override IBrush Apply(BitmapCanvas dst, IBrush brush)
         {
             //var originalColor = Colors.White;
             //if (brush is CompositionColorBrush compositionColorBrush)
             //    originalColor = compositionColorBrush.Color;
-            //TODO
+            //TODO: passthrough the color filters for now.
             return brush;
         }
     }

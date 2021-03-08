@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using LottieSharp.Animation.Content;
 
 
 namespace LottieSharp
@@ -15,6 +16,12 @@ namespace LottieSharp
     {
         public SimpleColorFilter(Color color) : base(color, PorterDuff.Mode.SrcAtop)
         {
+        }
+
+        public override IBrush Apply(BitmapCanvas dst, IBrush brush)
+        {
+            // TODO: Passthrough color filter for now
+            return brush;
         }
     }
 }
