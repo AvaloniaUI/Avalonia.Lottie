@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="*" />
+    <PackageReference Include="Ionic.Zip" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
   </ItemGroup>
 
