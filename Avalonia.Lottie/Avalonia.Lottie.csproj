@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="*" />
+    <PackageReference Include="DotNetZip" Version="*" />
+    <PackageReference Include="Newtonsoft.Json" Version="*" />
+  </ItemGroup>
+
+</Project>
