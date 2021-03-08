@@ -12,8 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using LottieSharp;
+using Typeface = Avalonia.Media.Typeface;
 
 namespace LottieSharp
 {
@@ -27,7 +30,7 @@ namespace LottieSharp
     /// of compositions.
     /// </para>
     /// </summary>
-    public class LottieDrawable : D2dControl, IAnimatable
+    public class LottieDrawable : Control, IAnimatable
     {
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
         private LottieComposition _composition;
@@ -253,7 +256,7 @@ namespace LottieSharp
         //    }
         //}
 
-        public override void Render(RenderTarget target)
+        public override void Render(DrawingContext context)
         {
             lock (this)
             {

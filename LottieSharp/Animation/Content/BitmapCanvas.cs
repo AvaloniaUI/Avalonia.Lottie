@@ -1,11 +1,5 @@
-﻿
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-
-using System.Numerics;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -23,12 +17,13 @@ namespace LottieSharp.Animation.Content
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
         private readonly Stack<Matrix3X3> _matrixSaves = new();
         private readonly Stack<int> _flagSaves = new();
+
         private readonly Dictionary<int, RenderTargetHolder> _renderTargets = new();
         //private IDrawingContextImpl _renderTarget;
 
         class RenderTargetHolder
         {
-            public IDrawingContextImpl RenderTarget { get; set; }
+            public IDrawingContextImpl DrawingContext { get; set; }
         }
 
         class ClipSave
@@ -48,7 +43,8 @@ namespace LottieSharp.Animation.Content
 
         class RenderTargetSave
         {
-            public RenderTargetSave(IDrawingContextImpl renderTarget, int paintFlags, PorterDuffXfermode paintXfermode, byte paintAlpha)
+            public RenderTargetSave(IDrawingContextImpl renderTarget, int paintFlags, PorterDuffXfermode paintXfermode,
+                byte paintAlpha)
             {
                 RenderTarget = renderTarget;
                 PaintFlags = paintFlags;
@@ -67,9 +63,7 @@ namespace LottieSharp.Animation.Content
 
         //internal RenderTarget OutputRenderTarget { get; private set; }
         internal IDrawingContextImpl CurrentDrawingContext =>
-            _canvasDrawingSessions.Count > 0 ?
-                _canvasDrawingSessions.Peek()?.RenderTarget :
-                null;
+            _canvasDrawingSessions.Count > 0 ? _canvasDrawingSessions.Peek()?.DrawingContext : null;
 
         public BitmapCanvas(float width, float height)
         {
@@ -93,7 +87,9 @@ namespace LottieSharp.Animation.Content
         public float Height { get; private set; }
 
         public static int MatrixSaveFlag = 0b00001;
+
         public static int ClipSaveFlag = 0b00010;
+
         //public static int HasAlphaLayerSaveFlag = 0b00100;
         //public static int FullColorLayerSaveFlag = 0b01000;
         public static int ClipToLayerSaveFlag = 0b10000;
@@ -104,7 +100,7 @@ namespace LottieSharp.Animation.Content
         {
             _canvasDrawingSessions.Clear();
             //_renderTarget = drawingSession;
-            _canvasDrawingSessions.Push(new RenderTargetHolder { RenderTarget = drawingSession });
+            _canvasDrawingSessions.Push(new RenderTargetHolder {DrawingContext = drawingSession});
 
             UpdateClip(width, height);
 
@@ -114,57 +110,29 @@ namespace LottieSharp.Animation.Content
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
         {
+            DrawRect(new Rect(x1, y1, x2 - x1, y2 - y1), paint);
+        }
+
+
+        internal void DrawRect(Rect rect, Paint paint)
+        {
             UpdateDrawingSessionWithFlags(paint.Flags);
             CurrentDrawingContext.Transform = GetCurrentTransform();
             var brush = new SolidColorBrush(paint.Color).ToImmutable();
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
                 {
-                    
-                    CurrentDrawingContext.DrawRectangle(new Rect((float)x1, (float)y1, (float)(x2 - x1), (float)(y2 - y1)), brush, paint.StrokeWidth, GetStrokeStyle(paint));
+                    CurrentDrawingContext.DrawRectangle(null, new Pen(brush,
+                            paint.StrokeWidth,
+                            lineCap: paint.StrokeCap,
+                            lineJoin: paint.StrokeJoin,
+                            miterLimit: paint.StrokeMiter),
+                        rect);
                 }
                 else
                 {
-                    CurrentDrawingContext.FillRectangle(new Rect((float)x1, (float)y1, (float)(x2 - x1), (float)(y2 - y1)), brush);
-                }
-            }
-
-            if (paint.Xfermode.Mode == PorterDuff.Mode.Clear)
-            {
-                CurrentDrawingContext.Flush();
-            }
-        }
-
-        private StrokeStyle GetStrokeStyle(Paint paint)
-        {
-            var styleProperties = new StrokeStyleProperties()
-            {
-                StartCap = paint.StrokeCap,
-                DashCap = paint.StrokeCap,
-                EndCap = paint.StrokeCap,
-                LineJoin = paint.StrokeJoin,
-                MiterLimit = paint.StrokeMiter
-            };
-            //TODO: OID: Check Factory() is ok or not
-            var style = new StrokeStyle(CurrentDrawingContext.Factory, styleProperties);
-            paint.PathEffect?.Apply(style, paint);
-            return style;
-        }
-
-        internal void DrawRect(Rect rect, Paint paint)
-        {
-            UpdateDrawingSessionWithFlags(paint.Flags);
-            CurrentDrawingContext.Transform = GetCurrentTransform();
-
-            using (var brush = new SolidColorBrush(paint.Color))
-            {
-                if (paint.Style == Paint.PaintStyle.Stroke)
-                {
-                    CurrentDrawingContext.DrawRectangle(rect, brush, paint.StrokeWidth, GetStrokeStyle(paint));
-                }
-                else
-                {
-                    CurrentDrawingContext.FillRectangle(rect, brush);
+                    CurrentDrawingContext.DrawRectangle(brush, null,
+                        rect);
                 }
             }
         }
@@ -176,69 +144,83 @@ namespace LottieSharp.Animation.Content
             CurrentDrawingContext.Transform = GetCurrentTransform();
 
             var gradient = paint.Shader as Gradient;
-            var brush = gradient != null ? gradient.GetBrush( paint.Alpha) : new SolidColorBrush(paint.Color);
+            var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new SolidColorBrush(paint.Color);
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
 
-            using (var geometry = path.GetGeometry(CurrentDrawingContext.Factory))
-            {
-                if (paint.Style == Paint.PaintStyle.Stroke)
-                    CurrentDrawingContext.DrawGeometry(geometry, finalBrush, paint.StrokeWidth, GetStrokeStyle(paint));
-                else
-                    CurrentDrawingContext.FillGeometry(geometry, finalBrush);
-            }
+            var geometry = path.GetGeometry();
 
-            if (gradient == null)
-            {
-                brush?.Dispose();
-                finalBrush?.Dispose();
-            }
+            if (paint.Style == Paint.PaintStyle.Stroke)
+                {
+                    var pen = new Pen(brush,
+                        paint.StrokeWidth,
+                        lineCap: paint.StrokeCap,
+                        lineJoin: paint.StrokeJoin,
+                        miterLimit: paint.StrokeMiter);
+                    CurrentDrawingContext.DrawGeometry(null, pen, geometry);
+                }
+
+                else
+                {
+                    CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry);
+                }
+                
+                
+                //     CurrentDrawingContext.DrawGeometry(geometry, finalBrush, paint.StrokeWidth, GetStrokeStyle(paint));
+                // else
+                //     CurrentDrawingContext.FillGeometry(geometry, finalBrush);
+            
+
+            // if (gradient == null)
+            // {
+            //     brush?.Dispose();
+            //     finalBrush?.Dispose();
+            // }
         }
 
         public Disposable PushMask(Rect rect, float alpha, Path path = null)
         {
             if (alpha >= 1 && path == null)
             {
-                CurrentDrawingContext.PushAxisAlignedClip(rect, CurrentDrawingContext.AntialiasMode);
+                CurrentDrawingContext.PushClip(rect);
+                // CurrentDrawingContext.PushAxisAlignedClip(rect, CurrentDrawingContext.AntialiasMode);
 
-                return new Disposable(() =>
-                {
-                    CurrentDrawingContext.PopAxisAlignedClip();
-                });
+                return new Disposable(() => { CurrentDrawingContext.PopClip(); });
             }
             else
             {
-                var geometery = path?.GetGeometry(CurrentDrawingContext.Factory);
+                var geometery = path.GetGeometry();
+                //
+                // var parameters = new LayerParameters
+                // {
+                //     ContentBounds = rect,
+                //     Opacity = alpha,
+                //     MaskTransform = GetCurrentTransform(),
+                //     GeometricMask = geometery
+                // };
+                //
+                // var layer = new Layer(CurrentDrawingContext);
 
-                var parameters = new LayerParameters
-                {
-                    ContentBounds = rect,
-                    Opacity = alpha,
-                    MaskTransform = GetCurrentTransform(),
-                    GeometricMask = geometery
-                };
-
-                var layer = new Layer(CurrentDrawingContext);
-
-                CurrentDrawingContext.PushLayer(ref parameters, layer);
+                CurrentDrawingContext.PushGeometryClip(geometery);
 
                 return new Disposable(() =>
                 {
-                    this.CurrentDrawingContext.PopLayer();
-                    layer.Dispose();
-                    geometery?.Dispose();
+                    CurrentDrawingContext.PopGeometryClip();
+                    // this.CurrentDrawingContext.PopLayer();
+                    // layer.Dispose();
+                    // geometery?.Dispose();
                 });
             }
         }
 
         private Matrix GetCurrentTransform()
         {
-            return new( _matrix.M11,
-                _matrix.M21,
-                 _matrix.M12,
-                 _matrix.M22,
-                 _matrix.M13,
-                 _matrix.M23)
-            ;
+            return new(_matrix.M11,
+                    _matrix.M21,
+                    _matrix.M12,
+                    _matrix.M22,
+                    _matrix.M13,
+                    _matrix.M23)
+                ;
         }
 
         public bool ClipRect(Rect rect)
@@ -271,6 +253,7 @@ namespace LottieSharp.Animation.Content
             {
                 SaveMatrix();
             }
+
             var isClipToLayer = (flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag;
 
             if (isClipToLayer)
@@ -278,18 +261,18 @@ namespace LottieSharp.Animation.Content
                 UpdateDrawingSessionWithFlags(paint.Flags);
 
                 var rendertarget = CreateRenderTarget(bounds, _renderTargetSaves.Count);
-                _renderTargetSaves.Push(new RenderTargetSave(rendertarget.RenderTarget, paint.Flags, paint.Xfermode, paint.Xfermode != null ? (byte)255 : paint.Alpha));
+                _renderTargetSaves.Push(new RenderTargetSave(rendertarget.DrawingContext, paint.Flags, paint.Xfermode,
+                    paint.Xfermode != null ? (byte) 255 : paint.Alpha));
 
                 //var drawingSession = rendertarget.CreateDrawingSession();
-                rendertarget.RenderTarget.Clear(Color.Transparent);
+                rendertarget.DrawingContext.Clear(Colors.Transparent);
                 _canvasDrawingSessions.Push(rendertarget);
             }
 
             if ((flags & ClipSaveFlag) == ClipSaveFlag)
             {
-                SaveClip(isClipToLayer ? (byte)255 : paint.Alpha, path);
+                SaveClip(isClipToLayer ? (byte) 255 : paint.Alpha, path);
             }
-
         }
 
         private RenderTargetHolder CreateRenderTarget(Rect bounds, int index)
@@ -300,16 +283,17 @@ namespace LottieSharp.Animation.Content
                 //rendertarget = new DeviceContext(
                 //    CurrentRenderTarget,
                 //    CompatibleRenderTargetOptions.None,
-                //    new Size2F((float)bounds.Width, (float)bounds.Height),
+                //    new Size2F(bounds.Width, bounds.Height),
                 //    new Size2((int)Utils.Utils.Dpi(), (int)Utils.Utils.Dpi()),
                 //    new PixelFormat(SharpDX.DXGI.Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied));
 
 
-                var rt = new DeviceContext(CurrentDrawingContext.Device, DeviceContextOptions.EnableMultithreadedOptimizations);
+                var rt = new DeviceContext(CurrentDrawingContext.Device,
+                    DeviceContextOptions.EnableMultithreadedOptimizations);
 
                 var bitmap = new Bitmap1(
                     rt,
-                    new Size2((int)bounds.Width, (int)bounds.Height),
+                    new Size2((int) bounds.Width, (int) bounds.Height),
                     null, 0,
                     new BitmapProperties1
                     {
@@ -322,12 +306,13 @@ namespace LottieSharp.Animation.Content
                 rt.Target = bitmap;
                 rendertarget = new RenderTargetHolder
                 {
-                    RenderTarget = rt,
+                    DrawingContext = rt,
                     Bitmap = bitmap
                 };
                 _renderTargets.Add(index, rendertarget);
             }
-            rendertarget.RenderTarget.BeginDraw();
+
+            rendertarget.DrawingContext.BeginDraw();
             return rendertarget;
         }
 
@@ -379,8 +364,8 @@ namespace LottieSharp.Animation.Content
             if ((flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag)
             {
                 var drawingSession = _canvasDrawingSessions.Pop();
-                drawingSession.RenderTarget.Flush();
-                drawingSession.RenderTarget.EndDraw();
+                drawingSession.DrawingContext.Flush();
+                drawingSession.DrawingContext.EndDraw();
 
                 var renderTargetSave = _renderTargetSaves.Pop();
 
@@ -414,22 +399,22 @@ namespace LottieSharp.Animation.Content
             }
 
             CurrentDrawingContext.Flush();
-
-
         }
 
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
             UpdateDrawingSessionWithFlags(paint.Flags);
             var curMatrix = GetCurrentTransform();
-            CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22, curMatrix.M31, curMatrix.M32);
+            CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22,
+                curMatrix.M31, curMatrix.M32);
 
             //var canvasComposite = CanvasComposite.SourceOver;
             // TODO paint.ColorFilter
             //if (paint.ColorFilter is PorterDuffColorFilter porterDuffColorFilter)
             //    canvasComposite = PorterDuff.ToCanvasComposite(porterDuffColorFilter.Mode);
 
-            CurrentDrawingContext.DrawBitmap(bitmap.PlatformImpl, dst, paint.Alpha / 255f, BitmapInterpolationMode.Default, src);
+            CurrentDrawingContext.DrawBitmap(bitmap.PlatformImpl, dst, paint.Alpha / 255f,
+                BitmapInterpolationMode.Default, src);
         }
 
         public void GetClipBounds(ref Rect bounds)
@@ -450,17 +435,17 @@ namespace LottieSharp.Animation.Content
 
         private void UpdateDrawingSessionWithFlags(int flags)
         {
-            CurrentDrawingContext.AntialiasMode = (flags & Paint.AntiAliasFlag) == Paint.AntiAliasFlag
-                ? AntialiasMode.PerPrimitive
-                : AntialiasMode.Aliased;
+            // CurrentDrawingContext.AntialiasMode = (flags & Paint.AntiAliasFlag) == Paint.AntiAliasFlag
+            //     ? AntialiasMode.PerPrimitive
+            //     : AntialiasMode.Aliased;
         }
 
-        private AntialiasMode GetDrawingSessionMode(int flags)
-        {
-            return (flags & Paint.AntiAliasFlag) == Paint.AntiAliasFlag
-                ? AntialiasMode.PerPrimitive
-                : AntialiasMode.Aliased;
-        }
+        // private AntialiasMode GetDrawingSessionMode(int flags)
+        // {
+        //     return (flags & Paint.AntiAliasFlag) == Paint.AntiAliasFlag
+        //         ? AntialiasMode.PerPrimitive
+        //         : AntialiasMode.Aliased;
+        // }
 
         public void Translate(float dx, float dy)
         {
@@ -480,7 +465,7 @@ namespace LottieSharp.Animation.Content
         public Rect DrawText(char character, Paint paint)
         {
             var gradient = paint.Shader as Gradient;
-            var brush = gradient != null ? gradient.GetBrush( paint.Alpha) : new SolidColorBrush(paint.Color);
+            var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new SolidColorBrush(paint.Color);
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
 
             UpdateDrawingSessionWithFlags(paint.Flags);
@@ -488,45 +473,58 @@ namespace LottieSharp.Animation.Content
 
             var text = new string(character, 1);
 
-            //TODO: OID: Check for global factory
-            using (var factory = new SharpDX.DirectWrite.Factory())
+            
+            
+            var fmttext = new FormattedText()
             {
-                var textFormat = new TextFormat(factory, paint.Typeface.FontFamily, paint.Typeface.Weight, paint.Typeface.Style, paint.TextSize)
-                {
-                    //FontSize = paint.TextSize,
-                    //FontFamily = paint.Typeface.FontFamily,
-                    //FontStyle = paint.Typeface.Style,
-                    //FontWeight = paint.Typeface.Weight,
-                    //VerticalAlignment = CanvasVerticalAlignment.Center,
-                    //HorizontalAlignment = CanvasHorizontalAlignment.Left,
-                    //LineSpacingBaseline = 0,
-                    //LineSpacing = 0
-                };
-                var textLayout = new TextLayout(factory, text, textFormat, 0.0f, 0.0f);
-                CurrentDrawingContext.DrawText(text, textFormat, new Rect(0, 0, 0, 0), finalBrush);
+                Typeface = new Avalonia.Media.Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
+                FontSize = paint.TextSize
+            };
+            
+            CurrentDrawingContext.DrawText(finalBrush, new Point(0,0 ), fmttext.PlatformImpl);
+            return new Rect(0, 0, fmttext.Bounds.Width, fmttext.Bounds.Height);
 
-                if (gradient == null)
-                {
-                    brush?.Dispose();
-                    finalBrush?.Dispose();
-                }
-
-                //TODO: OID: LayoutBound is not exists in text layout
-                return new Rect(0, 0, textLayout.DetermineMinWidth(), 0);
-            }
+            // //TODO: OID: Check for global factory
+            // using (var factory = new SharpDX.DirectWrite.Factory())
+            // {
+            //     var textFormat = new TextFormat(factory, paint.Typeface.FontFamily, paint.Typeface.Weight,
+            //         paint.Typeface.Style, paint.TextSize)
+            //     {
+            //         //FontSize = paint.TextSize,
+            //         //FontFamily = paint.Typeface.FontFamily,
+            //         //FontStyle = paint.Typeface.Style,
+            //         //FontWeight = paint.Typeface.Weight,
+            //         //VerticalAlignment = CanvasVerticalAlignment.Center,
+            //         //HorizontalAlignment = CanvasHorizontalAlignment.Left,
+            //         //LineSpacingBaseline = 0,
+            //         //LineSpacing = 0
+            //     };
+            //     var textLayout = new TextLayout(factory, text, textFormat, 0.0f, 0.0f);
+            //     CurrentDrawingContext.DrawText(text, textFormat, new Rect(0, 0, 0, 0), finalBrush);
+            //
+            //     if (gradient == null)
+            //     {
+            //         brush?.Dispose();
+            //         finalBrush?.Dispose();
+            //     }
+            //
+            //     //TODO: OID: LayoutBound is not exists in text layout
+            //     return new Rect(0, 0, , 0);
+            // }
         }
 
         private void Dispose(bool disposing)
         {
-            foreach (var renderTarget in _renderTargets)
-            {
-                renderTarget.Value.RenderTarget.Dispose();
-                renderTarget.Value.RenderTarget = null;
-
-                renderTarget.Value.Bitmap.Dispose();
-                renderTarget.Value.Bitmap = null;
-            }
-            _renderTargets.Clear();
+            // foreach (var renderTarget in _renderTargets)
+            // {
+            //     renderTarget.Value.DrawingContext.Dispose();
+            //     renderTarget.Value.DrawingContext = null;
+            //
+            //     renderTarget.Value.Bitmap.Dispose();
+            //     renderTarget.Value.Bitmap = null;
+            // }
+            //
+            // _renderTargets.Clear();
         }
 
         public void Dispose()
@@ -534,6 +532,5 @@ namespace LottieSharp.Animation.Content
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
     }
 }

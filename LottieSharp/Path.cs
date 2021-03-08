@@ -351,7 +351,7 @@ namespace LottieSharp
             }
         }
 
-        public PathGeometry GetGeometry()
+        public IGeometryImpl GetGeometry()
         {
             var fill = FillType == PathFillType.Winding
                 ? FillRule.NonZero
@@ -373,7 +373,7 @@ namespace LottieSharp
                 canvasPathBuilder.EndFigure(true);
 
  
-            return geometry;
+            return (IGeometryImpl)geometry;
         }
 
         public void ComputeBounds(ref Rect rect)
