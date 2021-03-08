@@ -6,8 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
 using Avalonia.Visuals.Media.Imaging;
-using LottieSharp.Model.Layer;
-using Color = System.Drawing.Color;
+using LottieSharp.Model.Layer; 
 
 
 namespace LottieSharp.Animation.Content
@@ -19,8 +18,7 @@ namespace LottieSharp.Animation.Content
         private readonly Stack<int> _flagSaves = new();
 
         private readonly Dictionary<int, RenderTargetHolder> _renderTargets = new();
-        //private IDrawingContextImpl _renderTarget;
-
+ 
         class RenderTargetHolder
         {
             public IDrawingContextImpl DrawingContext { get; set; }
@@ -290,6 +288,8 @@ namespace LottieSharp.Animation.Content
 
                 var rt = new DeviceContext(CurrentDrawingContext.Device,
                     DeviceContextOptions.EnableMultithreadedOptimizations);
+                
+                
 
                 var bitmap = new Bitmap1(
                     rt,
@@ -302,7 +302,7 @@ namespace LottieSharp.Animation.Content
                         PixelFormat = CurrentDrawingContext.PixelFormat,
                         BitmapOptions = BitmapOptions.Target
                     });
-
+ 
                 rt.Target = bitmap;
                 rendertarget = new RenderTargetHolder
                 {
@@ -413,8 +413,7 @@ namespace LottieSharp.Animation.Content
             //if (paint.ColorFilter is PorterDuffColorFilter porterDuffColorFilter)
             //    canvasComposite = PorterDuff.ToCanvasComposite(porterDuffColorFilter.Mode);
 
-            CurrentDrawingContext.DrawBitmap(bitmap.PlatformImpl, dst, paint.Alpha / 255f,
-                BitmapInterpolationMode.Default, src);
+            CurrentDrawingContext.DrawBitmap(bitmap.PlatformImpl, paint.Alpha, src,dst);
         }
 
         public void GetClipBounds(ref Rect bounds)
@@ -473,16 +472,15 @@ namespace LottieSharp.Animation.Content
 
             var text = new string(character, 1);
 
-            
-            
-            var fmttext = new FormattedText()
+            var textLayout = new FormattedText()
             {
+                Text = text,
                 Typeface = new Avalonia.Media.Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
                 FontSize = paint.TextSize
             };
             
-            CurrentDrawingContext.DrawText(finalBrush, new Point(0,0 ), fmttext.PlatformImpl);
-            return new Rect(0, 0, fmttext.Bounds.Width, fmttext.Bounds.Height);
+            CurrentDrawingContext.DrawText(finalBrush, new Point(0,0 ), textLayout.PlatformImpl);
+            return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
 
             // //TODO: OID: Check for global factory
             // using (var factory = new SharpDX.DirectWrite.Factory())
@@ -532,5 +530,6 @@ namespace LottieSharp.Animation.Content
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+ 
     }
 }
