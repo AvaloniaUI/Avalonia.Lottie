@@ -1,13 +1,11 @@
-﻿
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Media;
+using Avalonia.Platform;
 
 namespace LottieSharp
 {
@@ -19,7 +17,7 @@ namespace LottieSharp
             IContour Copy();
             float[] Points { get; }
             PathIterator.ContourType Type { get; }
-            void AddPathSegment(GeometrySink canvasPathBuilder, ref bool closed);
+            void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed);
             void Offset(float dx, float dy);
         }
 
@@ -27,18 +25,18 @@ namespace LottieSharp
         {
             private Vector2 _startPoint;
             private Vector2 _endPoint;
-            private RectangleF _rect;
+            private Rect _rect;
             private readonly float _startAngle;
             private readonly float _sweepAngle;
             private float _a;
             private float _b;
 
-            public ArcContour(Vector2 startPoint, RectangleF rect, float startAngle, float sweepAngle)
+            public ArcContour(Vector2 startPoint, Rect rect, float startAngle, float sweepAngle)
             {
                 _startPoint = startPoint;
                 _rect = rect;
-                _a = (float)(rect.Width / 2);
-                _b = (float)(rect.Height / 2);
+                _a = (float) (rect.Width / 2);
+                _b = (float) (rect.Height / 2);
                 _startAngle = startAngle;
                 _sweepAngle = sweepAngle;
 
@@ -50,10 +48,10 @@ namespace LottieSharp
                 _startPoint = matrix.Transform(_startPoint);
                 _endPoint = matrix.Transform(_endPoint);
 
-                var p1 = new Vector2((float)_rect.Left, (float)_rect.Top);
-                var p2 = new Vector2((float)_rect.Right, (float)_rect.Top);
-                var p3 = new Vector2((float)_rect.Left, (float)_rect.Bottom);
-                var p4 = new Vector2((float)_rect.Right, (float)_rect.Bottom);
+                var p1 = new Vector2((float) _rect.Left, (float) _rect.Top);
+                var p2 = new Vector2((float) _rect.Right, (float) _rect.Top);
+                var p3 = new Vector2((float) _rect.Left, (float) _rect.Bottom);
+                var p4 = new Vector2((float) _rect.Right, (float) _rect.Bottom);
 
                 p1 = matrix.Transform(p1);
                 p2 = matrix.Transform(p2);
@@ -69,20 +67,19 @@ namespace LottieSharp
                 return new ArcContour(_startPoint, _rect, _startAngle, _sweepAngle);
             }
 
-            public float[] Points => new[] { _startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y };
+            public float[] Points => new[] {_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Arc;
 
-            public void AddPathSegment(GeometrySink canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
-                canvasPathBuilder.AddArc(new ArcSegment
-                {
-                    Point = _endPoint,
-                    RotationAngle = (float)MathExt.ToRadians(_sweepAngle),
-                    SweepDirection = SweepDirection.Clockwise,
-                    ArcSize = ArcSize.Small,
-                    Size = new Size2F(_a, _b)
-                });
+                canvasPathBuilder.ArcTo(
+                    new Point(_endPoint.X, _endPoint.Y), 
+                    new Size(_a, _b),
+                    (float) MathExt.ToRadians(_sweepAngle), 
+                    false,
+                    SweepDirection.Clockwise
+                );
 
                 closed = false;
             }
@@ -104,7 +101,7 @@ namespace LottieSharp
                 var x = _a * (1 - u2) / (u2 + 1);
                 var y = 2 * _b * u / (u2 + 1);
 
-                return new Vector2((float)(_rect.Left + _a + x), (float)(_rect.Top + _b + y));
+                return new Vector2((float) (_rect.Left + _a + x), (float) (_rect.Top + _b + y));
             }
         }
 
@@ -133,7 +130,8 @@ namespace LottieSharp
                 return new BezierContour(_control1, _control2, _vertex);
             }
 
-            internal static double BezLength(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y, float c3X, float c3Y)
+            internal static double BezLength(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y,
+                float c3X, float c3Y)
             {
                 const double steps = 1000d; // TODO: improve
 
@@ -155,10 +153,12 @@ namespace LottieSharp
                     prevPtX = pt.X;
                     prevPtY = pt.Y;
                 }
+
                 return length;
             }
 
-            private static Vector2 GetPointAtT(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y, float c3X, float c3Y, double t)
+            private static Vector2 GetPointAtT(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y,
+                float c3X, float c3Y, double t)
             {
                 var t1 = 1d - t;
 
@@ -173,24 +173,23 @@ namespace LottieSharp
                 var t13B = 3 * t * t * t1;
                 var t13C = t * t * t;
 
-                var ptX = (float)(c0X * t13 + t13A * c1X + t13B * c2X + t13C * c3X);
-                var ptY = (float)(c0Y * t13 + t13A * c1Y + t13B * c2Y + t13C * c3Y);
+                var ptX = (float) (c0X * t13 + t13A * c1X + t13B * c2X + t13C * c3X);
+                var ptY = (float) (c0Y * t13 + t13A * c1Y + t13B * c2Y + t13C * c3Y);
 
                 return new Vector2(ptX, ptY);
             }
 
-            public float[] Points => new[] { _control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y };
+            public float[] Points => new[] {_control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Bezier;
 
-            public void AddPathSegment(GeometrySink canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
-                canvasPathBuilder.AddBezier(new BezierSegment
-                {
-                    Point1 = _control1,
-                    Point2 = _control2,
-                    Point3 = _vertex
-                });
+                canvasPathBuilder.CubicBezierTo( 
+                    new Point(_control1.X, _control1.Y) ,
+                    new Point(_control2.X, _control2.Y) ,
+                    new Point(_vertex.X, _vertex.Y)
+                );
 
                 closed = false;
             }
@@ -235,10 +234,9 @@ namespace LottieSharp
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Line;
 
-            public void AddPathSegment(GeometrySink canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
-                canvasPathBuilder.AddLine(new RawVector2(_points[0], _points[1]));
-
+                canvasPathBuilder.LineTo(new Point(_points[0], _points[1]));
                 closed = false;
             }
 
@@ -268,17 +266,18 @@ namespace LottieSharp
                 return new MoveToContour(_points[0], _points[1]);
             }
 
-            public void AddPathSegment(GeometrySink canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 if (!closed)
                 {
-                    canvasPathBuilder.EndFigure(FigureEnd.Open);
+                    canvasPathBuilder.EndFigure(false);
                 }
                 else
                 {
                     closed = false;
                 }
-                canvasPathBuilder.BeginFigure(new RawVector2(_points[0], _points[1]), FigureBegin.Filled);
+
+                canvasPathBuilder.BeginFigure(new Point(_points[0], _points[1]), true);
             }
 
             public void Offset(float dx, float dy)
@@ -309,11 +308,11 @@ namespace LottieSharp
                 return new CloseContour();
             }
 
-            public void AddPathSegment(GeometrySink canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 if (!closed)
                 {
-                    canvasPathBuilder.EndFigure(FigureEnd.Closed);
+                    canvasPathBuilder.EndFigure(true);
                     closed = true;
                 }
             }
@@ -352,16 +351,16 @@ namespace LottieSharp
             }
         }
 
-        public PathGeometry GetGeometry(Factory factory)
+        public PathGeometry GetGeometry()
         {
             var fill = FillType == PathFillType.Winding
-                ? FillMode.Winding
-                : FillMode.Alternate;
-            //    FillRule = path.FillType == PathFillType.EvenOdd ? FillRule.EvenOdd : FillRule.Nonzero,
-            var geometry = new PathGeometry(factory);
+                ? FillRule.NonZero
+                : FillRule.EvenOdd ;
+            
+            var geometry = new PathGeometry();
 
-            using var canvasPathBuilder = geometry.Open();
-            canvasPathBuilder.SetFillMode(fill);
+            using var canvasPathBuilder = (IStreamGeometryContextImpl)geometry.Open();
+            canvasPathBuilder.SetFillRule(fill);
 
             var closed = true;
 
@@ -371,14 +370,13 @@ namespace LottieSharp
             }
 
             if (!closed)
-                canvasPathBuilder.EndFigure(FigureEnd.Open);
+                canvasPathBuilder.EndFigure(true);
 
-            canvasPathBuilder.Close();
-
+ 
             return geometry;
         }
 
-        public void ComputeBounds(ref RectangleF rect)
+        public void ComputeBounds(ref Rect rect)
         {
             if (Contours.Count == 0)
             {
@@ -386,13 +384,11 @@ namespace LottieSharp
                 return;
             }
 
-            using (var factory = new Factory(FactoryType.SingleThreaded))
-            using (var geometry = GetGeometry(factory))
-            {
+            var geometry = GetGeometry();
+            
                 //TODO: OID: Check is it ok or not
-                var bound = geometry.GetBounds();
-                rect = new RectangleF(bound.Left, bound.Top, bound.Right - bound.Left, bound.Bottom - bound.Top);
-            }
+                var bound = geometry.Bounds;
+                rect = new Rect(bound.Left, bound.Top, bound.Right - bound.Left, bound.Bottom - bound.Top);
         }
 
         public void AddPath(Path path, Matrix3X3 matrix)
@@ -457,7 +453,7 @@ namespace LottieSharp
             // TODO
         }
 
-        public void ArcTo(float x, float y, RectangleF rect, float startAngle, float sweepAngle)
+        public void ArcTo(float x, float y, Rect rect, float startAngle, float sweepAngle)
         {
             var newArc = new ArcContour(new Vector2(x, y), rect, startAngle, sweepAngle);
             Contours.Add(newArc);
@@ -492,6 +488,7 @@ namespace LottieSharp
                         AddBezier(points, CubicBezierCalculation, segmentPoints, lengths, errorSquared, true);
                         break;
                 }
+
                 pathIterator.Next();
             }
 
@@ -505,7 +502,7 @@ namespace LottieSharp
                 else
                 {
                     // Invalid or empty path. Fall back to point(0,0)
-                    AddMove(segmentPoints, lengths, new[] { 0.0f, 0.0f });
+                    AddMove(segmentPoints, lengths, new[] {0.0f, 0.0f});
                 }
             }
 
@@ -573,6 +570,7 @@ namespace LottieSharp
             {
                 length = lengths.Last();
             }
+
             segmentPoints.Add(new Vector2(point[0], point[1]));
             lengths.Add(length);
         }
@@ -597,7 +595,8 @@ namespace LottieSharp
 
         delegate Vector2 BezierCalculation(float t, float[] points);
 
-        static void AddBezier(float[] points, BezierCalculation bezierFunction, List<Vector2> segmentPoints, List<float> lengths, float errorSquared, bool doubleCheckDivision)
+        static void AddBezier(float[] points, BezierCalculation bezierFunction, List<Vector2> segmentPoints,
+            List<float> lengths, float errorSquared, bool doubleCheckDivision)
         {
             points[7] = points[5];
             points[6] = points[4];
@@ -619,11 +618,13 @@ namespace LottieSharp
                 bool needsSubdivision;
                 do
                 {
-                    needsSubdivision = SubdividePoints(points, bezierFunction, tToPoint[i].Key, tToPoint[i].Value, tToPoint[i + 1].Key,
+                    needsSubdivision = SubdividePoints(points, bezierFunction, tToPoint[i].Key, tToPoint[i].Value,
+                        tToPoint[i + 1].Key,
                         tToPoint[i + 1].Value, out var midT, out var midPoint, errorSquared);
                     if (!needsSubdivision && doubleCheckDivision)
                     {
-                        needsSubdivision = SubdividePoints(points, bezierFunction, tToPoint[i].Key, tToPoint[i].Value, midT,
+                        needsSubdivision = SubdividePoints(points, bezierFunction, tToPoint[i].Key, tToPoint[i].Value,
+                            midT,
                             midPoint, out _, out _, errorSquared);
                         if (needsSubdivision)
                         {
@@ -642,11 +643,12 @@ namespace LottieSharp
             // Now that each division can use linear interpolation with less than the allowed error
             foreach (var iter in tToPoint)
             {
-                AddLine(segmentPoints, lengths, new[] { iter.Value.X, iter.Value.Y });
+                AddLine(segmentPoints, lengths, new[] {iter.Value.X, iter.Value.Y});
             }
         }
 
-        private static bool SubdividePoints(float[] points, BezierCalculation bezierFunction, float t0, Vector2 p0, float t1, Vector2 p1, out float midT, out Vector2 midPoint, float errorSquared)
+        private static bool SubdividePoints(float[] points, BezierCalculation bezierFunction, float t0, Vector2 p0,
+            float t1, Vector2 p1, out float midT, out Vector2 midPoint, float errorSquared)
         {
             midT = (t1 + t0) / 2;
             float midX = (p1.X + p0.X) / 2;
@@ -673,15 +675,18 @@ namespace LottieSharp
         // Summary:
         //     The result geometry contains the set of all areas from either of the source geometries.
         Union = 0,
+
         //
         // Summary:
         //     The result geometry contains just the areas where the source geometries overlap.
         Intersect = 1,
+
         //
         // Summary:
         //     The result geometry contains the areas from both the source geometries, except
         //     for any parts where they overlap.
         Xor = 2,
+
         //
         // Summary:
         //     The result geometry contains any area that is in the first source geometry- but
