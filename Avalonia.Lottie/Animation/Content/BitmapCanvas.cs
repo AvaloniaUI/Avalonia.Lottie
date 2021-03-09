@@ -6,7 +6,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
 using Avalonia.Visuals.Media.Imaging;
-using Avalonia.Lottie.Model.Layer; 
+using Avalonia.Lottie.Model.Layer;
+using Avalonia.Media.Immutable;
 
 
 namespace Avalonia.Lottie.Animation.Content
@@ -121,10 +122,10 @@ namespace Avalonia.Lottie.Animation.Content
 
         internal void DrawRect(Rect rect, Paint paint)
         {
-            UpdateDrawingSessionWithFlags(paint.Flags);
+           // UpdateDrawingSessionWithFlags(paint.Flags);
             
             // CurrentDrawingContext.Transform = GetCurrentTransform();
-            var brush = new SolidColorBrush(paint.Color).ToImmutable();
+            var brush = new ImmutableSolidColorBrush(paint.Color);
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
                 {
@@ -145,7 +146,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void DrawPath(Path path, Paint paint, bool fromMask = false)
         {
-            UpdateDrawingSessionWithFlags(paint.Flags);
+           // UpdateDrawingSessionWithFlags(paint.Flags);
 
             // CurrentDrawingContext.Transform = GetCurrentTransform();
 
@@ -264,7 +265,7 @@ namespace Avalonia.Lottie.Animation.Content
 
             if (isClipToLayer)
             {
-                UpdateDrawingSessionWithFlags(paint.Flags);
+              ///  UpdateDrawingSessionWithFlags(paint.Flags);
 
                 var rendertarget = CreateRenderTarget(bounds, _renderTargetSaves.Count);
                 _renderTargetSaves.Push(new RenderTargetSave(rendertarget.DrawingContext, paint.Flags, paint.Xfermode,
@@ -354,7 +355,7 @@ namespace Avalonia.Lottie.Animation.Content
 
                 var renderTargetSave = _renderTargetSaves.Pop();
 
-                UpdateDrawingSessionWithFlags(renderTargetSave.PaintFlags);
+              //  UpdateDrawingSessionWithFlags(renderTargetSave.PaintFlags);
                 // CurrentDrawingContext.Transform = GetCurrentTransform();
 
 
@@ -391,7 +392,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
-            UpdateDrawingSessionWithFlags(paint.Flags);
+           // UpdateDrawingSessionWithFlags(paint.Flags);
             // var curMatrix = GetCurrentTransform();
             // CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22,
             //     curMatrix.M31, curMatrix.M32);
@@ -411,7 +412,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Clear(Color color)
         {
-            UpdateDrawingSessionWithFlags(0);
+         //   UpdateDrawingSessionWithFlags(0);
 
             CurrentDrawingContext.Clear(color);
 
@@ -455,7 +456,7 @@ namespace Avalonia.Lottie.Animation.Content
             var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new SolidColorBrush(paint.Color);
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
 
-            UpdateDrawingSessionWithFlags(paint.Flags);
+          //  UpdateDrawingSessionWithFlags(paint.Flags);
             // CurrentDrawingContext.Transform = GetCurrentTransform();
 
             var text = new string(character, 1);
