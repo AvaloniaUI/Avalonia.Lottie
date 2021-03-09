@@ -137,18 +137,18 @@ namespace Avalonia.Lottie.Utils
                 }
 
                 _tempPath.Reset();
-                pathMeasure.GetSegment(newStart, newEnd, ref _tempPath, true);
+                pathMeasure.GetSegment(newStart, newEnd, _tempPath, true);
 
                 if (newEnd > length)
                 {
                     _tempPath2.Reset();
-                    pathMeasure.GetSegment(0, newEnd % length, ref _tempPath2, true);
+                    pathMeasure.GetSegment(0, newEnd % length, _tempPath2, true);
                     _tempPath.AddPath(_tempPath2);
                 }
                 else if (newStart < 0)
                 {
                     _tempPath2.Reset();
-                    pathMeasure.GetSegment(length + newStart, length, ref _tempPath2, true);
+                    pathMeasure.GetSegment(length + newStart, length, _tempPath2, true);
                     _tempPath.AddPath(_tempPath2);
                 }
             }
