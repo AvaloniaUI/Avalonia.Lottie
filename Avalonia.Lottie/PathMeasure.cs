@@ -3,7 +3,9 @@
 
 using System;
 using System.Numerics;
+using System.Reflection;
 using Avalonia.Media;
+using SkiaSharp;
 
 namespace Avalonia.Lottie
 {
@@ -12,30 +14,29 @@ namespace Avalonia.Lottie
         private CachedPathIteratorFactory _originalPathIterator;
         private Path _path;
         private Geometry _geometry;
+        private SKPathMeasure _internalSKPathMeasure;
 
         public PathMeasure(Path path)
-        {
-            _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
-            _path = path;
-            //
-            // using (var factory = new Factory(FactoryType.SingleThreaded))
-                 _geometry = _path.GetGeometry();
-            // TODO: HACK HACK HACK
-            Length = (float)_geometry.Bounds.Size.Width;  //_geometry.ComputeLength();
+        {SetPath(path);
         }
 
         public void SetPath(Path path)
         {
-            _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
-            _path = path;
-            // _geometry?.Dispose();
-            // using (var factory = new Factory(FactoryType.SingleThreaded))
-            //     _geometry = _path.GetGeometry(factory);
-            // Length = _geometry.ComputeLength();
-            _geometry = _path.GetGeometry();
-
+           
             // TODO: HACK HACK HACK
-            Length = (float)_geometry.Bounds.Size.Width;  //_geometry.ComputeLength();
+            _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
+            _path = path; 
+            _geometry = _path.GetGeometry(); 
+            var k = _geometry.PlatformImpl;
+            var propertyInfo = k.GetType().GetProperty("EffectivePath");
+            var internalSKPath = propertyInfo.GetValue(k, null) as SKPath;
+
+            if (internalSKPath != null)
+            {
+                _internalSKPathMeasure = new SKPathMeasure(internalSKPath);
+            }
+ 
+            Length = _internalSKPathMeasure.Length;
         }
 
         public float Length { get; private set; }
@@ -51,85 +52,101 @@ namespace Avalonia.Lottie
 
             // RawVector2 vectOutput;
             // var vect2 = _geometry.ComputePointAtLength(distance, out vectOutput);
+
+            var h = _internalSKPathMeasure.GetPositionAndTangent(distance, out var position, out var tangent);
+
+            if (h)
+            {
+                return new Vector2(position.X, position.Y);
+            }
             
-            // TODO: HACK HACK HACK
-    
-            return new Vector2(0, 0);
-            // return new Vector2(vect2.X, vect2.Y);
+            return Vector2.One;
         }
 
         public bool GetSegment(float startD, float stopD, ref Path dst, bool startWithMoveTo)
         {
-            var length = Length;
+            
+            var k = dst.GetGeometry().PlatformImpl;
+            var propertyInfo = k.GetType().GetProperty("EffectivePath");
+            var internalSKPath = propertyInfo.GetValue(k, null) as SKPath;
 
-            if (startD < 0)
+            if (internalSKPath != null)
             {
-                startD = 0;
+                _internalSKPathMeasure = new SKPathMeasure(internalSKPath);
             }
-
-            if (stopD > length)
-            {
-                stopD = length;
-            }
-
-            if (startD >= stopD)
-            {
-                return false;
-            }
-
-            var iterator = _originalPathIterator.Iterator();
-
-            var accLength = startD;
-            var isZeroLength = true;
-
-            var points = new float[6];
-
-            iterator.JumpToSegment(accLength);
-
-            while (!iterator.Done && stopD - accLength > 0.1f)
-            {
-                var type = iterator.CurrentSegment(points, stopD - accLength);
-
-                if (accLength - iterator.CurrentSegmentLength <= stopD)
-                {
-                    if (startWithMoveTo)
-                    {
-                        startWithMoveTo = false;
-
-                        if (type != PathIterator.ContourType.MoveTo == false)
-                        {
-                            var lastPoint = new float[2];
-                            iterator.GetCurrentSegmentEnd(lastPoint);
-                            dst.MoveTo(lastPoint[0], lastPoint[1]);
-                        }
-                    }
-
-                    isZeroLength = isZeroLength && iterator.CurrentSegmentLength > 0;
-                    switch (type)
-                    {
-                        case PathIterator.ContourType.MoveTo:
-                            dst.MoveTo(points[0], points[1]);
-                            break;
-                        case PathIterator.ContourType.Line:
-                            dst.LineTo(points[0], points[1]);
-                            break;
-                        case PathIterator.ContourType.Close:
-                            dst.Close();
-                            break;
-                        case PathIterator.ContourType.Bezier:
-                        case PathIterator.ContourType.Arc:
-                            dst.CubicTo(points[0], points[1],
-                                points[2], points[3],
-                                points[4], points[5]);
-                            break;
-                    }
-                }
-
-                accLength += iterator.CurrentSegmentLength;
-                iterator.Next();
-            }
-
-            return !isZeroLength;
+            
+           return _internalSKPathMeasure.GetSegment(startD, stopD, internalSKPath, startWithMoveTo);
+            //
+            // var length = Length;
+            //
+            // if (startD < 0)
+            // {
+            //     startD = 0;
+            // }
+            //
+            // if (stopD > length)
+            // {
+            //     stopD = length;
+            // }
+            //
+            // if (startD >= stopD)
+            // {
+            //     return false;
+            // }
+            //
+            // var iterator = _originalPathIterator.Iterator();
+            //
+            // var accLength = startD;
+            // var isZeroLength = true;
+            //
+            // var points = new float[6];
+            //
+            // iterator.JumpToSegment(accLength);
+            //
+            // while (!iterator.Done && stopD - accLength > 0.1f)
+            // {
+            //     var type = iterator.CurrentSegment(points, stopD - accLength);
+            //
+            //     if (accLength - iterator.CurrentSegmentLength <= stopD)
+            //     {
+            //         if (startWithMoveTo)
+            //         {
+            //             startWithMoveTo = false;
+            //
+            //             if (type != PathIterator.ContourType.MoveTo == false)
+            //             {
+            //                 var lastPoint = new float[2];
+            //                 iterator.GetCurrentSegmentEnd(lastPoint);
+            //                 dst.MoveTo(lastPoint[0], lastPoint[1]);
+            //             }
+            //         }
+            //
+            //         isZeroLength = isZeroLength && iterator.CurrentSegmentLength > 0;
+            //         switch (type)
+            //         {
+            //             case PathIterator.ContourType.MoveTo:
+            //                 dst.MoveTo(points[0], points[1]);
+            //                 break;
+            //             case PathIterator.ContourType.Line:
+            //                 dst.LineTo(points[0], points[1]);
+            //                 break;
+            //             case PathIterator.ContourType.Close:
+            //                 dst.Close();
+            //                 break;
+            //             case PathIterator.ContourType.Bezier:
+            //             case PathIterator.ContourType.Arc:
+            //                 dst.CubicTo(points[0], points[1],
+            //                     points[2], points[3],
+            //                     points[4], points[5]);
+            //                 break;
+            //         }
+            //     }
+            //
+            //     accLength += iterator.CurrentSegmentLength;
+            //     iterator.Next();
+            // }
+            //
+            // return !isZeroLength;
         }
 
         internal void Dispose(bool disposing)
@@ -156,8 +173,9 @@ namespace Avalonia.Lottie
                 // }
                 // finally
                 // {
+                    _internalSKPathMeasure.Dispose();
                     _geometry = null;
-                // }
+                    // }
             }
         }
 
