@@ -1,6 +1,3 @@
-
-
-
 using System;
 using System.Numerics;
 using System.Reflection;
@@ -17,16 +14,16 @@ namespace Avalonia.Lottie
         private SKPathMeasure _internalSKPathMeasure;
 
         public PathMeasure(Path path)
-        {SetPath(path);
+        {
+            SetPath(path);
         }
 
         public void SetPath(Path path)
         {
-           
             // TODO: HACK HACK HACK
             _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
-            _path = path; 
-            _geometry = _path.GetGeometry(); 
+            _path = path;
+            _geometry = _path.GetGeometry();
             var k = _geometry.PlatformImpl;
             var propertyInfo = k.GetType().GetProperty("EffectivePath");
             var internalSKPath = propertyInfo.GetValue(k, null) as SKPath;
@@ -35,7 +32,7 @@ namespace Avalonia.Lottie
             {
                 _internalSKPathMeasure = new SKPathMeasure(internalSKPath);
             }
- 
+
             Length = _internalSKPathMeasure.Length;
         }
 
@@ -59,13 +56,12 @@ namespace Avalonia.Lottie
             {
                 return new Vector2(position.X, position.Y);
             }
-            
+
             return Vector2.One;
         }
 
-        public bool GetSegment(float startD, float stopD, ref Path dst, bool startWithMoveTo)
+        public bool GetSegment(float startD, float stopD, Path dst, bool startWithMoveTo)
         {
-            
             var k = dst.GetGeometry().PlatformImpl;
             var propertyInfo = k.GetType().GetProperty("EffectivePath");
             var internalSKPath = propertyInfo.GetValue(k, null) as SKPath;
@@ -74,8 +70,8 @@ namespace Avalonia.Lottie
             {
                 _internalSKPathMeasure = new SKPathMeasure(internalSKPath);
             }
-            
-           return _internalSKPathMeasure.GetSegment(startD, stopD, internalSKPath, startWithMoveTo);
+
+            return _internalSKPathMeasure.GetSegment(startD, stopD, internalSKPath, startWithMoveTo);
             //
             // var length = Length;
             //
@@ -173,9 +169,9 @@ namespace Avalonia.Lottie
                 // }
                 // finally
                 // {
-                    _internalSKPathMeasure.Dispose();
-                    _geometry = null;
-                    // }
+                _internalSKPathMeasure.Dispose();
+                _geometry = null;
+                // }
             }
         }
 
