@@ -49,17 +49,17 @@ namespace Avalonia.Lottie.Sample
             
             
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/Gears.json"));
+            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/2719-bitcoin-to-the-moon.json"));
             var a = await new StreamReader(getstr).ReadToEndAsync();
 
             var res = await LottieCompositionFactory.FromJsonString(a, "cache1");
             if (res is not null)
             {
                 _lottieDrawable.SetComposition(res.Value);
-                // _lottieDrawable.DirectScale = 0.45f;
-                _lottieDrawable.RepeatCount = Int32.MaxValue;
-                _lottieDrawable.Scale = 1f;
-                _lottieDrawable.Start();
+                 //_lottieDrawable.DirectScale = 0.25f;
+                 _lottieDrawable.Start();
+                 _lottieDrawable.RepeatCount = Int32.MaxValue;
+                _lottieDrawable.Scale = 0.25f;
                 
             }
         }

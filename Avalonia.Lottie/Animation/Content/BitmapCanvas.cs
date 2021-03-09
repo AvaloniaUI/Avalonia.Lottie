@@ -122,7 +122,8 @@ namespace Avalonia.Lottie.Animation.Content
         internal void DrawRect(Rect rect, Paint paint)
         {
             UpdateDrawingSessionWithFlags(paint.Flags);
-            CurrentDrawingContext.Transform = GetCurrentTransform();
+            
+            // CurrentDrawingContext.Transform = GetCurrentTransform();
             var brush = new SolidColorBrush(paint.Color).ToImmutable();
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
@@ -146,7 +147,7 @@ namespace Avalonia.Lottie.Animation.Content
         {
             UpdateDrawingSessionWithFlags(paint.Flags);
 
-            CurrentDrawingContext.Transform = GetCurrentTransform();
+            // CurrentDrawingContext.Transform = GetCurrentTransform();
 
             var gradient = paint.Shader as Gradient;
             var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new SolidColorBrush(paint.Color);
@@ -283,37 +284,12 @@ namespace Avalonia.Lottie.Animation.Content
         private RenderTargetHolder CreateRenderTarget(Rect bounds, int index)
         {
             if (!_renderTargets.TryGetValue(index, out var rendertarget))
-            {
-                //TODO: OID: Some properties are missed
-                //rendertarget = new DeviceContext(
-                //    CurrentRenderTarget,
-                //    CompatibleRenderTargetOptions.None,
-                //    new Size2F(bounds.Width, bounds.Height),
-                //    new Size2((int)Utils.Utils.Dpi(), (int)Utils.Utils.Dpi()),
-                //    new PixelFormat(SharpDX.DXGI.Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied));
-                
+            { 
                 
                  var bitmap = new RenderTargetBitmap(new PixelSize((int)bounds.Width, (int)bounds.Height), new Vector(96, 96));
 
                  var rt = bitmap.CreateDrawingContext(null);
-                
-                // var rt = new DeviceContext(CurrentDrawingContext.Device,
-                //     DeviceContextOptions.EnableMultithreadedOptimizations);
-                //
-                // var bitmap = new Bitmap1(
-                //     rt,
-                //     new Size2((int) bounds.Width, (int) bounds.Height),
-                //     null, 0,
-                //     new BitmapProperties1
-                //     {
-                //         DpiX = CurrentDrawingContext.DotsPerInch.Width,
-                //         DpiY = CurrentDrawingContext.DotsPerInch.Height,
-                //         PixelFormat = CurrentDrawingContext.PixelFormat,
-                //         BitmapOptions = BitmapOptions.Target
-                //     });
- 
-                // rt.Target = bitmap;
-                
+                 
                 rendertarget = new RenderTargetHolder
                 {
                     DrawingContext = rt,
@@ -322,7 +298,6 @@ namespace Avalonia.Lottie.Animation.Content
                 _renderTargets.Add(index, rendertarget);
             }
             
-            // rendertarget.DrawingContext.BeginDraw();
             return rendertarget;
         }
 
@@ -380,7 +355,7 @@ namespace Avalonia.Lottie.Animation.Content
                 var renderTargetSave = _renderTargetSaves.Pop();
 
                 UpdateDrawingSessionWithFlags(renderTargetSave.PaintFlags);
-                CurrentDrawingContext.Transform = GetCurrentTransform();
+                // CurrentDrawingContext.Transform = GetCurrentTransform();
 
 
                 // var canvasComposite = CompositeMode.SourceOver;
@@ -417,9 +392,9 @@ namespace Avalonia.Lottie.Animation.Content
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
             UpdateDrawingSessionWithFlags(paint.Flags);
-            var curMatrix = GetCurrentTransform();
-            CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22,
-                curMatrix.M31, curMatrix.M32);
+            // var curMatrix = GetCurrentTransform();
+            // CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22,
+            //     curMatrix.M31, curMatrix.M32);
 
             //var canvasComposite = CanvasComposite.SourceOver;
             // TODO paint.ColorFilter
@@ -481,7 +456,7 @@ namespace Avalonia.Lottie.Animation.Content
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
 
             UpdateDrawingSessionWithFlags(paint.Flags);
-            CurrentDrawingContext.Transform = GetCurrentTransform();
+            // CurrentDrawingContext.Transform = GetCurrentTransform();
 
             var text = new string(character, 1);
 

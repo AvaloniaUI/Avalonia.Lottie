@@ -285,7 +285,7 @@ namespace Avalonia.Lottie
 
                 using (var ctxi = _backingBitmap.CreateDrawingContext(null))
                 using (var ctx = new DrawingContext(ctxi, false))
-                using (_bitmapCanvas.CreateSession(_composition.Bounds.Width, _composition.Bounds.Height,
+                using (_bitmapCanvas.CreateSession(Width, Height,
                     ctx.PlatformImpl))
                 {
 
