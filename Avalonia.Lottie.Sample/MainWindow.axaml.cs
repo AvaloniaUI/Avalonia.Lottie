@@ -49,7 +49,7 @@ namespace Avalonia.Lottie.Sample
             
             
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/42495-payment-security.json"));
+            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/2719-bitcoin-to-the-moon.json"));
             var a = await new StreamReader(getstr).ReadToEndAsync();
 
             var res = await LottieCompositionFactory.FromJsonString(a, "cache1");
@@ -59,7 +59,7 @@ namespace Avalonia.Lottie.Sample
                  //_lottieDrawable.DirectScale = 0.25f;
                  _lottieDrawable.Start();
                  _lottieDrawable.RepeatCount = -1;
-                // _lottieDrawable.Scale = 0.5f;
+                _lottieDrawable.Scale = 0.5f;
                 
             }
         }

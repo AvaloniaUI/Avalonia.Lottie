@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Avalonia.Lottie
@@ -68,10 +69,11 @@ namespace Avalonia.Lottie
 
         protected void PrivateStart()
         {
-            if (_timer == null)
-            {
-                _timer = new Timer(TimerCallback, null, TimeSpan.Zero, GetTimerInterval());
-            }
+            LottieLog.Warn("Warning: Self timer is disabled for ValueAnimator. All frame events are not triggered on Render callback from LottieDrawable.");
+            // if (_timer == null)
+            // {
+            //     _timer = new Timer(TimerCallback, null, TimeSpan.Zero, GetTimerInterval());
+            // }
         }
 
         protected void UpdateTimerInterval()

@@ -283,6 +283,11 @@ namespace Avalonia.Lottie
                     return;
                 }
 
+                if (_animator.IsRunning)
+                {
+                    _animator.DoFrame();
+                }
+                
                 using (var ctxi = _backingBitmap.CreateDrawingContext(null))
                 using (var ctx = new DrawingContext(ctxi, false))
                 using (_bitmapCanvas.CreateSession(Width, Height,
