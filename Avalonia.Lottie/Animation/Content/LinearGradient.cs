@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Avalonia;
-using Avalonia.Media; 
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
 
 namespace Avalonia.Lottie.Animation.Content
 {
@@ -11,8 +13,8 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly float _y0;
         private readonly float _x1;
         private readonly float _y1;
-        private readonly GradientStops _canvasGradientStopCollection;
-        private LinearGradientBrush _canvasLinearGradientBrush;
+        private readonly List<ImmutableGradientStop> _canvasGradientStopCollection;
+        private ImmutableLinearGradientBrush _canvasLinearGradientBrush;
 
         public LinearGradient(float x0, float y0, float x1, float y1, Color[] colors, float[] positions)
         {
@@ -20,14 +22,10 @@ namespace Avalonia.Lottie.Animation.Content
             _y0 = y0;
             _x1 = x1;
             _y1 = y1;
-            _canvasGradientStopCollection = new GradientStops();
+            _canvasGradientStopCollection = new List<ImmutableGradientStop>(colors.Length);
             for (var i = 0; i < colors.Length; i++)
             {
-                _canvasGradientStopCollection.Add(new GradientStop
-                {
-                    Color = colors[i],
-                    Offset = positions[i]
-                });
+                _canvasGradientStopCollection.Add(new ImmutableGradientStop(positions[i], colors[i]));
             }
         }
 
@@ -41,38 +39,18 @@ namespace Avalonia.Lottie.Animation.Content
                 startPoint = LocalMatrix.Transform(startPoint);
                 endPoint = LocalMatrix.Transform(endPoint);
 
-                _canvasLinearGradientBrush = new LinearGradientBrush
-                {
-                    StartPoint = new RelativePoint(startPoint.X, startPoint.Y, RelativeUnit.Relative),
-                    EndPoint = new RelativePoint(endPoint.X, endPoint.Y, RelativeUnit.Relative),
-                    GradientStops = _canvasGradientStopCollection
-                };
-
+                _canvasLinearGradientBrush = new ImmutableLinearGradientBrush(_canvasGradientStopCollection,
+                    alpha / 255f, 
+                    startPoint: new RelativePoint(startPoint.X, startPoint.Y, RelativeUnit.Absolute),
+                    endPoint: new RelativePoint(endPoint.X, endPoint.Y, RelativeUnit.Absolute));
             }
 
-            _canvasLinearGradientBrush.Opacity = alpha / 255f;
-
-            return _canvasLinearGradientBrush.ToImmutable();
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (_canvasLinearGradientBrush != null)
-            {
-                // _canvasLinearGradientBrush.Dispose();
-                _canvasLinearGradientBrush = null;
-            }
+            return _canvasLinearGradientBrush;
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~LinearGradient()
-        {
-            Dispose(false);
+            _canvasLinearGradientBrush = null;
         }
     }
 }
