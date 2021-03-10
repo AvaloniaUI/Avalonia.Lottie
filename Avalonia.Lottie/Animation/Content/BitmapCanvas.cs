@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -8,6 +10,9 @@ using Avalonia.Platform;
 using Avalonia.Visuals.Media.Imaging;
 using Avalonia.Lottie.Model.Layer;
 using Avalonia.Media.Immutable;
+using Avalonia.Skia;
+using Avalonia.Utilities;
+using SkiaSharp;
 
 
 namespace Avalonia.Lottie.Animation.Content
@@ -364,10 +369,15 @@ namespace Avalonia.Lottie.Animation.Content
                 // {
                 //     canvasComposite = PorterDuff.ToCanvasComposite(renderTargetSave.PaintXfermode.Mode);
                 // }
+                //
+                // CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl,1,
+                //       new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) ,
+                //       new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) );
 
-                CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl,1,
-                      new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) ,
-                      new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) );
+                var j = new Rect(0, 0, drawingSession.Bitmap.Size.Width, drawingSession.Bitmap.Size.Height);
+
+                HackedSkiaDrawBitmap(CurrentDrawingContext, drawingSession.Bitmap.PlatformImpl, 1, j, j, BitmapInterpolationMode.Default, renderTargetSave.PaintXfermode);
+                
                 // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
                 //     new RawVector2(0, 0),
                 //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
@@ -390,6 +400,65 @@ namespace Avalonia.Lottie.Animation.Content
             // CurrentDrawingContext.Flush();
         }
 
+        public static object ReflCast(object obj, Type t)
+        { 
+            try
+            {
+                var param = Expression.Parameter(obj.GetType());
+                return Expression.Lambda(Expression.Convert(param, t), param)
+                    .Compile().DynamicInvoke(obj);
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }         
+        }
+        public void HackedSkiaDrawBitmap(IDrawingContextImpl ctx, IRef<IBitmapImpl> source, double opacity, Rect sourceRect,
+            Rect destRect, BitmapInterpolationMode bitmapInterpolationMode, PorterDuffXfermode porterDuffXfermode)
+        {
+            // The mother of all Hacks
+            var assm = typeof(SkiaPlatform).Assembly;
+            var drawableBitmapImplType = assm.GetType("Avalonia.Skia.IDrawableBitmapImpl");
+            var drawingContextImplType = assm.GetType("Avalonia.Skia.DrawingContextImpl");
+            var castedDrawableBitmap = ReflCast(source.Item, drawableBitmapImplType);
+            var castedDrawingContextImpl = ReflCast(ctx, drawingContextImplType);
+            var hackedDrawMethod = drawableBitmapImplType?.GetMethod("Draw");
+            var hackedCurrentOpacityField = drawingContextImplType?.GetField("_currentOpacity", BindingFlags.NonPublic | 
+                BindingFlags.Instance);
+            var curOpacity = (double)hackedCurrentOpacityField?.GetValue(castedDrawingContextImpl);
+            var s = sourceRect.ToSKRect();
+            var d = destRect.ToSKRect();
+
+            using (var paint =
+                new SKPaint
+                {
+                    Color = new SKColor(255, 255, 255, (byte)(255 * opacity * curOpacity))
+                })
+            {
+                paint.FilterQuality = bitmapInterpolationMode.ToSKFilterQuality();
+                if (porterDuffXfermode != null)
+                {
+                    switch (porterDuffXfermode.Mode)
+                    {
+                        case PorterDuff.Mode.SrcAtop:
+                            paint.BlendMode = SKBlendMode.SrcATop;
+                            break;
+                        case PorterDuff.Mode.DstOut:
+                            paint.BlendMode = SKBlendMode.DstOut;
+                            break;
+                        case PorterDuff.Mode.DstIn:
+                            paint.BlendMode = SKBlendMode.DstIn;
+                            break;
+                        case PorterDuff.Mode.Clear:
+                            paint.BlendMode = SKBlendMode.Clear;
+                            break;
+                    }
+                }
+                hackedDrawMethod?.Invoke(castedDrawableBitmap, new object[]{ctx, s, d, paint});
+                }
+        }
+        
+        
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
            // UpdateDrawingSessionWithFlags(paint.Flags);
