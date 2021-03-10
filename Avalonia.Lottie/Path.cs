@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Avalonia;
-using Avalonia.Animation;
 using Avalonia.Media;
-using Avalonia.Platform;
 
 namespace Avalonia.Lottie
 {
@@ -73,13 +70,17 @@ namespace Avalonia.Lottie
 
             public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
-                canvasPathBuilder.ArcTo(
-                    new Point(_endPoint.X, _endPoint.Y), 
-                    new Size(_a, _b),
-                    (float) MathExt.ToRadians(_sweepAngle), 
-                    false,
-                    SweepDirection.Clockwise
-                );
+                // canvasPathBuilder.AddArc(new ArcSegment
+                // {
+                //     Point = _endPoint,
+                //     RotationAngle = (float) MathExt.ToRadians(_sweepAngle),
+                //     SweepDirection = SweepDirection.Clockwise,
+                //     ArcSize = ArcSize.Small,
+                //     Size = new Size2F(_a, _b)
+                // });
+                //
+                
+                canvasPathBuilder.ArcTo(new Point(_endPoint.X, _endPoint.Y), new Size(_a,_b), MathExt.ToRadians(_sweepAngle), false, SweepDirection.Clockwise);
 
                 closed = false;
             }
@@ -185,9 +186,8 @@ namespace Avalonia.Lottie
 
             public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
-                canvasPathBuilder.CubicBezierTo( 
-                    new Point(_control1.X, _control1.Y) ,
-                    new Point(_control2.X, _control2.Y) ,
+                canvasPathBuilder.CubicBezierTo(new Point(_control1.X, _control1.Y),
+                    new Point(_control2.X, _control2.Y),
                     new Point(_vertex.X, _vertex.Y)
                 );
 
@@ -237,6 +237,7 @@ namespace Avalonia.Lottie
             public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
                 canvasPathBuilder.LineTo(new Point(_points[0], _points[1]));
+
                 closed = false;
             }
 
@@ -310,10 +311,11 @@ namespace Avalonia.Lottie
 
             public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
             {
-                 
-                    canvasPathBuilder.EndFigure(closed);
+                if (!closed)
+                {
+                    canvasPathBuilder.EndFigure(true);
                     closed = true;
-               
+                }
             }
 
             public void Offset(float dx, float dy)
@@ -351,27 +353,40 @@ namespace Avalonia.Lottie
         }
 
         public PathGeometry GetGeometry()
-        {
-            var fill = FillType == PathFillType.Winding
-                ? FillRule.NonZero
-                : FillRule.EvenOdd ;
-            
-            var geometry = new PathGeometry();
+        { 
 
-            using var canvasPathBuilder = geometry.Open();
-            canvasPathBuilder.SetFillRule(fill);
+            FillRule v = FillRule.EvenOdd;
 
-            var closed = true;
-
-            for (var i = 0; i < Contours.Count; i++)
+            switch (FillType)
             {
-                Contours[i].AddPathSegment(canvasPathBuilder, ref closed);
+                case PathFillType.EvenOdd:
+                    v = FillRule.EvenOdd;
+                    break;
+                case PathFillType.Winding:
+                case PathFillType.InverseWinding:
+                    v = FillRule.NonZero;
+                    break; 
             }
 
-            if (!closed)
-                canvasPathBuilder.EndFigure(true);
+            //    FillRule = path.FillType == PathFillType.EvenOdd ? FillRule.EvenOdd : FillRule.Nonzero,
+            var geometry = new PathGeometry();
 
- 
+            using (var canvasPathBuilder = geometry.Open())
+            {
+                canvasPathBuilder.SetFillRule(v); 
+
+                var closed = true;
+
+                for (var i = 0; i < Contours.Count; i++)
+                {
+                    Contours[i].AddPathSegment(canvasPathBuilder, ref closed);
+                }
+
+                if (!closed)
+                    canvasPathBuilder.EndFigure(false);
+            }
+
+
             return geometry;
         }
 
@@ -383,11 +398,9 @@ namespace Avalonia.Lottie
                 return;
             }
 
-            var geometry = GetGeometry();
-            
-                //TODO: OID: Check is it ok or not
-                var bound = geometry.Bounds;
-                rect = new Rect(bound.Left, bound.Top, bound.Right - bound.Left, bound.Bottom - bound.Top);
+            //TODO: OID: Check is it ok or not
+            var bound = GetGeometry().Bounds;
+            rect = new Rect(bound.Left, bound.Top, bound.Right - bound.Left, bound.Bottom - bound.Top);
         }
 
         public void AddPath(Path path, Matrix3X3 matrix)
@@ -462,10 +475,10 @@ namespace Avalonia.Lottie
         {
             var pathIteratorFactory = new CachedPathIteratorFactory(new FullPathIterator(this));
             var pathIterator = pathIteratorFactory.Iterator();
-            var points = new float[8];
+            float[] points = new float[8];
             var segmentPoints = new List<Vector2>();
             var lengths = new List<float>();
-            var errorSquared = precision * precision;
+            float errorSquared = precision * precision;
             while (!pathIterator.Done)
             {
                 var type = pathIterator.CurrentSegment(points);
@@ -493,7 +506,7 @@ namespace Avalonia.Lottie
 
             if (!segmentPoints.Any())
             {
-                var numVerbs = Contours.Count;
+                int numVerbs = Contours.Count;
                 if (numVerbs == 1)
                 {
                     AddMove(segmentPoints, lengths, Contours[0].Points);
@@ -505,7 +518,7 @@ namespace Avalonia.Lottie
                 }
             }
 
-            var totalLength = lengths.Last();
+            float totalLength = lengths.Last();
             if (totalLength == 0)
             {
                 // Lone Move instructions should still be able to animate at the same value.
@@ -519,7 +532,7 @@ namespace Avalonia.Lottie
 
             var approximation = new float[approximationArraySize];
 
-            var approximationIndex = 0;
+            int approximationIndex = 0;
             for (var i = 0; i < numPoints; i++)
             {
                 var point = segmentPoints[i];
@@ -533,32 +546,32 @@ namespace Avalonia.Lottie
 
         static float QuadraticCoordinateCalculation(float t, float p0, float p1, float p2)
         {
-            var oneMinusT = 1 - t;
+            float oneMinusT = 1 - t;
             return oneMinusT * ((oneMinusT * p0) + (t * p1)) + t * ((oneMinusT * p1) + (t * p2));
         }
 
         static Vector2 QuadraticBezierCalculation(float t, float[] points)
         {
-            var x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
-            var y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
+            float x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
+            float y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
             return new Vector2(x, y);
         }
 
         static float CubicCoordinateCalculation(float t, float p0, float p1, float p2, float p3)
         {
-            var oneMinusT = 1 - t;
-            var oneMinusTSquared = oneMinusT * oneMinusT;
-            var oneMinusTCubed = oneMinusTSquared * oneMinusT;
-            var tSquared = t * t;
-            var tCubed = tSquared * t;
+            float oneMinusT = 1 - t;
+            float oneMinusTSquared = oneMinusT * oneMinusT;
+            float oneMinusTCubed = oneMinusTSquared * oneMinusT;
+            float tSquared = t * t;
+            float tCubed = tSquared * t;
             return (oneMinusTCubed * p0) + (3 * oneMinusTSquared * t * p1)
                                          + (3 * oneMinusT * tSquared * p2) + (tCubed * p3);
         }
 
         static Vector2 CubicBezierCalculation(float t, float[] points)
         {
-            var x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
-            var y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
+            float x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
+            float y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
             return new Vector2(x, y);
         }
 
@@ -587,7 +600,7 @@ namespace Avalonia.Lottie
             }
 
             var vector2 = new Vector2(toPoint[0], toPoint[1]);
-            var length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
+            float length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
             segmentPoints.Add(vector2);
             lengths.Add(length);
         }
@@ -608,11 +621,11 @@ namespace Avalonia.Lottie
 
             var tToPoint = new List<KeyValuePair<float, Vector2>>
             {
-                new(0, bezierFunction(0, points)),
-                new(1, bezierFunction(1, points))
+                new KeyValuePair<float, Vector2>(0, bezierFunction(0, points)),
+                new KeyValuePair<float, Vector2>(1, bezierFunction(1, points))
             };
 
-            for (var i = 0; i < tToPoint.Count - 1; i++)
+            for (int i = 0; i < tToPoint.Count - 1; i++)
             {
                 bool needsSubdivision;
                 do
@@ -650,13 +663,13 @@ namespace Avalonia.Lottie
             float t1, Vector2 p1, out float midT, out Vector2 midPoint, float errorSquared)
         {
             midT = (t1 + t0) / 2;
-            var midX = (p1.X + p0.X) / 2;
-            var midY = (p1.Y + p0.Y) / 2;
+            float midX = (p1.X + p0.X) / 2;
+            float midY = (p1.Y + p0.Y) / 2;
 
             midPoint = bezierFunction(midT, points);
-            var xError = midPoint.X - midX;
-            var yError = midPoint.Y - midY;
-            var midErrorSquared = (xError * xError) + (yError * yError);
+            float xError = midPoint.X - midX;
+            float yError = midPoint.Y - midY;
+            float midErrorSquared = (xError * xError) + (yError * yError);
             return midErrorSquared > errorSquared;
         }
     }
