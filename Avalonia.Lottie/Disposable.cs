@@ -4,8 +4,8 @@ namespace Avalonia.Lottie
 {
     public class Disposable : IDisposable
     {
-        private Action _action;
-        private bool _isDisposed = false;
+        private readonly Action _action;
+        private bool _isDisposed;
 
         public Disposable(Action action)
         {

@@ -8,9 +8,8 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class ShapeContent : IPathContent
     {
-        private readonly Path _path = new();
-
         private readonly LottieDrawable _lottieDrawable;
+        private readonly Path _path = new();
         private readonly IBaseKeyframeAnimation<ShapeData, Path> _shapeAnimation;
 
         private bool _isPathValid;
@@ -25,38 +24,23 @@ namespace Avalonia.Lottie.Animation.Content
             _shapeAnimation.ValueChanged += OnValueChanged;
         }
 
-        private void OnValueChanged(object sender, EventArgs eventArgs)
-        {
-            Invalidate();
-        }
-
-        private void Invalidate()
-        {
-            _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
-        }
-
         public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
         {
             for (var i = 0; i < contentsBefore.Count; i++)
-            {
-                if (contentsBefore[i] is TrimPathContent trimPathContent && trimPathContent.Type == ShapeTrimPath.Type.Simultaneously)
+                if (contentsBefore[i] is TrimPathContent trimPathContent &&
+                    trimPathContent.Type == ShapeTrimPath.Type.Simultaneously)
                 {
                     // Trim path individually will be handled by the stroke where paths are combined.
                     _trimPath = trimPathContent;
                     _trimPath.ValueChanged += OnValueChanged;
                 }
-            }
         }
 
         public Path Path
         {
             get
             {
-                if (_isPathValid)
-                {
-                    return _path;
-                }
+                if (_isPathValid) return _path;
 
                 _path.Reset();
 
@@ -71,5 +55,16 @@ namespace Avalonia.Lottie.Animation.Content
         }
 
         public string Name { get; }
+
+        private void OnValueChanged(object sender, EventArgs eventArgs)
+        {
+            Invalidate();
+        }
+
+        private void Invalidate()
+        {
+            _isPathValid = false;
+            _lottieDrawable.InvalidateSelf();
+        }
     }
 }

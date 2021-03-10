@@ -25,26 +25,6 @@ namespace Avalonia.Lottie.Utils
         public event EventHandler AnimationCancel;
         public event EventHandler AnimationRepeat;
 
-        public class LottieAnimatorStartEventArgs : EventArgs
-        {
-            public bool IsReverse { get; }
-
-            public LottieAnimatorStartEventArgs(bool isReverse)
-            {
-                IsReverse = isReverse;
-            }
-        }
-
-        public class LottieAnimatorEndEventArgs : EventArgs
-        {
-            public bool IsReverse { get; }
-
-            public LottieAnimatorEndEventArgs(bool isReverse)
-            {
-                IsReverse = isReverse;
-            }
-        }
-
         public virtual void OnAnimationStart(bool isReverse)
         {
             AnimationStart?.Invoke(this, new LottieAnimatorStartEventArgs(isReverse));
@@ -84,6 +64,26 @@ namespace Avalonia.Lottie.Utils
             if (AnimationRepeat != null)
                 foreach (EventHandler handler in AnimationRepeat.GetInvocationList())
                     AnimationRepeat -= handler;
+        }
+
+        public class LottieAnimatorStartEventArgs : EventArgs
+        {
+            public LottieAnimatorStartEventArgs(bool isReverse)
+            {
+                IsReverse = isReverse;
+            }
+
+            public bool IsReverse { get; }
+        }
+
+        public class LottieAnimatorEndEventArgs : EventArgs
+        {
+            public LottieAnimatorEndEventArgs(bool isReverse)
+            {
+                IsReverse = isReverse;
+            }
+
+            public bool IsReverse { get; }
         }
     }
 }

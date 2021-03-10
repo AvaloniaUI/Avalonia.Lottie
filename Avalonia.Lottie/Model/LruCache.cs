@@ -5,8 +5,8 @@ namespace Avalonia.Lottie.Model
     public class LruCache<K, V>
     {
         private readonly int _capacity;
-        private Dictionary<K, LinkedListNode<LruCacheItem<K, V>>> _cacheMap = new();
-        private LinkedList<LruCacheItem<K, V>> _lruList = new();
+        private readonly Dictionary<K, LinkedListNode<LruCacheItem<K, V>>> _cacheMap = new();
+        private readonly LinkedList<LruCacheItem<K, V>> _lruList = new();
 
         public LruCache(int capacity)
         {
@@ -24,7 +24,8 @@ namespace Avalonia.Lottie.Model
                     _lruList.AddLast(node);
                     return value;
                 }
-                return default(V);
+
+                return default;
             }
         }
 
@@ -32,10 +33,7 @@ namespace Avalonia.Lottie.Model
         {
             lock (this)
             {
-                if (_cacheMap.Count >= _capacity)
-                {
-                    RemoveFirst();
-                }
+                if (_cacheMap.Count >= _capacity) RemoveFirst();
 
                 var cacheItem = new LruCacheItem<K, V>(key, val);
                 var node = new LinkedListNode<LruCacheItem<K, V>>(cacheItem);
@@ -55,14 +53,15 @@ namespace Avalonia.Lottie.Model
         }
     }
 
-    class LruCacheItem<K, V>
+    internal class LruCacheItem<K, V>
     {
+        public K Key;
+        public V Value;
+
         public LruCacheItem(K k, V v)
         {
             Key = k;
             Value = v;
         }
-        public K Key;
-        public V Value;
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-
-using Avalonia;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;
@@ -11,49 +9,17 @@ namespace Avalonia.Lottie.Model.Layer
     internal class ImageLayer : BaseLayer
     {
         private readonly Paint _paint = new(Paint.AntiAliasFlag | Paint.FilterBitmapFlag);
-        private Rect _src;
-        private Rect _dst;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
+        private Rect _dst;
+        private Rect _src;
 
         internal ImageLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
         {
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
-        {
-            var bitmap = Bitmap;
-            if (bitmap == null)
-            {
-                return;
-            }
-            var density = Utils.Utils.DpScale();
+        private int PixelWidth => Bitmap.PixelSize.Width;
 
-            _paint.Alpha = parentAlpha;
-            if (_colorFilterAnimation != null)
-            {
-                _paint.ColorFilter = _colorFilterAnimation.Value;
-            }
-            canvas.Save();
-            canvas.Concat(parentMatrix);
-            RectExt.Set(ref _src, 0, 0, PixelWidth, PixelHeight);
-            RectExt.Set(ref _dst, 0, 0, (int)(PixelWidth * density), (int)(PixelHeight * density));
-            canvas.DrawBitmap(bitmap, _src, _dst, _paint);
-            canvas.Restore();
-        }
-
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
-        {
-            base.GetBounds(ref outBounds, parentMatrix);
-            var bitmap = Bitmap;
-            if (bitmap != null)
-            {
-                RectExt.Set(ref outBounds, (float)outBounds.Left, (float)outBounds.Top, (float)Math.Min(outBounds.Right, PixelWidth), (float)Math.Min(outBounds.Bottom, PixelHeight));
-                BoundsMatrix.MapRect(ref outBounds);
-            }
-        }
-        private int PixelWidth => (int)Bitmap.PixelSize.Width;
-
-        private int PixelHeight => (int)Bitmap.PixelSize.Height;
+        private int PixelHeight => Bitmap.PixelSize.Height;
 
         private Bitmap Bitmap
         {
@@ -64,19 +30,45 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
+        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        {
+            var bitmap = Bitmap;
+            if (bitmap == null) return;
+            var density = Utils.Utils.DpScale();
+
+            _paint.Alpha = parentAlpha;
+            if (_colorFilterAnimation != null) _paint.ColorFilter = _colorFilterAnimation.Value;
+            canvas.Save();
+            canvas.Concat(parentMatrix);
+            RectExt.Set(ref _src, 0, 0, PixelWidth, PixelHeight);
+            RectExt.Set(ref _dst, 0, 0, (int) (PixelWidth * density), (int) (PixelHeight * density));
+            canvas.DrawBitmap(bitmap, _src, _dst, _paint);
+            canvas.Restore();
+        }
+
+        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        {
+            base.GetBounds(ref outBounds, parentMatrix);
+            var bitmap = Bitmap;
+            if (bitmap != null)
+            {
+                RectExt.Set(ref outBounds, (float) outBounds.Left, (float) outBounds.Top,
+                    (float) Math.Min(outBounds.Right, PixelWidth), (float) Math.Min(outBounds.Bottom, PixelHeight));
+                BoundsMatrix.MapRect(ref outBounds);
+            }
+        }
+
         public override void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
             base.AddValueCallback(property, callback);
             if (property == LottieProperty.ColorFilter)
             {
                 if (callback == null)
-                {
                     _colorFilterAnimation = null;
-                }
                 else
-                {
-                    _colorFilterAnimation = new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>((ILottieValueCallback<ColorFilter>)callback);
-                }
+                    _colorFilterAnimation =
+                        new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>(
+                            (ILottieValueCallback<ColorFilter>) callback);
             }
         }
     }

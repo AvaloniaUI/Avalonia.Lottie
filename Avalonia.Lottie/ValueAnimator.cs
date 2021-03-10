@@ -1,48 +1,19 @@
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Avalonia.Lottie
 {
     public abstract class ValueAnimator : Animator, IDisposable
     {
+        private IInterpolator _interpolator;
+        private Timer _timer;
+
         protected ValueAnimator()
         {
             _interpolator = new AccelerateDecelerateInterpolator();
         }
 
-        public class ValueAnimatorUpdateEventArgs : EventArgs
-        {
-            public ValueAnimator Animation { get; }
-
-            public ValueAnimatorUpdateEventArgs(ValueAnimator animation)
-            {
-                Animation = animation;
-            }
-        }
-
-        public event EventHandler ValueChanged;
-        public event EventHandler<ValueAnimatorUpdateEventArgs> Update;
-
-        public void RemoveAllUpdateListeners()
-        {
-            Update = null;
-        }
-
-        public void RemoveAllListeners()
-        {
-            ValueChanged = null;
-        }
-
-        private IInterpolator _interpolator;
-        private Timer _timer;
-
         public abstract float FrameRate { get; set; }
-
-        protected virtual void OnValueChanged()
-        {
-            ValueChanged?.Invoke(this, EventArgs.Empty);
-        }
 
         public int RepeatCount { get; set; }
         public virtual RepeatMode RepeatMode { get; set; }
@@ -62,6 +33,30 @@ namespace Avalonia.Lottie
 
         public abstract float AnimatedFraction { get; }
 
+        public void Dispose()
+        {
+            Disposing(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public event EventHandler ValueChanged;
+        public event EventHandler<ValueAnimatorUpdateEventArgs> Update;
+
+        public void RemoveAllUpdateListeners()
+        {
+            Update = null;
+        }
+
+        public void RemoveAllListeners()
+        {
+            ValueChanged = null;
+        }
+
+        protected virtual void OnValueChanged()
+        {
+            ValueChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         protected void OnAnimationUpdate()
         {
             Update?.Invoke(this, new ValueAnimatorUpdateEventArgs(this));
@@ -69,7 +64,8 @@ namespace Avalonia.Lottie
 
         protected void PrivateStart()
         {
-            LottieLog.Warn("Warning: Self timer is disabled for ValueAnimator. All frame events are not triggered on Render callback from LottieDrawable.");
+            LottieLog.Warn(
+                "Warning: Self timer is disabled for ValueAnimator. All frame events are not triggered on Render callback from LottieDrawable.");
             // if (_timer == null)
             // {
             //     _timer = new Timer(TimerCallback, null, TimeSpan.Zero, GetTimerInterval());
@@ -83,7 +79,7 @@ namespace Avalonia.Lottie
 
         private TimeSpan GetTimerInterval()
         {
-            return TimeSpan.FromTicks((long)Math.Floor(TimeSpan.TicksPerSecond / (decimal)FrameRate));
+            return TimeSpan.FromTicks((long) Math.Floor(TimeSpan.TicksPerSecond / (decimal) FrameRate));
         }
 
         protected virtual void RemoveFrameCallback()
@@ -126,13 +122,16 @@ namespace Avalonia.Lottie
             if (ValueChanged != null)
                 foreach (EventHandler handler in ValueChanged.GetInvocationList())
                     ValueChanged -= handler;
-
         }
 
-        public void Dispose()
+        public class ValueAnimatorUpdateEventArgs : EventArgs
         {
-            Disposing(true);
-            GC.SuppressFinalize(this);
+            public ValueAnimatorUpdateEventArgs(ValueAnimator animation)
+            {
+                Animation = animation;
+            }
+
+            public ValueAnimator Animation { get; }
         }
     }
 }

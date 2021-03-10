@@ -1,5 +1,3 @@
-
-
 namespace Avalonia.Lottie
 {
     public static class PorterDuff

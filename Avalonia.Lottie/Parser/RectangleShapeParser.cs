@@ -2,10 +2,9 @@
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Model.Content;
 
-
 namespace Avalonia.Lottie.Parser
 {
-    static class RectangleShapeParser
+    internal static class RectangleShapeParser
     {
         internal static RectangleShape Parse(JsonReader reader, LottieComposition composition)
         {
@@ -15,7 +14,6 @@ namespace Avalonia.Lottie.Parser
             AnimatableFloatValue roundedness = null;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -34,7 +32,6 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new RectangleShape(name, position, size, roundedness);
         }

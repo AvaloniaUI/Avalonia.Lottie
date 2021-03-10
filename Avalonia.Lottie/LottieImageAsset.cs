@@ -1,10 +1,9 @@
 ﻿using Avalonia.Media.Imaging;
 
-
 namespace Avalonia.Lottie
 {
     /// <summary>
-    /// Data class describing an image asset exported by bodymovin.
+    ///     Data class describing an image asset exported by bodymovin.
     /// </summary>
     public class LottieImageAsset
     {
@@ -27,7 +26,9 @@ namespace Avalonia.Lottie
 
         public virtual string DirName { get; }
 
-        /** Pre-set a bitmap for this asset */
+        /**
+         * Pre-set a bitmap for this asset
+         */
         // Returns the bitmap that has been stored for this image asset if one was explicitly set.
         public Bitmap Bitmap { get; set; }
     }

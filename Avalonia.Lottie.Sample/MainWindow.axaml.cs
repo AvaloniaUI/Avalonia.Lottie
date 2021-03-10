@@ -1,10 +1,6 @@
 using System;
-using System.IO;
-using System.Net;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform; 
 
 namespace Avalonia.Lottie.Sample
 {
@@ -20,7 +16,7 @@ namespace Avalonia.Lottie.Sample
 #endif
         }
 
-        
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
@@ -46,21 +42,21 @@ namespace Avalonia.Lottie.Sample
             // {
             //  s = client.DownloadString(xurl);
             // }
-            
-            
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/2719-bitcoin-to-the-moon.json"));
-            var a = await new StreamReader(getstr).ReadToEndAsync();
 
-            var res = await LottieCompositionFactory.FromJsonString(a, "cache1");
+
+            // var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+            //var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/animated_laptop.json"));
+            // var a = await new StreamReader(getstr).ReadToEndAsync();
+
+            var res = await LottieCompositionFactory.FromUrlAsync(
+                "https://github.com/jmacato/Avalonia.Lottie/raw/master/Avalonia.Lottie.Sample/Assets/42495-payment-security.json");
             if (res is not null)
             {
                 _lottieDrawable.SetComposition(res.Value);
-                 //_lottieDrawable.DirectScale = 0.25f;
-                 _lottieDrawable.Start();
-                 _lottieDrawable.RepeatCount = -1;
-                _lottieDrawable.Scale = 0.5f;
-                
+                //_lottieDrawable.DirectScale = 0.25f;
+                _lottieDrawable.Start();
+                _lottieDrawable.RepeatCount = -1;
+                //_lottieDrawable.Scale = 0.5f;
             }
         }
     }

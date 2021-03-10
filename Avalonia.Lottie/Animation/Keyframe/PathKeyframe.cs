@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using Avalonia.Lottie.Value;
 
-
 namespace Avalonia.Lottie.Animation.Keyframe
 {
     public class PathKeyframe : Keyframe<Vector2?>
@@ -9,24 +8,24 @@ namespace Avalonia.Lottie.Animation.Keyframe
         private readonly Keyframe<Vector2?> _pointKeyFrame;
 
         public PathKeyframe(LottieComposition composition, Keyframe<Vector2?> keyframe)
-            : base(composition, keyframe.StartValue, keyframe.EndValue, keyframe.Interpolator, keyframe.StartFrame, keyframe.EndFrame)
+            : base(composition, keyframe.StartValue, keyframe.EndValue, keyframe.Interpolator, keyframe.StartFrame,
+                keyframe.EndFrame)
         {
             _pointKeyFrame = keyframe;
             CreatePath();
         }
 
+        /// <summary>
+        ///     This will be null if the startValue and endValue are the same.
+        /// </summary>
+        internal Path Path { get; private set; }
+
         internal void CreatePath()
         {
             var equals = EndValue != null && StartValue != null && StartValue.Equals(EndValue.Value);
             if (EndValue != null && !equals)
-            {
-                Path = Utils.Utils.CreatePath(StartValue.Value, EndValue.Value, _pointKeyFrame.PathCp1, _pointKeyFrame.PathCp2);
-            }
+                Path = Utils.Utils.CreatePath(StartValue.Value, EndValue.Value, _pointKeyFrame.PathCp1,
+                    _pointKeyFrame.PathCp2);
         }
-
-        /// <summary>
-        /// This will be null if the startValue and endValue are the same.
-        /// </summary>
-        internal Path Path { get; private set; }
     }
 }

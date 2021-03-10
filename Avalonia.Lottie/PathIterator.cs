@@ -11,9 +11,9 @@
             Bezier
         }
 
-        public abstract bool Next();
-
         public abstract bool Done { get; }
+
+        public abstract bool Next();
 
         public abstract ContourType CurrentSegment(float[] points);
     }

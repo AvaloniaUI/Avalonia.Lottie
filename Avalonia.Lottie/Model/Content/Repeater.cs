@@ -6,7 +6,8 @@ namespace Avalonia.Lottie.Model.Content
 {
     public class Repeater : IContentModel
     {
-        public Repeater(string name, AnimatableFloatValue copies, AnimatableFloatValue offset, AnimatableTransform transform)
+        public Repeater(string name, AnimatableFloatValue copies, AnimatableFloatValue offset,
+            AnimatableTransform transform)
         {
             Name = name;
             Copies = copies;

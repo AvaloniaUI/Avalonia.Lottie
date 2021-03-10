@@ -2,6 +2,8 @@
 {
     public class Font
     {
+        internal readonly float Ascent;
+
         public Font(string family, string name, string style, float ascent)
         {
             Family = family;
@@ -15,7 +17,5 @@
         public string Name { get; }
 
         public string Style { get; }
-
-        internal readonly float Ascent;
     }
 }

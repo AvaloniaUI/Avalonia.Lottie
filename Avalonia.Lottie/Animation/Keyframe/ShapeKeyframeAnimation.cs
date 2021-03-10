@@ -7,8 +7,8 @@ namespace Avalonia.Lottie.Animation.Keyframe
 {
     internal class ShapeKeyframeAnimation : BaseKeyframeAnimation<ShapeData, Path>
     {
-        private readonly ShapeData _tempShapeData = new();
         private readonly Path _tempPath = new();
+        private readonly ShapeData _tempShapeData = new();
 
         internal ShapeKeyframeAnimation(List<Keyframe<ShapeData>> keyframes) : base(keyframes)
         {

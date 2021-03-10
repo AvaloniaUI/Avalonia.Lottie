@@ -1,12 +1,4 @@
-﻿/* Unmerged change from project 'Avalonia.Lottie (netcoreapp3.0)'
-Before:
-
-using Avalonia.Lottie.Value;
-After:
-using Avalonia.Lottie.Value;
-
-*/
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;

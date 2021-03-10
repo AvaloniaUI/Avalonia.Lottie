@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 
-
 namespace Avalonia.Lottie.Model
 {
     public class CubicCurveData
@@ -23,13 +22,17 @@ namespace Avalonia.Lottie.Model
             _vertex = vertex;
         }
 
+        internal virtual Vector2 ControlPoint1 => _controlPoint1;
+
+        internal virtual Vector2 ControlPoint2 => _controlPoint2;
+
+        internal virtual Vector2 Vertex => _vertex;
+
         internal virtual void SetControlPoint1(float x, float y)
         {
             _controlPoint1.X = x;
             _controlPoint1.Y = y;
         }
-
-        internal virtual Vector2 ControlPoint1 => _controlPoint1;
 
         internal virtual void SetControlPoint2(float x, float y)
         {
@@ -37,14 +40,10 @@ namespace Avalonia.Lottie.Model
             _controlPoint2.Y = y;
         }
 
-        internal virtual Vector2 ControlPoint2 => _controlPoint2;
-
         internal virtual void SetVertex(float x, float y)
         {
             _vertex.X = x;
             _vertex.Y = y;
         }
-
-        internal virtual Vector2 Vertex => _vertex;
     }
 }

@@ -1,7 +1,6 @@
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Media;
 
-
 namespace Avalonia.Lottie
 {
     internal class DashPathEffect : PathEffect
@@ -22,7 +21,6 @@ namespace Avalonia.Lottie
                 //TODO: OID: Custom dash style is not exists in SharpDX
                 //StrokeStyle..CustomDashStyle = _intervals;
                 //StrokeStyle.DashOffset = _phase;
-                
             }
         }
     }

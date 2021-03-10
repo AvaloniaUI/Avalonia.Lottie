@@ -8,10 +8,9 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class TrimPathContent : IContent
     {
-        public event EventHandler ValueChanged;
-        private readonly IBaseKeyframeAnimation<float?, float?> _startAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _endAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _offsetAnimation;
+        private readonly IBaseKeyframeAnimation<float?, float?> _startAnimation;
 
         internal TrimPathContent(BaseLayer layer, ShapeTrimPath trimPath)
         {
@@ -30,18 +29,6 @@ namespace Avalonia.Lottie.Animation.Content
             _offsetAnimation.ValueChanged += OnValueChanged;
         }
 
-        private void OnValueChanged(object sender, EventArgs eventArgs)
-        {
-            ValueChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
-        {
-            // Do nothing.
-        }
-
-        public string Name { get; }
-
         internal virtual ShapeTrimPath.Type Type { get; }
 
         public virtual IBaseKeyframeAnimation<float?, float?> Start => _startAnimation;
@@ -49,5 +36,18 @@ namespace Avalonia.Lottie.Animation.Content
         public virtual IBaseKeyframeAnimation<float?, float?> End => _endAnimation;
 
         public virtual IBaseKeyframeAnimation<float?, float?> Offset => _offsetAnimation;
+
+        public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
+        {
+            // Do nothing.
+        }
+
+        public string Name { get; }
+        public event EventHandler ValueChanged;
+
+        private void OnValueChanged(object sender, EventArgs eventArgs)
+        {
+            ValueChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

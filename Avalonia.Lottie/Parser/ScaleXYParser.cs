@@ -10,20 +10,11 @@ namespace Avalonia.Lottie.Parser
         public ScaleXy Parse(JsonReader reader, float scale)
         {
             var isArray = reader.Peek() == JsonToken.StartArray;
-            if (isArray)
-            {
-                reader.BeginArray();
-            }
+            if (isArray) reader.BeginArray();
             var sx = reader.NextDouble();
             var sy = reader.NextDouble();
-            while (reader.HasNext())
-            {
-                reader.SkipValue();
-            }
-            if (isArray)
-            {
-                reader.EndArray();
-            }
+            while (reader.HasNext()) reader.SkipValue();
+            if (isArray) reader.EndArray();
             return new ScaleXy(sx / 100f * scale, sy / 100f * scale);
         }
     }

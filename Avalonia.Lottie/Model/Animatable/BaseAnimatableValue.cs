@@ -10,9 +10,9 @@ namespace Avalonia.Lottie.Model.Animatable
         internal readonly List<Keyframe<TV>> Keyframes;
 
         /// <summary>
-        /// Create a default static animatable path.
+        ///     Create a default static animatable path.
         /// </summary>
-        internal BaseAnimatableValue(TV value) : this(new List<Keyframe<TV>> { new(value) })
+        internal BaseAnimatableValue(TV value) : this(new List<Keyframe<TV>> {new(value)})
         {
         }
 
@@ -26,10 +26,7 @@ namespace Avalonia.Lottie.Model.Animatable
         public override string ToString()
         {
             var sb = new StringBuilder();
-            if (Keyframes.Count > 0)
-            {
-                sb.Append("values=").Append("[" + string.Join(",", Keyframes) + "]");
-            }
+            if (Keyframes.Count > 0) sb.Append("values=").Append("[" + string.Join(",", Keyframes) + "]");
             return sb.ToString();
         }
     }

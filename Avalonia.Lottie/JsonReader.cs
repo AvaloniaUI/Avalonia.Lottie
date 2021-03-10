@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
+﻿using System.IO;
+using Newtonsoft.Json;
 
 namespace Avalonia.Lottie
 {
@@ -24,20 +23,21 @@ namespace Avalonia.Lottie
         {
             if (TokenType == JsonToken.PropertyName)
             {
-                var value = (string)Value;
+                var value = (string) Value;
                 Read();
                 return value;
             }
+
             throw new JsonReaderException("Expected property name");
         }
 
         public int NextInt()
         {
             int value;
-            if (ValueType == typeof(Int64))
-                value = (int)(long)Value;
+            if (ValueType == typeof(long))
+                value = (int) (long) Value;
             else
-                value = (int)((double)Value);
+                value = (int) (double) Value;
             Read();
             return value;
         }
@@ -45,10 +45,10 @@ namespace Avalonia.Lottie
         public float NextDouble()
         {
             float value;
-            if (ValueType == typeof(Int64))
-                value = (long)Value;
+            if (ValueType == typeof(long))
+                value = (long) Value;
             else
-                value = (float)((double)Value);
+                value = (float) (double) Value;
             Read();
             return value;
         }
@@ -57,14 +57,14 @@ namespace Avalonia.Lottie
         {
             var value = false;
             if (ValueType == typeof(bool))
-                value = (bool)Value;
+                value = (bool) Value;
             Read();
             return value;
         }
 
         public string NextString()
         {
-            var value = (string)Value;
+            var value = (string) Value;
             Read();
             return value;
         }
@@ -72,20 +72,14 @@ namespace Avalonia.Lottie
         public void BeginArray()
         {
             IfNoneReadFirst();
-            if (TokenType != JsonToken.StartArray)
-            {
-                throw new JsonReaderException("Could not start the array parsing.");
-            }
+            if (TokenType != JsonToken.StartArray) throw new JsonReaderException("Could not start the array parsing.");
             Read();
         }
 
         public void EndArray()
         {
             IfNoneReadFirst();
-            if (TokenType != JsonToken.EndArray)
-            {
-                throw new JsonReaderException("Could not end the array parsing.");
-            }
+            if (TokenType != JsonToken.EndArray) throw new JsonReaderException("Could not end the array parsing.");
             Read();
         }
 
@@ -93,19 +87,14 @@ namespace Avalonia.Lottie
         {
             IfNoneReadFirst();
             if (TokenType != JsonToken.StartObject)
-            {
                 throw new JsonReaderException("Could not start the object parsing.");
-            }
             Read();
         }
 
         public void EndObject()
         {
             IfNoneReadFirst();
-            if (TokenType != JsonToken.EndObject)
-            {
-                throw new JsonReaderException("Could not end the object parsing.");
-            }
+            if (TokenType != JsonToken.EndObject) throw new JsonReaderException("Could not end the object parsing.");
             Read();
         }
 
@@ -122,13 +111,8 @@ namespace Avalonia.Lottie
             {
                 var token = TokenType;
                 if (token == JsonToken.StartArray || token == JsonToken.StartObject)
-                {
                     count++;
-                }
-                else if (token == JsonToken.EndArray || token == JsonToken.EndObject)
-                {
-                    count--;
-                }
+                else if (token == JsonToken.EndArray || token == JsonToken.EndObject) count--;
                 Read();
             } while (count != 0);
         }

@@ -3,18 +3,18 @@
 namespace Avalonia.Lottie.Value
 {
     /// <summary>
-    /// Allows you to set a callback on a resolved <see cref="Model.KeyPath"/> to modify its animation values at runtime. 
+    ///     Allows you to set a callback on a resolved <see cref="Model.KeyPath" /> to modify its animation values at runtime.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class LottieValueCallback<T> : ILottieValueCallback<T>
     {
         private readonly LottieFrameInfo<T> _frameInfo = new();
 
-        IBaseKeyframeAnimation _animation;
+        private IBaseKeyframeAnimation _animation;
 
         /// <summary>
-        /// This can be set with <see cref="SetValue(T)"/> to use a value instead of deferring
-        /// to the callback.
+        ///     This can be set with <see cref="SetValue(T)" /> to use a value instead of deferring
+        ///     to the callback.
         /// </summary>
         protected T Value;
 
@@ -28,22 +28,13 @@ namespace Avalonia.Lottie.Value
         }
 
         /// <summary>
-        /// Override this if you haven't set a static value in the constructor or with SetValue.
+        ///     Override this if you haven't set a static value in the constructor or with SetValue.
         /// </summary>
         /// <param name="frameInfo"></param>
         /// <returns></returns>
         public virtual T GetValue(LottieFrameInfo<T> frameInfo)
         {
             return Value;
-        }
-
-        public void SetValue(T value)
-        {
-            Value = value;
-            if (_animation != null)
-            {
-                _animation.OnValueChanged();
-            }
         }
 
         public T GetValueInternal(
@@ -72,6 +63,12 @@ namespace Avalonia.Lottie.Value
         public void SetAnimation(IBaseKeyframeAnimation animation)
         {
             _animation = animation;
+        }
+
+        public void SetValue(T value)
+        {
+            Value = value;
+            if (_animation != null) _animation.OnValueChanged();
         }
     }
 }

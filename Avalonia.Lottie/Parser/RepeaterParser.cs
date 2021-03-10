@@ -3,7 +3,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class RepeaterParser
+    internal static class RepeaterParser
     {
         internal static Repeater Parse(JsonReader reader, LottieComposition composition)
         {
@@ -13,7 +13,6 @@ namespace Avalonia.Lottie.Parser
             AnimatableTransform transform = null;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -32,7 +31,6 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new Repeater(name, copies, offset, transform);
         }

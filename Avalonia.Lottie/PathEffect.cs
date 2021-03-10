@@ -1,7 +1,6 @@
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Media;
 
-
 namespace Avalonia.Lottie
 {
     public abstract class PathEffect

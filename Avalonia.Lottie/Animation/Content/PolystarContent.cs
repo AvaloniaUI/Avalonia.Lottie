@@ -23,27 +23,28 @@ namespace Avalonia.Lottie.Animation.Content
     internal class PolystarContent : IPathContent, IKeyPathElementContent
     {
         /// <summary>
-        /// This was empirically derived by creating polystars, converting them to
-        /// curves, and calculating a scale factor.
-        /// It works best for polygons and stars with 3 points and needs more
-        /// work otherwise.
+        ///     This was empirically derived by creating polystars, converting them to
+        ///     curves, and calculating a scale factor.
+        ///     It works best for polygons and stars with 3 points and needs more
+        ///     work otherwise.
         /// </summary>
         private const float PolystarMagicNumber = .47829f;
+
         private const float PolygonMagicNumber = .25f;
-        private readonly Path _path = new();
+        private readonly IBaseKeyframeAnimation<float?, float?> _innerRadiusAnimation;
+        private readonly IBaseKeyframeAnimation<float?, float?> _innerRoundednessAnimation;
 
         private readonly LottieDrawable _lottieDrawable;
-        private readonly PolystarShape.Type _type;
+        private readonly IBaseKeyframeAnimation<float?, float?> _outerRadiusAnimation;
+        private readonly IBaseKeyframeAnimation<float?, float?> _outerRoundednessAnimation;
+        private readonly Path _path = new();
         private readonly IBaseKeyframeAnimation<float?, float?> _pointsAnimation;
         private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _rotationAnimation;
-        private readonly IBaseKeyframeAnimation<float?, float?> _innerRadiusAnimation;
-        private readonly IBaseKeyframeAnimation<float?, float?> _outerRadiusAnimation;
-        private readonly IBaseKeyframeAnimation<float?, float?> _innerRoundednessAnimation;
-        private readonly IBaseKeyframeAnimation<float?, float?> _outerRoundednessAnimation;
+        private readonly PolystarShape.Type _type;
+        private bool _isPathValid;
 
         private TrimPathContent _trimPath;
-        private bool _isPathValid;
 
         internal PolystarContent(LottieDrawable lottieDrawable, BaseLayer layer, PolystarShape polystarShape)
         {
@@ -90,37 +91,45 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        private void OnValueChanged(object sender, EventArgs eventArgs)
+        public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
         {
-            Invalidate();
+            MiscUtils.ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath, this);
         }
 
-        private void Invalidate()
+        public void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
-            _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
+            if (property == LottieProperty.PolystarPoints)
+                _pointsAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
+            else if (property == LottieProperty.PolystarRotation)
+                _rotationAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
+            else if (property == LottieProperty.Position)
+                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+            else if (property == LottieProperty.PolystarInnerRadius && _innerRadiusAnimation != null)
+                _innerRadiusAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
+            else if (property == LottieProperty.PolystarOuterRadius)
+                _outerRadiusAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
+            else if (property == LottieProperty.PolystarInnerRoundedness && _innerRoundednessAnimation != null)
+                _innerRoundednessAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
+            else if (property == LottieProperty.PolystarOuterRoundedness)
+                _outerRoundednessAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
         }
 
         public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
         {
             for (var i = 0; i < contentsBefore.Count; i++)
-            {
-                if (contentsBefore[i] is TrimPathContent trimPathContent && trimPathContent.Type == ShapeTrimPath.Type.Simultaneously)
+                if (contentsBefore[i] is TrimPathContent trimPathContent &&
+                    trimPathContent.Type == ShapeTrimPath.Type.Simultaneously)
                 {
                     _trimPath = trimPathContent;
                     _trimPath.ValueChanged += OnValueChanged;
                 }
-            }
         }
 
         public Path Path
         {
             get
             {
-                if (_isPathValid)
-                {
-                    return _path;
-                }
+                if (_isPathValid) return _path;
 
                 _path.Reset();
 
@@ -145,6 +154,17 @@ namespace Avalonia.Lottie.Animation.Content
 
         public string Name { get; }
 
+        private void OnValueChanged(object sender, EventArgs eventArgs)
+        {
+            Invalidate();
+        }
+
+        private void Invalidate()
+        {
+            _isPathValid = false;
+            _lottieDrawable.InvalidateSelf();
+        }
+
         private void CreateStarPath()
         {
             var points = _pointsAnimation.Value.Value;
@@ -154,28 +174,19 @@ namespace Avalonia.Lottie.Animation.Content
             // convert to radians
             currentAngle = MathExt.ToRadians(currentAngle);
             // adjust current angle for partial points
-            var anglePerPoint = (float)(2 * Math.PI / points);
+            var anglePerPoint = (float) (2 * Math.PI / points);
             var halfAnglePerPoint = anglePerPoint / 2.0f;
-            var partialPointAmount = points - (int)points;
-            if (partialPointAmount != 0)
-            {
-                currentAngle += halfAnglePerPoint * (1f - partialPointAmount);
-            }
+            var partialPointAmount = points - (int) points;
+            if (partialPointAmount != 0) currentAngle += halfAnglePerPoint * (1f - partialPointAmount);
 
             var outerRadius = _outerRadiusAnimation.Value.Value;
 
             var innerRadius = _innerRadiusAnimation.Value.Value;
 
             var innerRoundedness = 0f;
-            if (_innerRoundednessAnimation != null)
-            {
-                innerRoundedness = _innerRoundednessAnimation.Value.Value / 100f;
-            }
+            if (_innerRoundednessAnimation != null) innerRoundedness = _innerRoundednessAnimation.Value.Value / 100f;
             var outerRoundedness = 0f;
-            if (_outerRoundednessAnimation != null)
-            {
-                outerRoundedness = _outerRoundednessAnimation.Value.Value / 100f;
-            }
+            if (_outerRoundednessAnimation != null) outerRoundedness = _outerRoundednessAnimation.Value.Value / 100f;
 
             float x;
             float y;
@@ -183,38 +194,32 @@ namespace Avalonia.Lottie.Animation.Content
             if (partialPointAmount != 0)
             {
                 partialPointRadius = innerRadius + partialPointAmount * (outerRadius - innerRadius);
-                x = (float)(partialPointRadius * Math.Cos(currentAngle));
-                y = (float)(partialPointRadius * Math.Sin(currentAngle));
+                x = (float) (partialPointRadius * Math.Cos(currentAngle));
+                y = (float) (partialPointRadius * Math.Sin(currentAngle));
                 _path.MoveTo(x, y);
                 currentAngle += anglePerPoint * partialPointAmount / 2f;
             }
             else
             {
-                x = (float)(outerRadius * Math.Cos(currentAngle));
-                y = (float)(outerRadius * Math.Sin(currentAngle));
+                x = (float) (outerRadius * Math.Cos(currentAngle));
+                y = (float) (outerRadius * Math.Sin(currentAngle));
                 _path.MoveTo(x, y);
                 currentAngle += halfAnglePerPoint;
             }
 
             // True means the line will go to outer radius. False means inner radius.
             var longSegment = false;
-            var numPoints = (int)Math.Ceiling(points) * 2;
+            var numPoints = (int) Math.Ceiling(points) * 2;
             for (var i = 0; i < numPoints; i++)
             {
                 var radius = longSegment ? outerRadius : innerRadius;
                 var dTheta = halfAnglePerPoint;
-                if (partialPointRadius != 0 && i == numPoints - 2)
-                {
-                    dTheta = anglePerPoint * partialPointAmount / 2f;
-                }
-                if (partialPointRadius != 0 && i == numPoints - 1)
-                {
-                    radius = partialPointRadius;
-                }
+                if (partialPointRadius != 0 && i == numPoints - 2) dTheta = anglePerPoint * partialPointAmount / 2f;
+                if (partialPointRadius != 0 && i == numPoints - 1) radius = partialPointRadius;
                 var previousX = x;
                 var previousY = y;
-                x = (float)(radius * Math.Cos(currentAngle));
-                y = (float)(radius * Math.Sin(currentAngle));
+                x = (float) (radius * Math.Cos(currentAngle));
+                y = (float) (radius * Math.Sin(currentAngle));
 
                 if (innerRoundedness == 0 && outerRoundedness == 0)
                 {
@@ -222,13 +227,13 @@ namespace Avalonia.Lottie.Animation.Content
                 }
                 else
                 {
-                    var cp1Theta = (float)(Math.Atan2(previousY, previousX) - Math.PI / 2f);
-                    var cp1Dx = (float)Math.Cos(cp1Theta);
-                    var cp1Dy = (float)Math.Sin(cp1Theta);
+                    var cp1Theta = (float) (Math.Atan2(previousY, previousX) - Math.PI / 2f);
+                    var cp1Dx = (float) Math.Cos(cp1Theta);
+                    var cp1Dy = (float) Math.Sin(cp1Theta);
 
-                    var cp2Theta = (float)(Math.Atan2(y, x) - Math.PI / 2f);
-                    var cp2Dx = (float)Math.Cos(cp2Theta);
-                    var cp2Dy = (float)Math.Sin(cp2Theta);
+                    var cp2Theta = (float) (Math.Atan2(y, x) - Math.PI / 2f);
+                    var cp2Dx = (float) Math.Cos(cp2Theta);
+                    var cp2Dy = (float) Math.Sin(cp2Theta);
 
                     var cp1Roundedness = longSegment ? innerRoundedness : outerRoundedness;
                     var cp2Roundedness = longSegment ? outerRoundedness : innerRoundedness;
@@ -268,41 +273,41 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void CreatePolygonPath()
         {
-            var points = (float)Math.Floor(_pointsAnimation.Value.Value);
+            var points = (float) Math.Floor(_pointsAnimation.Value.Value);
             double currentAngle = _rotationAnimation?.Value ?? 0f;
             // Start at +y instead of +x
             currentAngle -= 90;
             // convert to radians
             currentAngle = MathExt.ToRadians(currentAngle);
             // adjust current angle for partial points
-            var anglePerPoint = (float)(2 * Math.PI / points);
+            var anglePerPoint = (float) (2 * Math.PI / points);
 
             var roundedness = _outerRoundednessAnimation.Value.Value / 100f;
             var radius = _outerRadiusAnimation.Value.Value;
             float x;
             float y;
-            x = (float)(radius * Math.Cos(currentAngle));
-            y = (float)(radius * Math.Sin(currentAngle));
+            x = (float) (radius * Math.Cos(currentAngle));
+            y = (float) (radius * Math.Sin(currentAngle));
             _path.MoveTo(x, y);
             currentAngle += anglePerPoint;
 
-            var numPoints = (int)Math.Ceiling(points);
+            var numPoints = (int) Math.Ceiling(points);
             for (var i = 0; i < numPoints; i++)
             {
                 var previousX = x;
                 var previousY = y;
-                x = (float)(radius * Math.Cos(currentAngle));
-                y = (float)(radius * Math.Sin(currentAngle));
+                x = (float) (radius * Math.Cos(currentAngle));
+                y = (float) (radius * Math.Sin(currentAngle));
 
                 if (roundedness != 0)
                 {
-                    var cp1Theta = (float)(Math.Atan2(previousY, previousX) - Math.PI / 2f);
-                    var cp1Dx = (float)Math.Cos(cp1Theta);
-                    var cp1Dy = (float)Math.Sin(cp1Theta);
+                    var cp1Theta = (float) (Math.Atan2(previousY, previousX) - Math.PI / 2f);
+                    var cp1Dx = (float) Math.Cos(cp1Theta);
+                    var cp1Dy = (float) Math.Sin(cp1Theta);
 
-                    var cp2Theta = (float)(Math.Atan2(y, x) - Math.PI / 2f);
-                    var cp2Dx = (float)Math.Cos(cp2Theta);
-                    var cp2Dy = (float)Math.Sin(cp2Theta);
+                    var cp2Theta = (float) (Math.Atan2(y, x) - Math.PI / 2f);
+                    var cp2Dx = (float) Math.Cos(cp2Theta);
+                    var cp2Dy = (float) Math.Sin(cp2Theta);
 
                     var cp1X = radius * roundedness * PolygonMagicNumber * cp1Dx;
                     var cp1Y = radius * roundedness * PolygonMagicNumber * cp1Dy;
@@ -321,43 +326,6 @@ namespace Avalonia.Lottie.Animation.Content
             var position = _positionAnimation.Value;
             _path.Offset(position.Value.X, position.Value.Y);
             _path.Close();
-        }
-
-        public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
-        {
-            MiscUtils.ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath, this);
-        }
-
-        public void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
-        {
-            if (property == LottieProperty.PolystarPoints)
-            {
-                _pointsAnimation.SetValueCallback((ILottieValueCallback<float?>)callback);
-            }
-            else if (property == LottieProperty.PolystarRotation)
-            {
-                _rotationAnimation.SetValueCallback((ILottieValueCallback<float?>)callback);
-            }
-            else if (property == LottieProperty.Position)
-            {
-                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector2?>)callback);
-            }
-            else if (property == LottieProperty.PolystarInnerRadius && _innerRadiusAnimation != null)
-            {
-                _innerRadiusAnimation.SetValueCallback((ILottieValueCallback<float?>)callback);
-            }
-            else if (property == LottieProperty.PolystarOuterRadius)
-            {
-                _outerRadiusAnimation.SetValueCallback((ILottieValueCallback<float?>)callback);
-            }
-            else if (property == LottieProperty.PolystarInnerRoundedness && _innerRoundednessAnimation != null)
-            {
-                _innerRoundednessAnimation.SetValueCallback((ILottieValueCallback<float?>)callback);
-            }
-            else if (property == LottieProperty.PolystarOuterRoundedness)
-            {
-                _outerRoundednessAnimation.SetValueCallback((ILottieValueCallback<float?>)callback);
-            }
         }
     }
 }

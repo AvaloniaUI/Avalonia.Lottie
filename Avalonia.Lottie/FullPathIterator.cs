@@ -11,6 +11,8 @@
             _path = path;
         }
 
+        public override bool Done => _index >= _path.Contours.Count;
+
         public override bool Next()
         {
             _index++;
@@ -19,15 +21,11 @@
             return true;
         }
 
-        public override bool Done => _index >= _path.Contours.Count;
         public override ContourType CurrentSegment(float[] points)
         {
             var contour = _path.Contours[_index];
 
-            for (var i = 0; i < contour.Points.Length; i++)
-            {
-                points[i] = contour.Points[i];
-            }
+            for (var i = 0; i < contour.Points.Length; i++) points[i] = contour.Points[i];
             return contour.Type;
         }
     }

@@ -5,13 +5,10 @@
         //private static readonly int _cacheSizeMB = 10;
         private static readonly int _cacheSizeCount = 10;
 
+        private readonly LruCache<string, LottieComposition>
+            _cache = new(_cacheSizeCount); //1024 * 1024 * _cacheSizeMB);
+
         public static LottieCompositionCache Instance { get; } = new();
-
-        private readonly LruCache<string, LottieComposition> _cache = new(_cacheSizeCount);//1024 * 1024 * _cacheSizeMB);
-
-        internal LottieCompositionCache()
-        {
-        }
 
         public LottieComposition GetRawRes(int rawRes)
         {
@@ -33,10 +30,7 @@
 
         public void Put(string cacheKey, LottieComposition composition)
         {
-            if (cacheKey == null)
-            {
-                return;
-            }
+            if (cacheKey == null) return;
             _cache.Put(cacheKey, composition);
         }
     }

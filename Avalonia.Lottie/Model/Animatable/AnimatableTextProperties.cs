@@ -7,7 +7,8 @@
         internal readonly AnimatableFloatValue _strokeWidth;
         internal readonly AnimatableFloatValue _tracking;
 
-        public AnimatableTextProperties(AnimatableColorValue color, AnimatableColorValue stroke, AnimatableFloatValue strokeWidth, AnimatableFloatValue tracking)
+        public AnimatableTextProperties(AnimatableColorValue color, AnimatableColorValue stroke,
+            AnimatableFloatValue strokeWidth, AnimatableFloatValue tracking)
         {
             _color = color;
             _stroke = stroke;

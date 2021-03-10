@@ -2,7 +2,7 @@
 
 namespace Avalonia.Lottie.Parser
 {
-    static class FontParser
+    internal static class FontParser
     {
         internal static Font Parse(JsonReader reader)
         {
@@ -13,7 +13,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "fFamily":
@@ -32,7 +31,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
 
             return new Font(family, name, style, ascent);

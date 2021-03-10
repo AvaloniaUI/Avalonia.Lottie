@@ -3,7 +3,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class ShapeGroupParser
+    internal static class ShapeGroupParser
     {
         internal static ShapeGroup Parse(JsonReader reader, LottieComposition composition)
         {
@@ -11,7 +11,6 @@ namespace Avalonia.Lottie.Parser
             var items = new List<IContentModel>();
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -22,18 +21,15 @@ namespace Avalonia.Lottie.Parser
                         while (reader.HasNext())
                         {
                             var newItem = ContentModelParser.Parse(reader, composition);
-                            if (newItem != null)
-                            {
-                                items.Add(newItem);
-                            }
+                            if (newItem != null) items.Add(newItem);
                         }
+
                         reader.EndArray();
                         break;
                     default:
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new ShapeGroup(name, items);
         }

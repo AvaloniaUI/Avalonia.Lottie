@@ -4,16 +4,44 @@ namespace Avalonia.Lottie
 {
     public class PathInterpolator : IInterpolator
     {
-        public PathInterpolator(float controlX1, float controlY1, float controlX2, float controlY2)
-        {
-            InitCubic(controlX1, controlY1, controlX2, controlY2);
-        }
-
         private static readonly float Precision = 0.002f;
 
         private float[] _mX; // x coordinates in the line
 
         private float[] _mY; // y coordinates in the line
+
+        public PathInterpolator(float controlX1, float controlY1, float controlX2, float controlY2)
+        {
+            InitCubic(controlX1, controlY1, controlX2, controlY2);
+        }
+
+        public float GetInterpolation(float t)
+        {
+            if (t <= 0 || float.IsNaN(t)) return 0;
+            if (t >= 1) return 1;
+            // Do a binary search for the corRect x to interpolate between.
+            var startIndex = 0;
+            var endIndex = _mX.Length - 1;
+
+            while (endIndex - startIndex > 1)
+            {
+                var midIndex = (startIndex + endIndex) / 2;
+                if (t < _mX[midIndex])
+                    endIndex = midIndex;
+                else
+                    startIndex = midIndex;
+            }
+
+            var xRange = _mX[endIndex] - _mX[startIndex];
+            if (xRange == 0) return _mY[startIndex];
+
+            var tInRange = t - _mX[startIndex];
+            var fraction = tInRange / xRange;
+
+            var startY = _mY[startIndex];
+            var endY = _mY[endIndex];
+            return startY + fraction * (endY - startY);
+        }
 
         private void InitCubic(float x1, float y1, float x2, float y2)
         {
@@ -46,59 +74,17 @@ namespace Avalonia.Lottie
                 var x = pointComponents[componentIndex++];
                 var y = pointComponents[componentIndex++];
                 if (fraction == prevFraction && x != prevX)
-                {
                     throw new ArgumentException("The Path cannot have discontinuity in the X axis.");
-                }
                 if (x < prevX)
                 {
                     //throw new ArgumentException("The Path cannot loop back on itself.");
                 }
+
                 _mX[i] = x;
                 _mY[i] = y;
                 prevX = x;
                 prevFraction = fraction;
             }
-        }
-
-        public float GetInterpolation(float t)
-        {
-            if (t <= 0 || float.IsNaN(t))
-            {
-                return 0;
-            }
-            if (t >= 1)
-            {
-                return 1;
-            }
-            // Do a binary search for the corRect x to interpolate between.
-            var startIndex = 0;
-            var endIndex = _mX.Length - 1;
-
-            while (endIndex - startIndex > 1)
-            {
-                var midIndex = (startIndex + endIndex) / 2;
-                if (t < _mX[midIndex])
-                {
-                    endIndex = midIndex;
-                }
-                else
-                {
-                    startIndex = midIndex;
-                }
-            }
-
-            var xRange = _mX[endIndex] - _mX[startIndex];
-            if (xRange == 0)
-            {
-                return _mY[startIndex];
-            }
-
-            var tInRange = t - _mX[startIndex];
-            var fraction = tInRange / xRange;
-
-            var startY = _mY[startIndex];
-            var endY = _mY[endIndex];
-            return startY + (fraction * (endY - startY));
         }
     }
 }

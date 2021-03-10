@@ -10,7 +10,7 @@ namespace Avalonia.Lottie
                 f = 0;
             if (f > 1)
                 f = 1;
-            return (float)(Math.Cos((f + 1) * Math.PI) / 2 + 0.5);
+            return (float) (Math.Cos((f + 1) * Math.PI) / 2 + 0.5);
         }
     }
 }

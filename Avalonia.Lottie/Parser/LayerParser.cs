@@ -12,7 +12,9 @@ namespace Avalonia.Lottie.Parser
         public static Layer Parse(LottieComposition composition)
         {
             var bounds = composition.Bounds;
-            return new Layer(new List<IContentModel>(), composition, "__container", -1, Layer.LayerType.PreComp, -1, null, new List<Mask>(), new AnimatableTransform(), 0, 0, default(Color), 0, 0, (int)bounds.Width, (int)bounds.Height, null, null, new List<Keyframe<float?>>(), Layer.MatteType.None, null, false);
+            return new Layer(new List<IContentModel>(), composition, "__container", -1, Layer.LayerType.PreComp, -1,
+                null, new List<Mask>(), new AnimatableTransform(), 0, 0, default, 0, 0, (int) bounds.Width,
+                (int) bounds.Height, null, null, new List<Keyframe<float?>>(), Layer.MatteType.None, null, false);
         }
 
         public static Layer Parse(JsonReader reader, LottieComposition composition)
@@ -45,7 +47,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -59,23 +60,19 @@ namespace Avalonia.Lottie.Parser
                         break;
                     case "ty":
                         var layerTypeInt = reader.NextInt();
-                        if (layerTypeInt < (int)Layer.LayerType.Unknown)
-                        {
-                            layerType = (Layer.LayerType)layerTypeInt;
-                        }
+                        if (layerTypeInt < (int) Layer.LayerType.Unknown)
+                            layerType = (Layer.LayerType) layerTypeInt;
                         else
-                        {
                             layerType = Layer.LayerType.Unknown;
-                        }
                         break;
                     case "parent":
                         parentId = reader.NextInt();
                         break;
                     case "sw":
-                        solidWidth = (int)(reader.NextInt() * Utils.Utils.DpScale());
+                        solidWidth = (int) (reader.NextInt() * Utils.Utils.DpScale());
                         break;
                     case "sh":
-                        solidHeight = (int)(reader.NextInt() * Utils.Utils.DpScale());
+                        solidHeight = (int) (reader.NextInt() * Utils.Utils.DpScale());
                         break;
                     case "sc":
                         solidColor = Utils.Utils.GetSolidColorBrush(reader.NextString());
@@ -84,14 +81,11 @@ namespace Avalonia.Lottie.Parser
                         transform = AnimatableTransformParser.Parse(reader, composition);
                         break;
                     case "tt":
-                        matteType = (Layer.MatteType)reader.NextInt();
+                        matteType = (Layer.MatteType) reader.NextInt();
                         break;
                     case "masksProperties":
                         reader.BeginArray();
-                        while (reader.HasNext())
-                        {
-                            masks.Add(MaskParser.Parse(reader, composition));
-                        }
+                        while (reader.HasNext()) masks.Add(MaskParser.Parse(reader, composition));
                         reader.EndArray();
                         break;
                     case "shapes":
@@ -99,17 +93,14 @@ namespace Avalonia.Lottie.Parser
                         while (reader.HasNext())
                         {
                             var shape = ContentModelParser.Parse(reader, composition);
-                            if (shape != null)
-                            {
-                                shapes.Add(shape);
-                            }
+                            if (shape != null) shapes.Add(shape);
                         }
+
                         reader.EndArray();
                         break;
                     case "t":
                         reader.BeginObject();
                         while (reader.HasNext())
-                        {
                             switch (reader.NextName())
                             {
                                 case "d":
@@ -118,20 +109,15 @@ namespace Avalonia.Lottie.Parser
                                 case "a":
                                     reader.BeginArray();
                                     if (reader.HasNext())
-                                    {
                                         textProperties = AnimatableTextPropertiesParser.Parse(reader, composition);
-                                    }
-                                    while (reader.HasNext())
-                                    {
-                                        reader.SkipValue();
-                                    }
+                                    while (reader.HasNext()) reader.SkipValue();
                                     reader.EndArray();
                                     break;
                                 default:
                                     reader.SkipValue();
                                     break;
                             }
-                        }
+
                         reader.EndObject();
                         break;
                     case "ef":
@@ -141,7 +127,6 @@ namespace Avalonia.Lottie.Parser
                         {
                             reader.BeginObject();
                             while (reader.HasNext())
-                            {
                                 switch (reader.NextName())
                                 {
                                     case "nm":
@@ -151,13 +136,14 @@ namespace Avalonia.Lottie.Parser
                                         reader.SkipValue();
                                         break;
                                 }
-                            }
+
                             reader.EndObject();
                         }
+
                         reader.EndArray();
                         composition.AddWarning("Lottie doesn't support layer effects. If you are using them for " +
-                            " fills, strokes, trim paths etc. then try adding them directly as contents " +
-                            " in your shape. Found: " + effectNames);
+                                               " fills, strokes, trim paths etc. then try adding them directly as contents " +
+                                               " in your shape. Found: " + effectNames);
                         break;
                     case "sr":
                         timeStretch = reader.NextDouble();
@@ -166,10 +152,10 @@ namespace Avalonia.Lottie.Parser
                         startFrame = reader.NextDouble();
                         break;
                     case "w":
-                        preCompWidth = (int)(reader.NextInt() * Utils.Utils.DpScale());
+                        preCompWidth = (int) (reader.NextInt() * Utils.Utils.DpScale());
                         break;
                     case "h":
-                        preCompHeight = (int)(reader.NextInt() * Utils.Utils.DpScale());
+                        preCompHeight = (int) (reader.NextInt() * Utils.Utils.DpScale());
                         break;
                     case "ip":
                         inFrame = reader.NextDouble();
@@ -190,7 +176,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
 
             // Bodymovin pre-scales the in frame and out frame by the time stretch. However, that will 
@@ -200,7 +186,7 @@ namespace Avalonia.Lottie.Parser
             outFrame /= timeStretch;
 
             var inOutKeyframes = new List<Keyframe<float?>>();
-            
+
             // Before the in frame 
             if (inFrame > 0)
             {
@@ -209,7 +195,7 @@ namespace Avalonia.Lottie.Parser
             }
 
             // The + 1 is because the animation should be visible on the out frame itself. 
-            outFrame = (outFrame > 0 ? outFrame : composition.EndFrame);
+            outFrame = outFrame > 0 ? outFrame : composition.EndFrame;
             var visibleKeyframe = new Keyframe<float?>(composition, 1f, 1f, null, inFrame, outFrame);
             inOutKeyframes.Add(visibleKeyframe);
 
@@ -217,11 +203,11 @@ namespace Avalonia.Lottie.Parser
             inOutKeyframes.Add(outKeyframe);
 
             if (layerName.EndsWith(".ai") || "ai".Equals(cl))
-            {
                 composition.AddWarning("Convert your Illustrator layers to shape layers.");
-            }
 
-            return new Layer(shapes, composition, layerName, layerId, layerType, parentId, refId, masks, transform, solidWidth, solidHeight, solidColor, timeStretch, startFrame, preCompWidth, preCompHeight, text, textProperties, inOutKeyframes, matteType, timeRemapping, hidden);
+            return new Layer(shapes, composition, layerName, layerId, layerType, parentId, refId, masks, transform,
+                solidWidth, solidHeight, solidColor, timeStretch, startFrame, preCompWidth, preCompHeight, text,
+                textProperties, inOutKeyframes, matteType, timeRemapping, hidden);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
@@ -14,16 +15,13 @@ namespace Avalonia.Lottie.Animation.Keyframe
         public override Color? GetValue(Keyframe<Color?> keyframe, float keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
-            {
-                throw new System.InvalidOperationException("Missing values for keyframe.");
-            }
+                throw new InvalidOperationException("Missing values for keyframe.");
             var startColor = keyframe.StartValue;
             var endColor = keyframe.EndValue;
 
             if (ValueCallback != null)
-            {
-                return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value, startColor, endColor, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
-            }
+                return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value, startColor,
+                    endColor, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
 
             return GammaEvaluator.Evaluate(keyframeProgress, startColor.Value, endColor.Value);
         }

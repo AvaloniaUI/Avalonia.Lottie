@@ -12,12 +12,14 @@ namespace Avalonia.Lottie.Model.Content
             Individually = 2
         }
 
-        private readonly Type _type;
-        private readonly AnimatableFloatValue _start;
         private readonly AnimatableFloatValue _end;
         private readonly AnimatableFloatValue _offset;
+        private readonly AnimatableFloatValue _start;
 
-        public ShapeTrimPath(string name, Type type, AnimatableFloatValue start, AnimatableFloatValue end, AnimatableFloatValue offset)
+        private readonly Type _type;
+
+        public ShapeTrimPath(string name, Type type, AnimatableFloatValue start, AnimatableFloatValue end,
+            AnimatableFloatValue offset)
         {
             Name = name;
             _type = type;
@@ -28,11 +30,6 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual string Name { get; }
 
-        internal new virtual Type GetType()
-        {
-            return _type;
-        }
-
         internal virtual AnimatableFloatValue End => _end;
 
         internal virtual AnimatableFloatValue Start => _start;
@@ -42,6 +39,11 @@ namespace Avalonia.Lottie.Model.Content
         public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
         {
             return new TrimPathContent(layer, this);
+        }
+
+        internal new virtual Type GetType()
+        {
+            return _type;
         }
 
         public override string ToString()

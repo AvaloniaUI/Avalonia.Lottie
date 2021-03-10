@@ -1,15 +1,16 @@
-﻿using Newtonsoft.Json;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia.Lottie.Model.Content;
 using Avalonia.Lottie.Utils;
 using Avalonia.Media;
+using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Parser
 {
     public class GradientColorParser : IValueParser<GradientColor>
     {
-        /** The number of colors if it exists in the json or -1 if it doesn't (legacy bodymovin) */
+        /**
+         * The number of colors if it exists in the json or -1 if it doesn't (legacy bodymovin)
+         */
         private int _colorPoints;
 
         public GradientColorParser(int colorPoints)
@@ -18,24 +19,23 @@ namespace Avalonia.Lottie.Parser
         }
 
         /// <summary>
-        /// Both the color stops and opacity stops are in the same array. 
-        /// There are <see cref="_colorPoints"/> colors sequentially as: 
-        /// [ 
-        ///     ..., 
-        ///     position, 
-        ///     red, 
-        ///     green, 
-        ///     blue, 
-        ///     ... 
-        /// ] 
-        /// 
-        /// The remainder of the array is the opacity stops sequentially as: 
-        /// [ 
-        ///     ..., 
-        ///     position, 
-        ///     opacity, 
-        ///     ... 
-        /// ] 
+        ///     Both the color stops and opacity stops are in the same array.
+        ///     There are <see cref="_colorPoints" /> colors sequentially as:
+        ///     [
+        ///     ...,
+        ///     position,
+        ///     red,
+        ///     green,
+        ///     blue,
+        ///     ...
+        ///     ]
+        ///     The remainder of the array is the opacity stops sequentially as:
+        ///     [
+        ///     ...,
+        ///     position,
+        ///     opacity,
+        ///     ...
+        ///     ]
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="scale"></param>
@@ -46,22 +46,10 @@ namespace Avalonia.Lottie.Parser
             // The array was started by Keyframe because it thought that this may be an array of keyframes 
             // but peek returned a number so it considered it a static array of numbers. 
             var isArray = reader.Peek() == JsonToken.StartArray;
-            if (isArray)
-            {
-                reader.BeginArray();
-            }
-            while (reader.HasNext())
-            {
-                array.Add(reader.NextDouble());
-            }
-            if (isArray)
-            {
-                reader.EndArray();
-            }
-            if (_colorPoints == -1)
-            {
-                _colorPoints = array.Count / 4;
-            }
+            if (isArray) reader.BeginArray();
+            while (reader.HasNext()) array.Add(reader.NextDouble());
+            if (isArray) reader.EndArray();
+            if (_colorPoints == -1) _colorPoints = array.Count / 4;
 
             var positions = new float[_colorPoints];
             var colors = new Color[_colorPoints];
@@ -76,17 +64,17 @@ namespace Avalonia.Lottie.Parser
                 {
                     case 0:
                         // position 
-                        positions[colorIndex] = (float)value;
+                        positions[colorIndex] = (float) value;
                         break;
                     case 1:
-                        r = (byte)(value * 255);
+                        r = (byte) (value * 255);
                         break;
                     case 2:
-                        g = (byte)(value * 255);
+                        g = (byte) (value * 255);
                         break;
                     case 3:
-                        var b = (byte)(value * 255);
-                        colors[colorIndex] = new Color((byte)255, r, g, b);
+                        var b = (byte) (value * 255);
+                        colors[colorIndex] = new Color(255, r, g, b);
                         break;
                 }
             }
@@ -96,29 +84,25 @@ namespace Avalonia.Lottie.Parser
             return gradientColor;
         }
 
-        /** 
-       * This cheats a little bit. 
-       * Opacity stops can be at arbitrary intervals independent of color stops. 
-       * This uses the existing color stops and modifies the opacity at each existing color stop 
-       * based on what the opacity would be. 
-       * 
-       * This should be a good approximation is nearly all cases. However, if there are many more 
-       * opacity stops than color stops, information will be lost. 
-       */
+        /**
+         * This cheats a little bit. 
+         * Opacity stops can be at arbitrary intervals independent of color stops. 
+         * This uses the existing color stops and modifies the opacity at each existing color stop 
+         * based on what the opacity would be. 
+         * 
+         * This should be a good approximation is nearly all cases. However, if there are many more 
+         * opacity stops than color stops, information will be lost.
+         */
         private void AddOpacityStopsToGradientIfNeeded(GradientColor gradientColor, List<float> array)
         {
             var startIndex = _colorPoints * 4;
-            if (array.Count <= startIndex)
-            {
-                return;
-            }
+            if (array.Count <= startIndex) return;
 
             var opacityStops = (array.Count - startIndex) / 2;
             var positions = new double[opacityStops];
             var opacities = new double[opacityStops];
 
             for (int i = startIndex, j = 0; i < array.Count; i++)
-            {
                 if (i % 2 == 0)
                 {
                     positions[j] = array[i];
@@ -128,7 +112,6 @@ namespace Avalonia.Lottie.Parser
                     opacities[j] = array[i];
                     j++;
                 }
-            }
 
             for (var i = 0; i < gradientColor.Size; i++)
             {
@@ -151,10 +134,11 @@ namespace Avalonia.Lottie.Parser
                 if (positions[i] >= position)
                 {
                     var progress = (position - lastPosition) / (thisPosition - lastPosition);
-                    return (byte)(255 * MiscUtils.Lerp(opacities[i - 1], opacities[i], progress));
+                    return (byte) (255 * MiscUtils.Lerp(opacities[i - 1], opacities[i], progress));
                 }
             }
-            return (byte)(255 * opacities[opacities.Length - 1]);
+
+            return (byte) (255 * opacities[opacities.Length - 1]);
         }
     }
 }

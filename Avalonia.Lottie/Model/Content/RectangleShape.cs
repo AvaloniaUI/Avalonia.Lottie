@@ -3,26 +3,25 @@ using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Model.Layer;
 
-
 namespace Avalonia.Lottie.Model.Content
 {
     public class RectangleShape : IContentModel
     {
         private readonly IAnimatableValue<Vector2?, Vector2?> _position;
         private readonly AnimatablePointValue _size;
-        private readonly AnimatableFloatValue _cornerRadius;
 
-        public RectangleShape(string name, IAnimatableValue<Vector2?, Vector2?> position, AnimatablePointValue size, AnimatableFloatValue cornerRadius)
+        public RectangleShape(string name, IAnimatableValue<Vector2?, Vector2?> position, AnimatablePointValue size,
+            AnimatableFloatValue cornerRadius)
         {
             Name = name;
             _position = position;
             _size = size;
-            _cornerRadius = cornerRadius;
+            CornerRadius = cornerRadius;
         }
 
         internal virtual string Name { get; }
 
-        internal virtual AnimatableFloatValue CornerRadius => _cornerRadius;
+        internal virtual AnimatableFloatValue CornerRadius { get; }
 
         internal virtual AnimatablePointValue Size => _size;
 

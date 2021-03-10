@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 
@@ -9,11 +8,11 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class LinearGradient : Gradient, IDisposable
     {
-        private readonly float _x0;
-        private readonly float _y0;
-        private readonly float _x1;
-        private readonly float _y1;
         private readonly List<ImmutableGradientStop> _canvasGradientStopCollection;
+        private readonly float _x0;
+        private readonly float _x1;
+        private readonly float _y0;
+        private readonly float _y1;
         private ImmutableLinearGradientBrush _canvasLinearGradientBrush;
 
         public LinearGradient(float x0, float y0, float x1, float y1, Color[] colors, float[] positions)
@@ -24,9 +23,12 @@ namespace Avalonia.Lottie.Animation.Content
             _y1 = y1;
             _canvasGradientStopCollection = new List<ImmutableGradientStop>(colors.Length);
             for (var i = 0; i < colors.Length; i++)
-            {
                 _canvasGradientStopCollection.Add(new ImmutableGradientStop(positions[i], colors[i]));
-            }
+        }
+
+        public void Dispose()
+        {
+            _canvasLinearGradientBrush = null;
         }
 
         public override IBrush GetBrush(byte alpha)
@@ -40,17 +42,12 @@ namespace Avalonia.Lottie.Animation.Content
                 endPoint = LocalMatrix.Transform(endPoint);
 
                 _canvasLinearGradientBrush = new ImmutableLinearGradientBrush(_canvasGradientStopCollection,
-                    alpha / 255f, 
+                    alpha / 255f,
                     startPoint: new RelativePoint(startPoint.X, startPoint.Y, RelativeUnit.Absolute),
                     endPoint: new RelativePoint(endPoint.X, endPoint.Y, RelativeUnit.Absolute));
             }
 
             return _canvasLinearGradientBrush;
-        }
-
-        public void Dispose()
-        {
-            _canvasLinearGradientBrush = null;
         }
     }
 }

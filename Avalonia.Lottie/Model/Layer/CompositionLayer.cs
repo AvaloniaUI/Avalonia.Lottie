@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using Avalonia;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;
@@ -10,14 +8,15 @@ namespace Avalonia.Lottie.Model.Layer
 {
     internal class CompositionLayer : BaseLayer
     {
-        private IBaseKeyframeAnimation<float?, float?> _timeRemapping;
         private readonly List<BaseLayer> _layers = new();
-        private Rect _newClipRect;
-
-        private bool? _hasMatte;
         private bool? _hasMasks;
 
-        internal CompositionLayer(LottieDrawable lottieDrawable, Layer layerModel, List<Layer> layerModels, LottieComposition composition) : base(lottieDrawable, layerModel)
+        private bool? _hasMatte;
+        private Rect _newClipRect;
+        private IBaseKeyframeAnimation<float?, float?> _timeRemapping;
+
+        internal CompositionLayer(LottieDrawable lottieDrawable, Layer layerModel, List<Layer> layerModels,
+            LottieComposition composition) : base(lottieDrawable, layerModel)
         {
             var timeRemapping = layerModel.TimeRemapping;
             if (timeRemapping != null)
@@ -38,10 +37,7 @@ namespace Avalonia.Lottie.Model.Layer
             {
                 var lm = layerModels[i];
                 var layer = ForModel(lm, lottieDrawable, composition);
-                if (layer == null)
-                {
-                    continue;
-                }
+                if (layer == null) continue;
                 layerMap[layer.LayerModel.Id] = layer;
                 if (mattedLayer != null)
                 {
@@ -67,14 +63,29 @@ namespace Avalonia.Lottie.Model.Layer
                 // This shouldn't happen but it appears as if sometimes on pre-lollipop devices when 
                 // compiled with d8, layerView is null sometimes. 
                 // https://github.com/airbnb/lottie-android/issues/524 
-                if (layerView == null)
-                {
-                    continue;
-                }
+                if (layerView == null) continue;
                 if (layerMap.TryGetValue(layerView.LayerModel.ParentId, out var parentLayer))
-                {
                     layerView.ParentLayer = parentLayer;
+            }
+        }
+
+        public override float Progress
+        {
+            set
+            {
+                base.Progress = value;
+
+                if (_timeRemapping?.Value != null)
+                {
+                    var duration = LottieDrawable.Composition.Duration;
+                    var remappedTime = (long) (_timeRemapping.Value.Value * 1000);
+                    value = remappedTime / duration;
                 }
+
+                if (LayerModel.TimeStretch != 0) value /= LayerModel.TimeStretch;
+
+                value -= LayerModel.StartProgress;
+                for (var i = _layers.Count - 1; i >= 0; i--) _layers[i].Progress = value;
             }
         }
 
@@ -88,16 +99,14 @@ namespace Avalonia.Lottie.Model.Layer
             for (var i = _layers.Count - 1; i >= 0; i--)
             {
                 var nonEmptyClip = true;
-                if (!_newClipRect.IsEmpty)
-                {
-                    nonEmptyClip = canvas.ClipRect(_newClipRect);
-                }
+                if (!_newClipRect.IsEmpty) nonEmptyClip = canvas.ClipRect(_newClipRect);
                 if (nonEmptyClip)
                 {
                     var layer = _layers[i];
                     layer.Draw(canvas, parentMatrix, parentAlpha);
                 }
             }
+
             canvas.Restore();
             LottieLog.EndSection("CompositionLayer.Draw");
         }
@@ -111,38 +120,11 @@ namespace Avalonia.Lottie.Model.Layer
                 var content = _layers[i];
                 content.GetBounds(ref Rect, BoundsMatrix);
                 if (outBounds.IsEmpty)
-                {
                     RectExt.Set(ref outBounds, Rect);
-                }
                 else
-                {
-                    RectExt.Set(ref outBounds, (float)Math.Min(outBounds.Left, Rect.Left), (float)Math.Min(outBounds.Top, Rect.Top), (float)Math.Max(outBounds.Right, Rect.Right), (float)Math.Max(outBounds.Bottom, Rect.Bottom));
-                }
-            }
-        }
-
-        public override float Progress
-        {
-            set
-            {
-                base.Progress = value;
-
-                if (_timeRemapping?.Value != null)
-                {
-                    var duration = LottieDrawable.Composition.Duration;
-                    var remappedTime = (long)(_timeRemapping.Value.Value * 1000);
-                    value = remappedTime / duration;
-                }
-                if (LayerModel.TimeStretch != 0)
-                {
-                    value /= LayerModel.TimeStretch;
-                }
-
-                value -= LayerModel.StartProgress;
-                for (var i = _layers.Count - 1; i >= 0; i--)
-                {
-                    _layers[i].Progress = value;
-                }
+                    RectExt.Set(ref outBounds, (float) Math.Min(outBounds.Left, Rect.Left),
+                        (float) Math.Min(outBounds.Top, Rect.Top), (float) Math.Max(outBounds.Right, Rect.Right),
+                        (float) Math.Max(outBounds.Bottom, Rect.Bottom));
             }
         }
 
@@ -167,8 +149,10 @@ namespace Avalonia.Lottie.Model.Layer
                         return true;
                     }
                 }
+
                 _hasMasks = false;
             }
+
             return _hasMasks.Value;
         }
 
@@ -183,24 +167,23 @@ namespace Avalonia.Lottie.Model.Layer
                 }
 
                 for (var i = _layers.Count - 1; i >= 0; i--)
-                {
                     if (_layers[i].HasMatteOnThisLayer())
                     {
                         _hasMatte = true;
                         return true;
                     }
-                }
+
                 _hasMatte = false;
             }
+
             return _hasMatte.Value;
         }
 
-        internal override void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
+        internal override void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator,
+            KeyPath currentPartialKeyPath)
         {
             for (var i = 0; i < _layers.Count; i++)
-            {
                 _layers[i].ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath);
-            }
         }
 
         public override void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
@@ -215,7 +198,8 @@ namespace Avalonia.Lottie.Model.Layer
                 }
                 else
                 {
-                    _timeRemapping = new ValueCallbackKeyframeAnimation<float?, float?>((ILottieValueCallback<float?>)callback);
+                    _timeRemapping =
+                        new ValueCallbackKeyframeAnimation<float?, float?>((ILottieValueCallback<float?>) callback);
                     AddAnimation(_timeRemapping);
                 }
             }

@@ -4,8 +4,8 @@ using Avalonia.Lottie.Utils;
 namespace Avalonia.Lottie.Value
 {
     /// <summary>
-    /// <see cref="Value.LottieValueCallback{T}"/> that provides a value offset from the original animation 
-    ///  rather than an absolute value.
+    ///     <see cref="Value.LottieValueCallback{T}" /> that provides a value offset from the original animation
+    ///     rather than an absolute value.
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
     public class LottieRelativeFloatValueCallback : LottieValueCallback<float?>
@@ -33,10 +33,8 @@ namespace Avalonia.Lottie.Value
         public float GetOffset(LottieFrameInfo<float?> frameInfo)
         {
             if (Value == null)
-            {
                 throw new ArgumentException("You must provide a static value in the constructor " +
-                                                   ", call setValue, or override getValue.");
-            }
+                                            ", call setValue, or override getValue.");
             return Value.Value;
         }
     }

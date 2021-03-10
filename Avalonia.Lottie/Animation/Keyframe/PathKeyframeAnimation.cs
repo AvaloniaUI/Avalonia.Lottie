@@ -7,29 +7,30 @@ namespace Avalonia.Lottie.Animation.Keyframe
 {
     internal class PathKeyframeAnimation : KeyframeAnimation<Vector2?>, IDisposable
     {
-        private PathKeyframe _pathMeasureKeyframe;
         private PathMeasure _pathMeasure;
+        private PathKeyframe _pathMeasureKeyframe;
 
         internal PathKeyframeAnimation(List<Keyframe<Vector2?>> keyframes)
             : base(keyframes)
         {
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         public override Vector2? GetValue(Keyframe<Vector2?> keyframe, float keyframeProgress)
         {
-            var pathKeyframe = (PathKeyframe)keyframe;
+            var pathKeyframe = (PathKeyframe) keyframe;
             var path = pathKeyframe.Path;
-            if (path == null || path.Contours.Count == 0)
-            {
-                return keyframe.StartValue;
-            }
+            if (path == null || path.Contours.Count == 0) return keyframe.StartValue;
 
             if (ValueCallback != null)
-            {
                 return ValueCallback.GetValueInternal(pathKeyframe.StartFrame.Value, pathKeyframe.EndFrame.Value,
-                pathKeyframe.StartValue, pathKeyframe.EndValue, LinearCurrentKeyframeProgress,
-                keyframeProgress, Progress);
-            }
+                    pathKeyframe.StartValue, pathKeyframe.EndValue, LinearCurrentKeyframeProgress,
+                    keyframeProgress, Progress);
 
             if (_pathMeasureKeyframe != pathKeyframe)
             {
@@ -48,12 +49,6 @@ namespace Avalonia.Lottie.Animation.Keyframe
                 _pathMeasure.Dispose(disposing);
                 _pathMeasure = null;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         ~PathKeyframeAnimation()

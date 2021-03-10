@@ -6,11 +6,12 @@ namespace Avalonia.Lottie.Animation.Keyframe
 {
     internal class SplitDimensionPathKeyframeAnimation : BaseKeyframeAnimation<Vector2?, Vector2?>
     {
-        private Vector2 _point;
         private readonly IBaseKeyframeAnimation<float?, float?> _xAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _yAnimation;
+        private Vector2 _point;
 
-        internal SplitDimensionPathKeyframeAnimation(IBaseKeyframeAnimation<float?, float?> xAnimation, IBaseKeyframeAnimation<float?, float?> yAnimation)
+        internal SplitDimensionPathKeyframeAnimation(IBaseKeyframeAnimation<float?, float?> xAnimation,
+            IBaseKeyframeAnimation<float?, float?> yAnimation)
             : base(new List<Keyframe<Vector2?>>())
         {
             _xAnimation = xAnimation;

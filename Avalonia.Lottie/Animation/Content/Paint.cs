@@ -1,16 +1,19 @@
-
 using System;
 using Avalonia.Media;
 
 namespace Avalonia.Lottie.Animation.Content
 {
-    public class Paint: IDisposable
+    public class Paint : IDisposable
     {
+        public enum PaintStyle
+        {
+            Fill,
+            Stroke
+        }
+
         public static int AntiAliasFlag = 0b01;
         public static int FilterBitmapFlag = 0b10;
         private bool disposedValue;
-
-        public int Flags { get; }
 
         public Paint(int flags)
         {
@@ -22,11 +25,7 @@ namespace Avalonia.Lottie.Animation.Content
         {
         }
 
-        public enum PaintStyle
-        {
-            Fill,
-            Stroke
-        }
+        public int Flags { get; }
 
         public byte Alpha
         {
@@ -51,6 +50,12 @@ namespace Avalonia.Lottie.Animation.Content
         public Typeface Typeface { get; set; }
         public float TextSize { get; set; }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -62,25 +67,19 @@ namespace Avalonia.Lottie.Animation.Content
 
                     (PathEffect as IDisposable)?.Dispose();
                     PathEffect = null;
-                    
+
                     (Xfermode as IDisposable)?.Dispose();
                     Xfermode = null;
-                    
+
                     (Shader as IDisposable)?.Dispose();
                     Shader = null;
-                    
+
                     (Typeface as IDisposable)?.Dispose();
                     Typeface = null;
                 }
 
                 disposedValue = true;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

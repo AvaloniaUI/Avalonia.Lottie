@@ -2,10 +2,9 @@
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Model.Content;
 
-
 namespace Avalonia.Lottie.Parser
 {
-    static class CircleShapeParser
+    internal static class CircleShapeParser
     {
         internal static CircleShape Parse(JsonReader reader, LottieComposition composition, int d)
         {
@@ -15,7 +14,6 @@ namespace Avalonia.Lottie.Parser
             var reversed = d == 3;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -35,7 +33,6 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new CircleShape(name, position, size, reversed);
         }

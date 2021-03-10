@@ -4,12 +4,11 @@ namespace Avalonia.Lottie
 {
     public class Usingifier<T> : IDisposable where T : class
     {
-
         private readonly Action<T> _cleanUp;
 
         private bool _disposed;
 
-        private T _state;
+        private readonly T _state;
 
         public Usingifier(T state, Action<T> cleanUp)
         {
@@ -19,18 +18,11 @@ namespace Avalonia.Lottie
 
         public virtual void Dispose()
         {
-            if (_disposed)
-            {
-                return;
-            }
+            if (_disposed) return;
 
             _disposed = true;
 
-            if (_state != null)
-            {
-                _cleanUp(_state);
-            }
+            if (_state != null) _cleanUp(_state);
         }
     }
-
 }

@@ -20,12 +20,12 @@ namespace Avalonia.Lottie.Model.Content
             Opacity = opacity;
         }
 
+        internal virtual AnimatableShapeValue MaskPath { get; }
+        internal virtual AnimatableIntegerValue Opacity { get; }
+
         internal virtual MaskMode GetMaskMode()
         {
             return _maskMode;
         }
-
-        internal virtual AnimatableShapeValue MaskPath { get; }
-        internal virtual AnimatableIntegerValue Opacity { get; }
     }
 }

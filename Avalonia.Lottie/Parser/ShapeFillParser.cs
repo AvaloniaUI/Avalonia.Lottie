@@ -3,7 +3,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class ShapeFillParser
+    internal static class ShapeFillParser
     {
         internal static ShapeFill Parse(JsonReader reader, LottieComposition composition)
         {
@@ -14,7 +14,6 @@ namespace Avalonia.Lottie.Parser
             var fillTypeInt = 1;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -36,7 +35,6 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
             var fillType = fillTypeInt == 1 ? PathFillType.Winding : PathFillType.EvenOdd;
             return new ShapeFill(name, fillEnabled, fillType, color, opacity);

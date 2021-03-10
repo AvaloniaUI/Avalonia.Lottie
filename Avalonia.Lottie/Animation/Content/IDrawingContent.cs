@@ -1,8 +1,4 @@
-﻿
-using Avalonia;
-
-
-namespace Avalonia.Lottie.Animation.Content
+﻿namespace Avalonia.Lottie.Animation.Content
 {
     internal interface IDrawingContent : IContent
     {

@@ -3,7 +3,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class ShapeTrimPathParser
+    internal static class ShapeTrimPathParser
     {
         internal static ShapeTrimPath Parse(JsonReader reader, LottieComposition composition)
         {
@@ -14,7 +14,6 @@ namespace Avalonia.Lottie.Parser
             AnimatableFloatValue offset = null;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "s":
@@ -30,13 +29,12 @@ namespace Avalonia.Lottie.Parser
                         name = reader.NextString();
                         break;
                     case "m":
-                        type = (ShapeTrimPath.Type)reader.NextInt();
+                        type = (ShapeTrimPath.Type) reader.NextInt();
                         break;
                     default:
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new ShapeTrimPath(name, type, start, end, offset);
         }

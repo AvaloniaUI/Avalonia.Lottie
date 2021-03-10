@@ -1,31 +1,27 @@
-﻿using Newtonsoft.Json;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Media;
+using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Parser
 {
     internal static class JsonUtils
     {
         /// <summary>
-        /// [r,g,b]
+        ///     [r,g,b]
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
         internal static Color JsonToColor(JsonReader reader)
         {
             reader.BeginArray();
-            var r = (byte)(reader.NextDouble() * 255);
-            var g = (byte)(reader.NextDouble() * 255);
-            var b = (byte)(reader.NextDouble() * 255);
-            while (reader.HasNext())
-            {
-                reader.SkipValue();
-            }
+            var r = (byte) (reader.NextDouble() * 255);
+            var g = (byte) (reader.NextDouble() * 255);
+            var b = (byte) (reader.NextDouble() * 255);
+            while (reader.HasNext()) reader.SkipValue();
             reader.EndArray();
-            return new Color((byte)255, r, g, b);
+            return new Color(255, r, g, b);
         }
 
         internal static List<Vector2> JsonToPoints(JsonReader reader, float scale)
@@ -39,6 +35,7 @@ namespace Avalonia.Lottie.Parser
                 points.Add(JsonToPoint(reader, scale));
                 reader.EndArray();
             }
+
             reader.EndArray();
             return points;
         }
@@ -60,10 +57,7 @@ namespace Avalonia.Lottie.Parser
         {
             var x = reader.NextDouble();
             var y = reader.NextDouble();
-            while (reader.HasNext())
-            {
-                reader.SkipValue();
-            }
+            while (reader.HasNext()) reader.SkipValue();
             return new Vector2(x * scale, y * scale);
         }
 
@@ -74,10 +68,7 @@ namespace Avalonia.Lottie.Parser
             reader.BeginArray();
             x = reader.NextDouble();
             y = reader.NextDouble();
-            while (reader.Peek() != JsonToken.EndArray)
-            {
-                reader.SkipValue();
-            }
+            while (reader.Peek() != JsonToken.EndArray) reader.SkipValue();
             reader.EndArray();
             return new Vector2(x * scale, y * scale);
         }
@@ -88,7 +79,6 @@ namespace Avalonia.Lottie.Parser
             var y = 0f;
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "x":
@@ -101,7 +91,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
             return new Vector2(x * scale, y * scale);
         }
@@ -117,10 +107,7 @@ namespace Avalonia.Lottie.Parser
                 case JsonToken.StartArray:
                     reader.BeginArray();
                     var val = reader.NextDouble();
-                    while (reader.HasNext())
-                    {
-                        reader.SkipValue();
-                    }
+                    while (reader.HasNext()) reader.SkipValue();
                     reader.EndArray();
                     return val;
                 default:

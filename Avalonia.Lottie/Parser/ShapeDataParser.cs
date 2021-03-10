@@ -1,11 +1,10 @@
-﻿using Newtonsoft.Json;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Avalonia.Lottie.Model;
 using Avalonia.Lottie.Model.Content;
+using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Parser
 {
@@ -17,10 +16,7 @@ namespace Avalonia.Lottie.Parser
         {
             // Sometimes the points data is in a array of length 1. Sometimes the data is at the top 
             // level. 
-            if (reader.Peek() == JsonToken.StartArray)
-            {
-                reader.BeginArray();
-            }
+            if (reader.Peek() == JsonToken.StartArray) reader.BeginArray();
 
             var closed = false;
             List<Vector2> pointsArray = null;
@@ -29,7 +25,6 @@ namespace Avalonia.Lottie.Parser
             reader.BeginObject();
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "c":
@@ -45,24 +40,15 @@ namespace Avalonia.Lottie.Parser
                         outTangents = JsonUtils.JsonToPoints(reader, scale);
                         break;
                 }
-            }
 
             reader.EndObject();
 
-            if (reader.Peek() == JsonToken.EndArray)
-            {
-                reader.EndArray();
-            }
+            if (reader.Peek() == JsonToken.EndArray) reader.EndArray();
 
             if (pointsArray == null || inTangents == null || outTangents == null)
-            {
                 throw new ArgumentException("Shape data was missing information.");
-            }
 
-            if (!pointsArray.Any())
-            {
-                return new ShapeData(new Vector2(), false, new List<CubicCurveData>());
-            }
+            if (!pointsArray.Any()) return new ShapeData(new Vector2(), false, new List<CubicCurveData>());
 
             var length = pointsArray.Count;
             var vertex = pointsArray[0];
@@ -92,6 +78,7 @@ namespace Avalonia.Lottie.Parser
 
                 curves.Add(new CubicCurveData(shapeCp1, shapeCp2, vertex));
             }
+
             return new ShapeData(initialPoint, closed, curves);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Avalonia.Lottie.Value;
 
@@ -15,17 +16,14 @@ namespace Avalonia.Lottie.Animation.Keyframe
         public override Vector2? GetValue(Keyframe<Vector2?> keyframe, float keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
-            {
-                throw new System.InvalidOperationException("Missing values for keyframe.");
-            }
+                throw new InvalidOperationException("Missing values for keyframe.");
 
             var startPoint = keyframe.StartValue;
             var endPoint = keyframe.EndValue;
 
             if (ValueCallback != null)
-            {
-                return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value, startPoint, endPoint, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
-            }
+                return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value, startPoint,
+                    endPoint, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
 
             _point.X = startPoint.Value.X + keyframeProgress * (endPoint.Value.X - startPoint.Value.X);
             _point.Y = startPoint.Value.Y + keyframeProgress * (endPoint.Value.Y - startPoint.Value.Y);

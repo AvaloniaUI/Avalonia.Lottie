@@ -7,7 +7,10 @@ namespace Avalonia.Lottie.Model.Content
 {
     public class GradientStroke : IContentModel
     {
-        public GradientStroke(string name, GradientType gradientType, AnimatableGradientColorValue gradientColor, AnimatableIntegerValue opacity, AnimatablePointValue startPoint, AnimatablePointValue endPoint, AnimatableFloatValue width, ShapeStroke.LineCapType capType, ShapeStroke.LineJoinType joinType, float miterLimit, List<AnimatableFloatValue> lineDashPattern, AnimatableFloatValue dashOffset)
+        public GradientStroke(string name, GradientType gradientType, AnimatableGradientColorValue gradientColor,
+            AnimatableIntegerValue opacity, AnimatablePointValue startPoint, AnimatablePointValue endPoint,
+            AnimatableFloatValue width, ShapeStroke.LineCapType capType, ShapeStroke.LineJoinType joinType,
+            float miterLimit, List<AnimatableFloatValue> lineDashPattern, AnimatableFloatValue dashOffset)
         {
             Name = name;
             GradientType = gradientType;

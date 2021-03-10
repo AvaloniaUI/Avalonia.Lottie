@@ -15,20 +15,6 @@ namespace Avalonia.Lottie.Model.Content
             Unknown
         }
 
-        internal static PenLineCap LineCapTypeToPaintCap(LineCapType lineCapType)
-        {
-            switch (lineCapType)
-            {
-                case LineCapType.Butt:
-                    return PenLineCap.Flat;
-                case LineCapType.Round:
-                    return PenLineCap.Round;
-                case LineCapType.Unknown:
-                default:
-                    return PenLineCap.Square;
-            }
-        }
-
         public enum LineJoinType
         {
             Miter,
@@ -36,21 +22,9 @@ namespace Avalonia.Lottie.Model.Content
             Bevel
         }
 
-        internal static PenLineJoin LineJoinTypeToPaintLineJoin(LineJoinType lineJoinType)
-        {
-            switch (lineJoinType)
-            {
-                case LineJoinType.Bevel:
-                    return PenLineJoin.Bevel;
-                case LineJoinType.Miter:
-                    return PenLineJoin.Miter;
-                case LineJoinType.Round:
-                default:
-                    return PenLineJoin.Round;
-            }
-        }
-
-        public ShapeStroke(string name, AnimatableFloatValue offset, List<AnimatableFloatValue> lineDashPattern, AnimatableColorValue color, AnimatableIntegerValue opacity, AnimatableFloatValue width, LineCapType capType, LineJoinType joinType, float miterLimit)
+        public ShapeStroke(string name, AnimatableFloatValue offset, List<AnimatableFloatValue> lineDashPattern,
+            AnimatableColorValue color, AnimatableIntegerValue opacity, AnimatableFloatValue width, LineCapType capType,
+            LineJoinType joinType, float miterLimit)
         {
             Name = name;
             DashOffset = offset;
@@ -61,11 +35,6 @@ namespace Avalonia.Lottie.Model.Content
             CapType = capType;
             JoinType = joinType;
             MiterLimit = miterLimit;
-        }
-
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
-        {
-            return new StrokeContent(drawable, layer, this);
         }
 
         internal virtual string Name { get; }
@@ -85,5 +54,38 @@ namespace Avalonia.Lottie.Model.Content
         internal virtual LineJoinType JoinType { get; }
 
         internal virtual float MiterLimit { get; }
+
+        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        {
+            return new StrokeContent(drawable, layer, this);
+        }
+
+        internal static PenLineCap LineCapTypeToPaintCap(LineCapType lineCapType)
+        {
+            switch (lineCapType)
+            {
+                case LineCapType.Butt:
+                    return PenLineCap.Flat;
+                case LineCapType.Round:
+                    return PenLineCap.Round;
+                case LineCapType.Unknown:
+                default:
+                    return PenLineCap.Square;
+            }
+        }
+
+        internal static PenLineJoin LineJoinTypeToPaintLineJoin(LineJoinType lineJoinType)
+        {
+            switch (lineJoinType)
+            {
+                case LineJoinType.Bevel:
+                    return PenLineJoin.Bevel;
+                case LineJoinType.Miter:
+                    return PenLineJoin.Miter;
+                case LineJoinType.Round:
+                default:
+                    return PenLineJoin.Round;
+            }
+        }
     }
 }

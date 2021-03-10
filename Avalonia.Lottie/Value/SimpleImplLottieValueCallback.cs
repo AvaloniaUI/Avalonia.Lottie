@@ -13,7 +13,7 @@
         {
             if (_callback != null)
                 return _callback.Invoke(frameInfo);
-            return default(T);
+            return default;
         }
     }
 }

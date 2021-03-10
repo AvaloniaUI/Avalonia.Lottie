@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes; 
+﻿using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
 namespace Avalonia.Lottie.Sample
@@ -14,12 +13,7 @@ namespace Avalonia.Lottie.Sample
         public override void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
- 
-                desktop.MainWindow = new MainWindow
-                {
-                 };
-            }
+                desktop.MainWindow = new MainWindow();
 
             base.OnFrameworkInitializationCompleted();
         }

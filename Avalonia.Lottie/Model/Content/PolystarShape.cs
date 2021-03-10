@@ -3,7 +3,6 @@ using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Model.Layer;
 
-
 namespace Avalonia.Lottie.Model.Content
 {
     public class PolystarShape : IContentModel
@@ -16,7 +15,10 @@ namespace Avalonia.Lottie.Model.Content
 
         private readonly Type _type;
 
-        public PolystarShape(string name, Type type, AnimatableFloatValue points, IAnimatableValue<Vector2?, Vector2?> position, AnimatableFloatValue rotation, AnimatableFloatValue innerRadius, AnimatableFloatValue outerRadius, AnimatableFloatValue innerRoundedness, AnimatableFloatValue outerRoundedness)
+        public PolystarShape(string name, Type type, AnimatableFloatValue points,
+            IAnimatableValue<Vector2?, Vector2?> position, AnimatableFloatValue rotation,
+            AnimatableFloatValue innerRadius, AnimatableFloatValue outerRadius, AnimatableFloatValue innerRoundedness,
+            AnimatableFloatValue outerRoundedness)
         {
             Name = name;
             _type = type;
@@ -30,11 +32,6 @@ namespace Avalonia.Lottie.Model.Content
         }
 
         internal virtual string Name { get; }
-
-        internal new virtual Type GetType()
-        {
-            return _type;
-        }
 
         internal virtual AnimatableFloatValue Points { get; }
 
@@ -53,6 +50,11 @@ namespace Avalonia.Lottie.Model.Content
         public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
         {
             return new PolystarContent(drawable, layer, this);
+        }
+
+        internal new virtual Type GetType()
+        {
+            return _type;
         }
     }
 }

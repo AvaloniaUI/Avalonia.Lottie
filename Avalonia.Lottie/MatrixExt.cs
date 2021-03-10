@@ -1,10 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
 using System.Numerics;
-using Avalonia;
 
 namespace Avalonia.Lottie
 {
@@ -56,10 +53,10 @@ namespace Avalonia.Lottie
         {
             return new()
             {
-                M11 = (float)cos,
-                M12 = (float)-sin,
-                M21 = (float)sin,
-                M22 = (float)cos,
+                M11 = (float) cos,
+                M12 = (float) -sin,
+                M21 = (float) sin,
+                M22 = (float) cos,
                 M33 = 1
             };
         }
@@ -88,10 +85,10 @@ namespace Avalonia.Lottie
 
         public static void MapRect(this Matrix3X3 matrix, ref Rect rect)
         {
-            var p1 = new Vector2((float)rect.Left, (float)rect.Top);
-            var p2 = new Vector2((float)rect.Right, (float)rect.Top);
-            var p3 = new Vector2((float)rect.Left, (float)rect.Bottom);
-            var p4 = new Vector2((float)rect.Right, (float)rect.Bottom);
+            var p1 = new Vector2((float) rect.Left, (float) rect.Top);
+            var p2 = new Vector2((float) rect.Right, (float) rect.Top);
+            var p3 = new Vector2((float) rect.Left, (float) rect.Bottom);
+            var p4 = new Vector2((float) rect.Right, (float) rect.Bottom);
 
             p1 = matrix.Transform(p1);
             p2 = matrix.Transform(p2);
@@ -108,10 +105,7 @@ namespace Avalonia.Lottie
 
         public static void MapPoints(this Matrix3X3 matrix, ref Vector2[] points)
         {
-            for (var i = 0; i < points.Length; i++)
-            {
-                points[i] = matrix.Transform(points[i]);
-            }
+            for (var i = 0; i < points.Length; i++) points[i] = matrix.Transform(points[i]);
         }
 
         public static IEnumerable<IEnumerable<T>> Partition<T>
@@ -121,10 +115,7 @@ namespace Avalonia.Lottie
             var count = 0;
             foreach (var item in source)
             {
-                if (array == null)
-                {
-                    array = new T[size];
-                }
+                if (array == null) array = new T[size];
                 array[count] = item;
                 count++;
                 if (count == size)
@@ -134,6 +125,7 @@ namespace Avalonia.Lottie
                     count = 0;
                 }
             }
+
             if (array != null)
             {
                 Array.Resize(ref array, count);

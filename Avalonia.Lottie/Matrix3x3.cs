@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 
-
 namespace Avalonia.Lottie
 {
     public class Matrix3X3
@@ -15,18 +14,21 @@ namespace Avalonia.Lottie
         public float M32;
         public float M33;
 
-        public static Matrix3X3 CreateIdentity() => new()
+        public static Matrix3X3 CreateIdentity()
         {
-            M11 = 1,
-            M12 = 0,
-            M13 = 0,
-            M21 = 0,
-            M22 = 1,
-            M23 = 0,
-            M31 = 0,
-            M32 = 0,
-            M33 = 1
-        };
+            return new()
+            {
+                M11 = 1,
+                M12 = 0,
+                M13 = 0,
+                M21 = 0,
+                M22 = 1,
+                M23 = 0,
+                M31 = 0,
+                M32 = 0,
+                M33 = 1
+            };
+        }
 
         public void Set(Matrix3X3 m)
         {

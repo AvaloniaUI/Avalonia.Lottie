@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Numerics;
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Value;
+using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Parser
 {
@@ -20,27 +19,17 @@ namespace Avalonia.Lottie.Parser
             AnimatableFloatValue endOpacity = null;
 
             var isObject = reader.Peek() == JsonToken.StartObject;
-            if (isObject)
-            {
-                reader.BeginObject();
-            }
+            if (isObject) reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "a":
                         reader.BeginObject();
                         while (reader.HasNext())
-                        {
                             if (reader.NextName().Equals("k"))
-                            {
                                 anchorPoint = AnimatablePathValueParser.Parse(reader, composition);
-                            }
                             else
-                            {
                                 reader.SkipValue();
-                            }
-                        }
                         reader.EndObject();
                         break;
                     case "p":
@@ -56,13 +45,11 @@ namespace Avalonia.Lottie.Parser
                     case "r":
                         rotation = AnimatableValueParser.ParseFloat(reader, composition, false);
                         if (rotation.Keyframes.Count == 0)
-                        {
-                            rotation.Keyframes.Add(new Keyframe<float?>(composition, 0f, 0f, null, 0f, composition.EndFrame));
-                        }
+                            rotation.Keyframes.Add(new Keyframe<float?>(composition, 0f, 0f, null, 0f,
+                                composition.EndFrame));
                         else if (rotation.Keyframes[0].StartValue == null)
-                        {
-                            rotation.Keyframes[0] = new Keyframe<float?>(composition, 0f, 0f, null, 0f, composition.EndFrame);
-                        }
+                            rotation.Keyframes[0] =
+                                new Keyframe<float?>(composition, 0f, 0f, null, 0f, composition.EndFrame);
                         break;
                     case "o":
                         opacity = AnimatableValueParser.ParseInteger(reader, composition);
@@ -77,31 +64,26 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
-            if (isObject)
-            {
-                reader.EndObject();
-            }
+
+            if (isObject) reader.EndObject();
 
             if (anchorPoint == null)
             {
                 // Cameras don't have an anchor point property. Although we don't support them, at least 
                 // we won't crash. 
-                Debug.WriteLine("Layer has no transform property. You may be using an unsupported layer type such as a camera.", LottieLog.Tag);
+                Debug.WriteLine(
+                    "Layer has no transform property. You may be using an unsupported layer type such as a camera.",
+                    LottieLog.Tag);
                 anchorPoint = new AnimatablePathValue();
             }
 
             if (scale == null)
-            {
                 // Somehow some community animations don't have scale in the transform. 
                 scale = new AnimatableScaleValue(new ScaleXy(1f, 1f));
-            }
 
             if (opacity == null)
-            {
                 // Repeaters have start/end opacity instead of opacity 
                 opacity = new AnimatableIntegerValue();
-            }
 
             return new AnimatableTransform(
                 anchorPoint, position, scale, rotation, opacity, startOpacity, endOpacity);

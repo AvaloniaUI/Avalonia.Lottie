@@ -1,5 +1,4 @@
-﻿
-/* Unmerged change from project 'Avalonia.Lottie (netcoreapp3.0)'
+﻿/* Unmerged change from project 'Avalonia.Lottie (netcoreapp3.0)'
 Before:
 
 using Avalonia.Lottie.Utils;
@@ -11,7 +10,6 @@ using Avalonia.Lottie.Utils;
 using System.Numerics;
 using Avalonia.Lottie.Utils;
 
-
 namespace Avalonia.Lottie.Value
 {
     // ReSharper disable once UnusedMember.Global
@@ -20,12 +18,12 @@ namespace Avalonia.Lottie.Value
         private Vector2 _point;
 
         public LottieInterpolatedPointValue(Vector2 startValue, Vector2 endValue)
-        : base(startValue, endValue)
+            : base(startValue, endValue)
         {
         }
 
         public LottieInterpolatedPointValue(Vector2 startValue, Vector2 endValue, IInterpolator interpolator)
-        : base(startValue, endValue, interpolator)
+            : base(startValue, endValue, interpolator)
         {
         }
 

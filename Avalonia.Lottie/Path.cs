@@ -8,334 +8,15 @@ namespace Avalonia.Lottie
 {
     public class Path
     {
-        public interface IContour
-        {
-            void Transform(Matrix3X3 matrix);
-            IContour Copy();
-            float[] Points { get; }
-            PathIterator.ContourType Type { get; }
-            void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed);
-            void Offset(float dx, float dy);
-        }
-
-        class ArcContour : IContour
-        {
-            private Vector2 _startPoint;
-            private Vector2 _endPoint;
-            private Rect _rect;
-            private readonly float _startAngle;
-            private readonly float _sweepAngle;
-            private float _a;
-            private float _b;
-
-            public ArcContour(Vector2 startPoint, Rect rect, float startAngle, float sweepAngle)
-            {
-                _startPoint = startPoint;
-                _rect = rect;
-                _a = (float) (rect.Width / 2);
-                _b = (float) (rect.Height / 2);
-                _startAngle = startAngle;
-                _sweepAngle = sweepAngle;
-
-                _endPoint = GetPointAtAngle(startAngle + sweepAngle);
-            }
-
-            public void Transform(Matrix3X3 matrix)
-            {
-                _startPoint = matrix.Transform(_startPoint);
-                _endPoint = matrix.Transform(_endPoint);
-
-                var p1 = new Vector2((float) _rect.Left, (float) _rect.Top);
-                var p2 = new Vector2((float) _rect.Right, (float) _rect.Top);
-                var p3 = new Vector2((float) _rect.Left, (float) _rect.Bottom);
-                var p4 = new Vector2((float) _rect.Right, (float) _rect.Bottom);
-
-                p1 = matrix.Transform(p1);
-                p2 = matrix.Transform(p2);
-                p3 = matrix.Transform(p3);
-                p4 = matrix.Transform(p4);
-
-                _a = (p2 - p1).Length() / 2;
-                _b = (p4 - p3).Length() / 2;
-            }
-
-            public IContour Copy()
-            {
-                return new ArcContour(_startPoint, _rect, _startAngle, _sweepAngle);
-            }
-
-            public float[] Points => new[] {_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
-
-            public PathIterator.ContourType Type => PathIterator.ContourType.Arc;
-
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
-            {
-                // canvasPathBuilder.AddArc(new ArcSegment
-                // {
-                //     Point = _endPoint,
-                //     RotationAngle = (float) MathExt.ToRadians(_sweepAngle),
-                //     SweepDirection = SweepDirection.Clockwise,
-                //     ArcSize = ArcSize.Small,
-                //     Size = new Size2F(_a, _b)
-                // });
-                //
-                
-                canvasPathBuilder.ArcTo(new Point(_endPoint.X, _endPoint.Y), new Size(_a,_b), MathExt.ToRadians(_sweepAngle), false, SweepDirection.Clockwise);
-
-                closed = false;
-            }
-
-            public void Offset(float dx, float dy)
-            {
-                _startPoint.X += dx;
-                _startPoint.Y += dy;
-                _endPoint.X += dx;
-                _endPoint.Y += dy;
-            }
-
-            private Vector2 GetPointAtAngle(float t)
-            {
-                var u = Math.Tan(MathExt.ToRadians(t) / 2);
-
-                var u2 = u * u;
-
-                var x = _a * (1 - u2) / (u2 + 1);
-                var y = 2 * _b * u / (u2 + 1);
-
-                return new Vector2((float) (_rect.Left + _a + x), (float) (_rect.Top + _b + y));
-            }
-        }
-
-        internal class BezierContour : IContour
-        {
-            private Vector2 _control1;
-            private Vector2 _control2;
-            private Vector2 _vertex;
-
-            public BezierContour(Vector2 control1, Vector2 control2, Vector2 vertex)
-            {
-                _control1 = control1;
-                _control2 = control2;
-                _vertex = vertex;
-            }
-
-            public void Transform(Matrix3X3 matrix)
-            {
-                _control1 = matrix.Transform(_control1);
-                _control2 = matrix.Transform(_control2);
-                _vertex = matrix.Transform(_vertex);
-            }
-
-            public IContour Copy()
-            {
-                return new BezierContour(_control1, _control2, _vertex);
-            }
-
-            internal static double BezLength(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y,
-                float c3X, float c3Y)
-            {
-                const double steps = 1000d; // TODO: improve
-
-                var length = 0d;
-                float prevPtX = 0;
-                float prevPtY = 0;
-
-                for (var i = 0d; i < steps; i++)
-                {
-                    var pt = GetPointAtT(c0X, c0Y, c1X, c1Y, c2X, c2Y, c3X, c3Y, i / steps);
-
-                    if (i > 0)
-                    {
-                        var x = pt.X - prevPtX;
-                        var y = pt.Y - prevPtY;
-                        length = length + Math.Sqrt(x * x + y * y);
-                    }
-
-                    prevPtX = pt.X;
-                    prevPtY = pt.Y;
-                }
-
-                return length;
-            }
-
-            private static Vector2 GetPointAtT(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y,
-                float c3X, float c3Y, double t)
-            {
-                var t1 = 1d - t;
-
-                if (t1 < 5e-6)
-                {
-                    t = 1.0;
-                    t1 = 0.0;
-                }
-
-                var t13 = t1 * t1 * t1;
-                var t13A = 3 * t * (t1 * t1);
-                var t13B = 3 * t * t * t1;
-                var t13C = t * t * t;
-
-                var ptX = (float) (c0X * t13 + t13A * c1X + t13B * c2X + t13C * c3X);
-                var ptY = (float) (c0Y * t13 + t13A * c1Y + t13B * c2Y + t13C * c3Y);
-
-                return new Vector2(ptX, ptY);
-            }
-
-            public float[] Points => new[] {_control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
-
-            public PathIterator.ContourType Type => PathIterator.ContourType.Bezier;
-
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
-            {
-                canvasPathBuilder.CubicBezierTo(new Point(_control1.X, _control1.Y),
-                    new Point(_control2.X, _control2.Y),
-                    new Point(_vertex.X, _vertex.Y)
-                );
-
-                closed = false;
-            }
-
-            public void Offset(float dx, float dy)
-            {
-                _control1.X += dx;
-                _control1.Y += dy;
-                _control2.X += dx;
-                _control2.Y += dy;
-                _vertex.X += dx;
-                _vertex.Y += dy;
-            }
-        }
-
-        class LineContour : IContour
-        {
-            private readonly float[] _points = new float[2];
-
-            public LineContour(float x, float y)
-            {
-                _points[0] = x;
-                _points[1] = y;
-            }
-
-            public void Transform(Matrix3X3 matrix)
-            {
-                var p = new Vector2(_points[0], _points[1]);
-
-                p = matrix.Transform(p);
-
-                _points[0] = p.X;
-                _points[1] = p.Y;
-            }
-
-            public IContour Copy()
-            {
-                return new LineContour(_points[0], _points[1]);
-            }
-
-            public float[] Points => _points;
-
-            public PathIterator.ContourType Type => PathIterator.ContourType.Line;
-
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
-            {
-                canvasPathBuilder.LineTo(new Point(_points[0], _points[1]));
-
-                closed = false;
-            }
-
-            public void Offset(float dx, float dy)
-            {
-                _points[0] += dx;
-                _points[1] += dy;
-            }
-        }
-
-        class MoveToContour : IContour
-        {
-            private readonly float[] _points = new float[2];
-
-            public MoveToContour(float x, float y)
-            {
-                _points[0] = x;
-                _points[1] = y;
-            }
-
-            public float[] Points => _points;
-
-            public PathIterator.ContourType Type => PathIterator.ContourType.MoveTo;
-
-            public IContour Copy()
-            {
-                return new MoveToContour(_points[0], _points[1]);
-            }
-
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
-            {
-                if (!closed)
-                {
-                    canvasPathBuilder.EndFigure(false);
-                }
-                else
-                {
-                    closed = false;
-                }
-
-                canvasPathBuilder.BeginFigure(new Point(_points[0], _points[1]), true);
-            }
-
-            public void Offset(float dx, float dy)
-            {
-                _points[0] += dx;
-                _points[1] += dy;
-            }
-
-            public void Transform(Matrix3X3 matrix)
-            {
-                var p = new Vector2(_points[0], _points[1]);
-
-                p = matrix.Transform(p);
-
-                _points[0] = p.X;
-                _points[1] = p.Y;
-            }
-        }
-
-        class CloseContour : IContour
-        {
-            public float[] Points => new float[0];
-
-            public PathIterator.ContourType Type => PathIterator.ContourType.Close;
-
-            public IContour Copy()
-            {
-                return new CloseContour();
-            }
-
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
-            {
-                if (!closed)
-                {
-                    canvasPathBuilder.EndFigure(true);
-                    closed = true;
-                }
-            }
-
-            public void Offset(float dx, float dy)
-            {
-            }
-
-            public void Transform(Matrix3X3 matrix)
-            {
-            }
-        }
-
-        public PathFillType FillType { get; set; }
-
-        public List<IContour> Contours { get; }
-
         public Path()
         {
             Contours = new List<IContour>();
             FillType = PathFillType.Winding;
         }
+
+        public PathFillType FillType { get; set; }
+
+        public List<IContour> Contours { get; }
 
         public void Set(Path path)
         {
@@ -346,16 +27,12 @@ namespace Avalonia.Lottie
 
         public void Transform(Matrix3X3 matrix)
         {
-            for (var j = 0; j < Contours.Count; j++)
-            {
-                Contours[j].Transform(matrix);
-            }
+            for (var j = 0; j < Contours.Count; j++) Contours[j].Transform(matrix);
         }
 
         public PathGeometry GetGeometry()
-        { 
-
-            FillRule v = FillRule.EvenOdd;
+        {
+            var v = FillRule.EvenOdd;
 
             switch (FillType)
             {
@@ -365,7 +42,7 @@ namespace Avalonia.Lottie
                 case PathFillType.Winding:
                 case PathFillType.InverseWinding:
                     v = FillRule.NonZero;
-                    break; 
+                    break;
             }
 
             //    FillRule = path.FillType == PathFillType.EvenOdd ? FillRule.EvenOdd : FillRule.Nonzero,
@@ -373,14 +50,11 @@ namespace Avalonia.Lottie
 
             using (var canvasPathBuilder = geometry.Open())
             {
-                canvasPathBuilder.SetFillRule(v); 
+                canvasPathBuilder.SetFillRule(v);
 
                 var closed = true;
 
-                for (var i = 0; i < Contours.Count; i++)
-                {
-                    Contours[i].AddPathSegment(canvasPathBuilder, ref closed);
-                }
+                for (var i = 0; i < Contours.Count; i++) Contours[i].AddPathSegment(canvasPathBuilder, ref closed);
 
                 if (!closed)
                     canvasPathBuilder.EndFigure(false);
@@ -444,10 +118,7 @@ namespace Avalonia.Lottie
 
         public void Offset(float dx, float dy)
         {
-            for (var i = 0; i < Contours.Count; i++)
-            {
-                Contours[i].Offset(dx, dy);
-            }
+            for (var i = 0; i < Contours.Count; i++) Contours[i].Offset(dx, dy);
         }
 
         public void Close()
@@ -475,10 +146,10 @@ namespace Avalonia.Lottie
         {
             var pathIteratorFactory = new CachedPathIteratorFactory(new FullPathIterator(this));
             var pathIterator = pathIteratorFactory.Iterator();
-            float[] points = new float[8];
+            var points = new float[8];
             var segmentPoints = new List<Vector2>();
             var lengths = new List<float>();
-            float errorSquared = precision * precision;
+            var errorSquared = precision * precision;
             while (!pathIterator.Done)
             {
                 var type = pathIterator.CurrentSegment(points);
@@ -506,19 +177,15 @@ namespace Avalonia.Lottie
 
             if (!segmentPoints.Any())
             {
-                int numVerbs = Contours.Count;
+                var numVerbs = Contours.Count;
                 if (numVerbs == 1)
-                {
                     AddMove(segmentPoints, lengths, Contours[0].Points);
-                }
                 else
-                {
                     // Invalid or empty path. Fall back to point(0,0)
                     AddMove(segmentPoints, lengths, new[] {0.0f, 0.0f});
-                }
             }
 
-            float totalLength = lengths.Last();
+            var totalLength = lengths.Last();
             if (totalLength == 0)
             {
                 // Lone Move instructions should still be able to animate at the same value.
@@ -532,7 +199,7 @@ namespace Avalonia.Lottie
 
             var approximation = new float[approximationArraySize];
 
-            int approximationIndex = 0;
+            var approximationIndex = 0;
             for (var i = 0; i < numPoints; i++)
             {
                 var point = segmentPoints[i];
@@ -544,50 +211,47 @@ namespace Avalonia.Lottie
             return approximation;
         }
 
-        static float QuadraticCoordinateCalculation(float t, float p0, float p1, float p2)
+        private static float QuadraticCoordinateCalculation(float t, float p0, float p1, float p2)
         {
-            float oneMinusT = 1 - t;
-            return oneMinusT * ((oneMinusT * p0) + (t * p1)) + t * ((oneMinusT * p1) + (t * p2));
+            var oneMinusT = 1 - t;
+            return oneMinusT * (oneMinusT * p0 + t * p1) + t * (oneMinusT * p1 + t * p2);
         }
 
-        static Vector2 QuadraticBezierCalculation(float t, float[] points)
+        private static Vector2 QuadraticBezierCalculation(float t, float[] points)
         {
-            float x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
-            float y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
+            var x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
+            var y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
             return new Vector2(x, y);
         }
 
-        static float CubicCoordinateCalculation(float t, float p0, float p1, float p2, float p3)
+        private static float CubicCoordinateCalculation(float t, float p0, float p1, float p2, float p3)
         {
-            float oneMinusT = 1 - t;
-            float oneMinusTSquared = oneMinusT * oneMinusT;
-            float oneMinusTCubed = oneMinusTSquared * oneMinusT;
-            float tSquared = t * t;
-            float tCubed = tSquared * t;
-            return (oneMinusTCubed * p0) + (3 * oneMinusTSquared * t * p1)
-                                         + (3 * oneMinusT * tSquared * p2) + (tCubed * p3);
+            var oneMinusT = 1 - t;
+            var oneMinusTSquared = oneMinusT * oneMinusT;
+            var oneMinusTCubed = oneMinusTSquared * oneMinusT;
+            var tSquared = t * t;
+            var tCubed = tSquared * t;
+            return oneMinusTCubed * p0 + 3 * oneMinusTSquared * t * p1
+                                       + 3 * oneMinusT * tSquared * p2 + tCubed * p3;
         }
 
-        static Vector2 CubicBezierCalculation(float t, float[] points)
+        private static Vector2 CubicBezierCalculation(float t, float[] points)
         {
-            float x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
-            float y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
+            var x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
+            var y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
             return new Vector2(x, y);
         }
 
-        static void AddMove(List<Vector2> segmentPoints, List<float> lengths, float[] point)
+        private static void AddMove(List<Vector2> segmentPoints, List<float> lengths, float[] point)
         {
             float length = 0;
-            if (lengths.Any())
-            {
-                length = lengths.Last();
-            }
+            if (lengths.Any()) length = lengths.Last();
 
             segmentPoints.Add(new Vector2(point[0], point[1]));
             lengths.Add(length);
         }
 
-        static void AddLine(List<Vector2> segmentPoints, List<float> lengths, float[] toPoint)
+        private static void AddLine(List<Vector2> segmentPoints, List<float> lengths, float[] toPoint)
         {
             if (!segmentPoints.Any())
             {
@@ -600,14 +264,12 @@ namespace Avalonia.Lottie
             }
 
             var vector2 = new Vector2(toPoint[0], toPoint[1]);
-            float length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
+            var length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
             segmentPoints.Add(vector2);
             lengths.Add(length);
         }
 
-        delegate Vector2 BezierCalculation(float t, float[] points);
-
-        static void AddBezier(float[] points, BezierCalculation bezierFunction, List<Vector2> segmentPoints,
+        private static void AddBezier(float[] points, BezierCalculation bezierFunction, List<Vector2> segmentPoints,
             List<float> lengths, float errorSquared, bool doubleCheckDivision)
         {
             points[7] = points[5];
@@ -621,11 +283,11 @@ namespace Avalonia.Lottie
 
             var tToPoint = new List<KeyValuePair<float, Vector2>>
             {
-                new KeyValuePair<float, Vector2>(0, bezierFunction(0, points)),
-                new KeyValuePair<float, Vector2>(1, bezierFunction(1, points))
+                new(0, bezierFunction(0, points)),
+                new(1, bezierFunction(1, points))
             };
 
-            for (int i = 0; i < tToPoint.Count - 1; i++)
+            for (var i = 0; i < tToPoint.Count - 1; i++)
             {
                 bool needsSubdivision;
                 do
@@ -639,39 +301,345 @@ namespace Avalonia.Lottie
                             midT,
                             midPoint, out _, out _, errorSquared);
                         if (needsSubdivision)
-                        {
                             // Found an inflection point. No need to double-check.
                             doubleCheckDivision = false;
-                        }
                     }
 
-                    if (needsSubdivision)
-                    {
-                        tToPoint.Insert(i + 1, new KeyValuePair<float, Vector2>(midT, midPoint));
-                    }
+                    if (needsSubdivision) tToPoint.Insert(i + 1, new KeyValuePair<float, Vector2>(midT, midPoint));
                 } while (needsSubdivision);
             }
 
             // Now that each division can use linear interpolation with less than the allowed error
-            foreach (var iter in tToPoint)
-            {
-                AddLine(segmentPoints, lengths, new[] {iter.Value.X, iter.Value.Y});
-            }
+            foreach (var iter in tToPoint) AddLine(segmentPoints, lengths, new[] {iter.Value.X, iter.Value.Y});
         }
 
         private static bool SubdividePoints(float[] points, BezierCalculation bezierFunction, float t0, Vector2 p0,
             float t1, Vector2 p1, out float midT, out Vector2 midPoint, float errorSquared)
         {
             midT = (t1 + t0) / 2;
-            float midX = (p1.X + p0.X) / 2;
-            float midY = (p1.Y + p0.Y) / 2;
+            var midX = (p1.X + p0.X) / 2;
+            var midY = (p1.Y + p0.Y) / 2;
 
             midPoint = bezierFunction(midT, points);
-            float xError = midPoint.X - midX;
-            float yError = midPoint.Y - midY;
-            float midErrorSquared = (xError * xError) + (yError * yError);
+            var xError = midPoint.X - midX;
+            var yError = midPoint.Y - midY;
+            var midErrorSquared = xError * xError + yError * yError;
             return midErrorSquared > errorSquared;
         }
+
+        public interface IContour
+        {
+            float[] Points { get; }
+            PathIterator.ContourType Type { get; }
+            void Transform(Matrix3X3 matrix);
+            IContour Copy();
+            void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed);
+            void Offset(float dx, float dy);
+        }
+
+        private class ArcContour : IContour
+        {
+            private readonly float _startAngle;
+            private readonly float _sweepAngle;
+            private float _a;
+            private float _b;
+            private Vector2 _endPoint;
+            private readonly Rect _rect;
+            private Vector2 _startPoint;
+
+            public ArcContour(Vector2 startPoint, Rect rect, float startAngle, float sweepAngle)
+            {
+                _startPoint = startPoint;
+                _rect = rect;
+                _a = (float) (rect.Width / 2);
+                _b = (float) (rect.Height / 2);
+                _startAngle = startAngle;
+                _sweepAngle = sweepAngle;
+
+                _endPoint = GetPointAtAngle(startAngle + sweepAngle);
+            }
+
+            public void Transform(Matrix3X3 matrix)
+            {
+                _startPoint = matrix.Transform(_startPoint);
+                _endPoint = matrix.Transform(_endPoint);
+
+                var p1 = new Vector2((float) _rect.Left, (float) _rect.Top);
+                var p2 = new Vector2((float) _rect.Right, (float) _rect.Top);
+                var p3 = new Vector2((float) _rect.Left, (float) _rect.Bottom);
+                var p4 = new Vector2((float) _rect.Right, (float) _rect.Bottom);
+
+                p1 = matrix.Transform(p1);
+                p2 = matrix.Transform(p2);
+                p3 = matrix.Transform(p3);
+                p4 = matrix.Transform(p4);
+
+                _a = (p2 - p1).Length() / 2;
+                _b = (p4 - p3).Length() / 2;
+            }
+
+            public IContour Copy()
+            {
+                return new ArcContour(_startPoint, _rect, _startAngle, _sweepAngle);
+            }
+
+            public float[] Points => new[] {_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
+
+            public PathIterator.ContourType Type => PathIterator.ContourType.Arc;
+
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            {
+                // canvasPathBuilder.AddArc(new ArcSegment
+                // {
+                //     Point = _endPoint,
+                //     RotationAngle = (float) MathExt.ToRadians(_sweepAngle),
+                //     SweepDirection = SweepDirection.Clockwise,
+                //     ArcSize = ArcSize.Small,
+                //     Size = new Size2F(_a, _b)
+                // });
+                //
+
+                canvasPathBuilder.ArcTo(new Point(_endPoint.X, _endPoint.Y), new Size(_a, _b),
+                    MathExt.ToRadians(_sweepAngle), false, SweepDirection.Clockwise);
+
+                closed = false;
+            }
+
+            public void Offset(float dx, float dy)
+            {
+                _startPoint.X += dx;
+                _startPoint.Y += dy;
+                _endPoint.X += dx;
+                _endPoint.Y += dy;
+            }
+
+            private Vector2 GetPointAtAngle(float t)
+            {
+                var u = Math.Tan(MathExt.ToRadians(t) / 2);
+
+                var u2 = u * u;
+
+                var x = _a * (1 - u2) / (u2 + 1);
+                var y = 2 * _b * u / (u2 + 1);
+
+                return new Vector2((float) (_rect.Left + _a + x), (float) (_rect.Top + _b + y));
+            }
+        }
+
+        internal class BezierContour : IContour
+        {
+            private Vector2 _control1;
+            private Vector2 _control2;
+            private Vector2 _vertex;
+
+            public BezierContour(Vector2 control1, Vector2 control2, Vector2 vertex)
+            {
+                _control1 = control1;
+                _control2 = control2;
+                _vertex = vertex;
+            }
+
+            public void Transform(Matrix3X3 matrix)
+            {
+                _control1 = matrix.Transform(_control1);
+                _control2 = matrix.Transform(_control2);
+                _vertex = matrix.Transform(_vertex);
+            }
+
+            public IContour Copy()
+            {
+                return new BezierContour(_control1, _control2, _vertex);
+            }
+
+            public float[] Points => new[] {_control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
+
+            public PathIterator.ContourType Type => PathIterator.ContourType.Bezier;
+
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            {
+                canvasPathBuilder.CubicBezierTo(new Point(_control1.X, _control1.Y),
+                    new Point(_control2.X, _control2.Y),
+                    new Point(_vertex.X, _vertex.Y)
+                );
+
+                closed = false;
+            }
+
+            public void Offset(float dx, float dy)
+            {
+                _control1.X += dx;
+                _control1.Y += dy;
+                _control2.X += dx;
+                _control2.Y += dy;
+                _vertex.X += dx;
+                _vertex.Y += dy;
+            }
+
+            internal static double BezLength(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y,
+                float c3X, float c3Y)
+            {
+                const double steps = 1000d; // TODO: improve
+
+                var length = 0d;
+                float prevPtX = 0;
+                float prevPtY = 0;
+
+                for (var i = 0d; i < steps; i++)
+                {
+                    var pt = GetPointAtT(c0X, c0Y, c1X, c1Y, c2X, c2Y, c3X, c3Y, i / steps);
+
+                    if (i > 0)
+                    {
+                        var x = pt.X - prevPtX;
+                        var y = pt.Y - prevPtY;
+                        length = length + Math.Sqrt(x * x + y * y);
+                    }
+
+                    prevPtX = pt.X;
+                    prevPtY = pt.Y;
+                }
+
+                return length;
+            }
+
+            private static Vector2 GetPointAtT(float c0X, float c0Y, float c1X, float c1Y, float c2X, float c2Y,
+                float c3X, float c3Y, double t)
+            {
+                var t1 = 1d - t;
+
+                if (t1 < 5e-6)
+                {
+                    t = 1.0;
+                    t1 = 0.0;
+                }
+
+                var t13 = t1 * t1 * t1;
+                var t13A = 3 * t * (t1 * t1);
+                var t13B = 3 * t * t * t1;
+                var t13C = t * t * t;
+
+                var ptX = (float) (c0X * t13 + t13A * c1X + t13B * c2X + t13C * c3X);
+                var ptY = (float) (c0Y * t13 + t13A * c1Y + t13B * c2Y + t13C * c3Y);
+
+                return new Vector2(ptX, ptY);
+            }
+        }
+
+        private class LineContour : IContour
+        {
+            public LineContour(float x, float y)
+            {
+                Points[0] = x;
+                Points[1] = y;
+            }
+
+            public void Transform(Matrix3X3 matrix)
+            {
+                var p = new Vector2(Points[0], Points[1]);
+
+                p = matrix.Transform(p);
+
+                Points[0] = p.X;
+                Points[1] = p.Y;
+            }
+
+            public IContour Copy()
+            {
+                return new LineContour(Points[0], Points[1]);
+            }
+
+            public float[] Points { get; } = new float[2];
+
+            public PathIterator.ContourType Type => PathIterator.ContourType.Line;
+
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            {
+                canvasPathBuilder.LineTo(new Point(Points[0], Points[1]));
+
+                closed = false;
+            }
+
+            public void Offset(float dx, float dy)
+            {
+                Points[0] += dx;
+                Points[1] += dy;
+            }
+        }
+
+        private class MoveToContour : IContour
+        {
+            public MoveToContour(float x, float y)
+            {
+                Points[0] = x;
+                Points[1] = y;
+            }
+
+            public float[] Points { get; } = new float[2];
+
+            public PathIterator.ContourType Type => PathIterator.ContourType.MoveTo;
+
+            public IContour Copy()
+            {
+                return new MoveToContour(Points[0], Points[1]);
+            }
+
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            {
+                if (!closed)
+                    canvasPathBuilder.EndFigure(false);
+                else
+                    closed = false;
+
+                canvasPathBuilder.BeginFigure(new Point(Points[0], Points[1]), true);
+            }
+
+            public void Offset(float dx, float dy)
+            {
+                Points[0] += dx;
+                Points[1] += dy;
+            }
+
+            public void Transform(Matrix3X3 matrix)
+            {
+                var p = new Vector2(Points[0], Points[1]);
+
+                p = matrix.Transform(p);
+
+                Points[0] = p.X;
+                Points[1] = p.Y;
+            }
+        }
+
+        private class CloseContour : IContour
+        {
+            public float[] Points => new float[0];
+
+            public PathIterator.ContourType Type => PathIterator.ContourType.Close;
+
+            public IContour Copy()
+            {
+                return new CloseContour();
+            }
+
+            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            {
+                if (!closed)
+                {
+                    canvasPathBuilder.EndFigure(true);
+                    closed = true;
+                }
+            }
+
+            public void Offset(float dx, float dy)
+            {
+            }
+
+            public void Transform(Matrix3X3 matrix)
+            {
+            }
+        }
+
+        private delegate Vector2 BezierCalculation(float t, float[] points);
     }
 
     public enum PathFillType

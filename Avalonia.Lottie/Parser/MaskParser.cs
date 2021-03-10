@@ -4,7 +4,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class MaskParser
+    internal static class MaskParser
     {
         internal static Mask Parse(JsonReader reader, LottieComposition composition)
         {
@@ -28,7 +28,8 @@ namespace Avalonia.Lottie.Parser
                                 maskMode = Mask.MaskMode.MaskModeSubtract;
                                 break;
                             case "i":
-                                composition.AddWarning("Animation contains intersect masks. They are not supported but will be treated like add masks.");
+                                composition.AddWarning(
+                                    "Animation contains intersect masks. They are not supported but will be treated like add masks.");
                                 maskMode = Mask.MaskMode.MaskModeIntersect;
                                 break;
                             default:
@@ -36,6 +37,7 @@ namespace Avalonia.Lottie.Parser
                                 maskMode = Mask.MaskMode.MaskModeAdd;
                                 break;
                         }
+
                         break;
                     case "pt":
                         maskPath = AnimatableValueParser.ParseShapeData(reader, composition);
@@ -48,6 +50,7 @@ namespace Avalonia.Lottie.Parser
                         break;
                 }
             }
+
             reader.EndObject();
 
             return new Mask(maskMode, maskPath, opacity);

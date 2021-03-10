@@ -6,8 +6,8 @@ namespace Avalonia.Lottie.Model.Content
 {
     public class ShapeGroup : IContentModel
     {
-        private readonly string _name;
         private readonly List<IContentModel> _items;
+        private readonly string _name;
 
         public ShapeGroup(string name, List<IContentModel> items)
         {

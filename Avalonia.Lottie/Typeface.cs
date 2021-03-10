@@ -1,6 +1,5 @@
 ﻿using Avalonia.Media;
 
-
 namespace Avalonia.Lottie
 {
     public class Typeface

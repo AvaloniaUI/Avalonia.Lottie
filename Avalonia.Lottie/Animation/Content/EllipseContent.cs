@@ -23,16 +23,16 @@ namespace Avalonia.Lottie.Animation.Content
     internal class EllipseContent : IPathContent, IKeyPathElementContent
     {
         private const float EllipseControlPointPercentage = 0.55228f;
-
-        private readonly Path _path = new();
-
-        private readonly LottieDrawable _lottieDrawable;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _sizeAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
         private readonly CircleShape _circleShape;
 
-        private TrimPathContent _trimPath;
+        private readonly LottieDrawable _lottieDrawable;
+
+        private readonly Path _path = new();
+        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
+        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _sizeAnimation;
         private bool _isPathValid;
+
+        private TrimPathContent _trimPath;
 
         internal EllipseContent(LottieDrawable lottieDrawable, BaseLayer layer, CircleShape circleShape)
         {
@@ -49,27 +49,28 @@ namespace Avalonia.Lottie.Animation.Content
             _positionAnimation.ValueChanged += OnValueChanged;
         }
 
-        private void OnValueChanged(object sender, EventArgs eventArgs)
+        public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
         {
-            Invalidate();
+            MiscUtils.ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath, this);
         }
 
-        private void Invalidate()
+        public void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
-            _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
+            if (property == LottieProperty.EllipseSize)
+                _sizeAnimation.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+            else if (property == LottieProperty.Position)
+                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
         }
 
         public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
         {
             for (var i = 0; i < contentsBefore.Count; i++)
-            {
-                if (contentsBefore[i] is TrimPathContent trimPathContent && trimPathContent.Type == ShapeTrimPath.Type.Simultaneously)
+                if (contentsBefore[i] is TrimPathContent trimPathContent &&
+                    trimPathContent.Type == ShapeTrimPath.Type.Simultaneously)
                 {
                     _trimPath = trimPathContent;
                     _trimPath.ValueChanged += OnValueChanged;
                 }
-            }
         }
 
         public string Name { get; }
@@ -78,10 +79,7 @@ namespace Avalonia.Lottie.Animation.Content
         {
             get
             {
-                if (_isPathValid)
-                {
-                    return _path;
-                }
+                if (_isPathValid) return _path;
 
                 _path.Reset();
 
@@ -124,21 +122,15 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
+        private void OnValueChanged(object sender, EventArgs eventArgs)
         {
-            MiscUtils.ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath, this);
+            Invalidate();
         }
 
-        public void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
+        private void Invalidate()
         {
-            if (property == LottieProperty.EllipseSize)
-            {
-                _sizeAnimation.SetValueCallback((ILottieValueCallback<Vector2?>)callback);
-            }
-            else if (property == LottieProperty.Position)
-            {
-                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector2?>)callback);
-            }
+            _isPathValid = false;
+            _lottieDrawable.InvalidateSelf();
         }
     }
 }

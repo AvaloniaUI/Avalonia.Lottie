@@ -6,11 +6,11 @@ namespace Avalonia.Lottie.Animation.Content
     internal class MergePathsContent : IPathContent, IGreedyContent
     {
         private readonly Path _firstPath = new();
-        private readonly Path _remainderPath = new();
+        private readonly MergePaths _mergePaths;
         private readonly Path _path = new();
 
         private readonly List<IPathContent> _pathContents = new();
-        private readonly MergePaths _mergePaths;
+        private readonly Path _remainderPath = new();
 
         internal MergePathsContent(MergePaths mergePaths)
         {
@@ -28,6 +28,7 @@ namespace Avalonia.Lottie.Animation.Content
                 if (contents[index] == this)
                     break;
             }
+
             while (index > 0)
             {
                 index--;
@@ -42,10 +43,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
         {
-            for (var i = 0; i < _pathContents.Count; i++)
-            {
-                _pathContents[i].SetContents(contentsBefore, contentsAfter);
-            }
+            for (var i = 0; i < _pathContents.Count; i++) _pathContents[i].SetContents(contentsBefore, contentsAfter);
         }
 
         public virtual Path Path
@@ -81,10 +79,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void AddPaths()
         {
-            for (var i = 0; i < _pathContents.Count; i++)
-            {
-                _path.AddPath(_pathContents[i].Path);
-            }
+            for (var i = 0; i < _pathContents.Count; i++) _path.AddPath(_pathContents[i].Path);
         }
 
         private void OpFirstPathWithRest(CanvasGeometryCombine op)

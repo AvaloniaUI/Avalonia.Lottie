@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using Avalonia;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Model.Content;
@@ -11,56 +9,34 @@ namespace Avalonia.Lottie.Model.Layer
 {
     public abstract class BaseLayer : IDrawingContent, IKeyPathElement, IDisposable
     {
-        private static readonly int SaveFlags = BitmapCanvas.ClipSaveFlag | BitmapCanvas.ClipToLayerSaveFlag | BitmapCanvas.MatrixSaveFlag;
+        private static readonly int SaveFlags =
+            BitmapCanvas.ClipSaveFlag | BitmapCanvas.ClipToLayerSaveFlag | BitmapCanvas.MatrixSaveFlag;
 
-        internal static BaseLayer ForModel(Layer layerModel, LottieDrawable drawable, LottieComposition composition)
-        {
-            switch (layerModel.GetLayerType())
-            {
-                case Layer.LayerType.Shape:
-                    return new ShapeLayer(drawable, layerModel);
-                case Layer.LayerType.PreComp:
-                    return new CompositionLayer(drawable, layerModel, composition.GetPrecomps(layerModel.RefId), composition);
-                case Layer.LayerType.Solid:
-                    return new SolidLayer(drawable, layerModel);
-                case Layer.LayerType.Image:
-                    return new ImageLayer(drawable, layerModel);
-                case Layer.LayerType.Null:
-                    return new NullLayer(drawable, layerModel);
-                case Layer.LayerType.Text:
-                    return new TextLayer(drawable, layerModel);
-                case Layer.LayerType.Unknown:
-                default:
-                    // Do nothing
-                    LottieLog.Warn("Unknown layer type " + layerModel.GetLayerType());
-                    return null;
-            }
-        }
+        private readonly Paint _addMaskPaint = new(Paint.AntiAliasFlag);
+
+        private readonly List<IBaseKeyframeAnimation> _animations = new();
+        private readonly Paint _clearPaint = new();
+        private readonly Paint _contentPaint = new(Paint.AntiAliasFlag);
+        private readonly string _drawTraceName;
+        private readonly MaskKeyframeAnimation _mask;
+        private readonly Paint _mattePaint = new(Paint.AntiAliasFlag);
 
         private readonly Path _path = new();
-        internal Matrix3X3 Matrix = Matrix3X3.CreateIdentity();
-        private readonly Paint _contentPaint = new(Paint.AntiAliasFlag);
-        private readonly Paint _addMaskPaint = new(Paint.AntiAliasFlag);
         private readonly Paint _subtractMaskPaint = new(Paint.AntiAliasFlag);
-        private readonly Paint _mattePaint = new(Paint.AntiAliasFlag);
-        private readonly Paint _clearPaint = new();
-        protected Rect Rect;
+        internal readonly LottieDrawable LottieDrawable;
+        internal readonly TransformKeyframeAnimation Transform;
         private Rect _maskBoundsRect;
         private Rect _matteBoundsRect;
-        private Rect _tempMaskBoundsRect;
-        private readonly string _drawTraceName;
-        internal Matrix3X3 BoundsMatrix = Matrix3X3.CreateIdentity();
-        internal readonly LottieDrawable LottieDrawable;
-        internal Layer LayerModel;
-        private readonly MaskKeyframeAnimation _mask;
         private BaseLayer _matteLayer;
         private BaseLayer _parentLayer;
         private List<BaseLayer> _parentLayers;
-
-        private readonly List<IBaseKeyframeAnimation> _animations = new();
-        internal readonly TransformKeyframeAnimation Transform;
+        private Rect _tempMaskBoundsRect;
         private bool _visible = true;
+        internal Matrix3X3 BoundsMatrix = Matrix3X3.CreateIdentity();
         private bool disposedValue;
+        internal Layer LayerModel;
+        internal Matrix3X3 Matrix = Matrix3X3.CreateIdentity();
+        protected Rect Rect;
 
         internal BaseLayer(LottieDrawable lottieDrawable, Layer layerModel)
         {
@@ -72,13 +48,9 @@ namespace Avalonia.Lottie.Model.Layer
             _addMaskPaint.Xfermode = new PorterDuffXfermode(PorterDuff.Mode.DstIn);
             _subtractMaskPaint.Xfermode = new PorterDuffXfermode(PorterDuff.Mode.DstOut);
             if (layerModel.GetMatteType() == Layer.MatteType.Invert)
-            {
                 _mattePaint.Xfermode = new PorterDuffXfermode(PorterDuff.Mode.DstOut);
-            }
             else
-            {
                 _mattePaint.Xfermode = new PorterDuffXfermode(PorterDuff.Mode.DstIn);
-            }
 
             Transform = layerModel.Transform.CreateAnimation();
             Transform.ValueChanged += OnValueChanged;
@@ -87,23 +59,17 @@ namespace Avalonia.Lottie.Model.Layer
             {
                 _mask = new MaskKeyframeAnimation(layerModel.Masks);
                 foreach (var animation in _mask.MaskAnimations)
-                {
                     // Don't call AddAnimation() because progress gets set manually in setProgress to 
                     // properly handle time scale.
                     animation.ValueChanged += OnValueChanged;
-                }
                 foreach (var animation in _mask.OpacityAnimations)
                 {
                     AddAnimation(animation);
                     animation.ValueChanged += OnValueChanged;
                 }
             }
-            SetupInOutAnimations();
-        }
 
-        public virtual void OnValueChanged(object sender, EventArgs eventArgs)
-        {
-            InvalidateSelf();
+            SetupInOutAnimations();
         }
 
         internal virtual BaseLayer MatteLayer
@@ -111,43 +77,48 @@ namespace Avalonia.Lottie.Model.Layer
             set => _matteLayer = value;
         }
 
-        internal virtual bool HasMatteOnThisLayer()
-        {
-            return _matteLayer != null;
-        }
-
         internal virtual BaseLayer ParentLayer
         {
             set => _parentLayer = value;
         }
 
-        private void SetupInOutAnimations()
+        private bool Visible
         {
-            if (LayerModel.InOutKeyframes.Count > 0)
+            set
             {
-                var inOutAnimation = new FloatKeyframeAnimation(LayerModel.InOutKeyframes);
-                inOutAnimation.SetIsDiscrete();
-                inOutAnimation.ValueChanged += (sender, args) =>
+                if (value != _visible)
                 {
-                    Visible = inOutAnimation.Value == 1f;
-                };
-                Visible = inOutAnimation.Value == 1f;
-                AddAnimation(inOutAnimation);
+                    _visible = value;
+                    InvalidateSelf();
+                }
             }
-            else
+        }
+
+        public virtual float Progress
+        {
+            set
             {
-                Visible = true;
+                // Time stretch should not be applied to the layer transform. 
+                Transform.Progress = value;
+                if (_mask != null)
+                    for (var i = 0; i < _mask.MaskAnimations.Count; i++)
+                        _mask.MaskAnimations[i].Progress = value;
+                if (LayerModel.TimeStretch != 0) value /= LayerModel.TimeStretch;
+                if (_matteLayer != null)
+                {
+                    // The matte layer's time stretch is pre-calculated.
+                    var matteTimeStretch = _matteLayer.LayerModel.TimeStretch;
+                    _matteLayer.Progress = value * matteTimeStretch;
+                }
+
+                for (var i = 0; i < _animations.Count; i++) _animations[i].Progress = value;
             }
         }
 
-        private void InvalidateSelf()
+        public void Dispose()
         {
-            LottieDrawable.InvalidateSelf();
-        }
-
-        internal void AddAnimation(IBaseKeyframeAnimation newAnimation)
-        {
-            _animations.Add(newAnimation);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
@@ -164,16 +135,15 @@ namespace Avalonia.Lottie.Model.Layer
                 LottieLog.EndSection(_drawTraceName);
                 return;
             }
+
             BuildParentLayerListIfNeeded();
             LottieLog.BeginSection("Layer.ParentMatrix");
             Matrix.Reset();
             Matrix.Set(parentMatrix);
             for (var i = _parentLayers.Count - 1; i >= 0; i--)
-            {
                 Matrix = MatrixExt.PreConcat(Matrix, _parentLayers[i].Transform.Matrix);
-            }
             LottieLog.EndSection("Layer.ParentMatrix");
-            var alpha = (byte)(parentAlpha / 255f * (float)Transform.Opacity.Value / 100f * 255);
+            var alpha = (byte) (parentAlpha / 255f * (float) Transform.Opacity.Value / 100f * 255);
             if (!HasMatteOnThisLayer() && !HasMasksOnThisLayer())
             {
                 Matrix = MatrixExt.PreConcat(Matrix, Transform.Matrix);
@@ -205,10 +175,7 @@ namespace Avalonia.Lottie.Model.Layer
             DrawLayer(canvas, Matrix, alpha);
             LottieLog.EndSection("Layer.DrawLayer");
 
-            if (HasMasksOnThisLayer())
-            {
-                ApplyMasks(canvas, Matrix);
-            }
+            if (HasMasksOnThisLayer()) ApplyMasks(canvas, Matrix);
 
             if (HasMatteOnThisLayer())
             {
@@ -231,6 +198,97 @@ namespace Avalonia.Lottie.Model.Layer
             RecordRenderTime(LottieLog.EndSection(_drawTraceName));
         }
 
+        public string Name => LayerModel.Name;
+
+        public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
+        {
+            // Do nothing
+        }
+
+        public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
+        {
+            if (!keyPath.Matches(Name, depth)) return;
+
+            if (!"__container".Equals(Name))
+            {
+                currentPartialKeyPath = currentPartialKeyPath.AddKey(Name);
+
+                if (keyPath.FullyResolvesTo(Name, depth)) accumulator.Add(currentPartialKeyPath.Resolve(this));
+            }
+
+            if (keyPath.PropagateToChildren(Name, depth))
+            {
+                var newDepth = depth + keyPath.IncrementDepthBy(Name, depth);
+                ResolveChildKeyPath(keyPath, newDepth, accumulator, currentPartialKeyPath);
+            }
+        }
+
+        public virtual void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
+        {
+            Transform.ApplyValueCallback(property, callback);
+        }
+
+        internal static BaseLayer ForModel(Layer layerModel, LottieDrawable drawable, LottieComposition composition)
+        {
+            switch (layerModel.GetLayerType())
+            {
+                case Layer.LayerType.Shape:
+                    return new ShapeLayer(drawable, layerModel);
+                case Layer.LayerType.PreComp:
+                    return new CompositionLayer(drawable, layerModel, composition.GetPrecomps(layerModel.RefId),
+                        composition);
+                case Layer.LayerType.Solid:
+                    return new SolidLayer(drawable, layerModel);
+                case Layer.LayerType.Image:
+                    return new ImageLayer(drawable, layerModel);
+                case Layer.LayerType.Null:
+                    return new NullLayer(drawable, layerModel);
+                case Layer.LayerType.Text:
+                    return new TextLayer(drawable, layerModel);
+                case Layer.LayerType.Unknown:
+                default:
+                    // Do nothing
+                    LottieLog.Warn("Unknown layer type " + layerModel.GetLayerType());
+                    return null;
+            }
+        }
+
+        public virtual void OnValueChanged(object sender, EventArgs eventArgs)
+        {
+            InvalidateSelf();
+        }
+
+        internal virtual bool HasMatteOnThisLayer()
+        {
+            return _matteLayer != null;
+        }
+
+        private void SetupInOutAnimations()
+        {
+            if (LayerModel.InOutKeyframes.Count > 0)
+            {
+                var inOutAnimation = new FloatKeyframeAnimation(LayerModel.InOutKeyframes);
+                inOutAnimation.SetIsDiscrete();
+                inOutAnimation.ValueChanged += (sender, args) => { Visible = inOutAnimation.Value == 1f; };
+                Visible = inOutAnimation.Value == 1f;
+                AddAnimation(inOutAnimation);
+            }
+            else
+            {
+                Visible = true;
+            }
+        }
+
+        private void InvalidateSelf()
+        {
+            LottieDrawable.InvalidateSelf();
+        }
+
+        internal void AddAnimation(IBaseKeyframeAnimation newAnimation)
+        {
+            _animations.Add(newAnimation);
+        }
+
         private void RecordRenderTime(float ms)
         {
             LottieDrawable.Composition.PerformanceTracker.RecordRenderTime(LayerModel.Name, ms);
@@ -247,10 +305,7 @@ namespace Avalonia.Lottie.Model.Layer
         private void IntersectBoundsWithMask(ref Rect rect, Matrix3X3 matrix)
         {
             RectExt.Set(ref _maskBoundsRect, 0, 0, 0, 0);
-            if (!HasMasksOnThisLayer())
-            {
-                return;
-            }
+            if (!HasMasksOnThisLayer()) return;
 
             var size = _mask.Masks.Count;
             for (var i = 0; i < size; i++)
@@ -277,34 +332,33 @@ namespace Avalonia.Lottie.Model.Layer
                         // We initialize the Rect with the first mask. If we don't call set() on the first call,
                         // the Rect will always extend to (0,0).
                         if (i == 0)
-                        {
                             RectExt.Set(ref _maskBoundsRect, _tempMaskBoundsRect);
-                        }
                         else
-                        {
-                            RectExt.Set(ref _maskBoundsRect, (float)Math.Min(_maskBoundsRect.Left, _tempMaskBoundsRect.Left), (float)Math.Min(_maskBoundsRect.Top, _tempMaskBoundsRect.Top), (float)Math.Max(_maskBoundsRect.Right, _tempMaskBoundsRect.Right), (float)Math.Max(_maskBoundsRect.Bottom, _tempMaskBoundsRect.Bottom));
-                        }
+                            RectExt.Set(ref _maskBoundsRect,
+                                (float) Math.Min(_maskBoundsRect.Left, _tempMaskBoundsRect.Left),
+                                (float) Math.Min(_maskBoundsRect.Top, _tempMaskBoundsRect.Top),
+                                (float) Math.Max(_maskBoundsRect.Right, _tempMaskBoundsRect.Right),
+                                (float) Math.Max(_maskBoundsRect.Bottom, _tempMaskBoundsRect.Bottom));
                         break;
                 }
             }
 
-            RectExt.Set(ref rect, (float)Math.Max(rect.Left, _maskBoundsRect.Left), (float)Math.Max(rect.Top, _maskBoundsRect.Top), (float)Math.Min(rect.Right, _maskBoundsRect.Right), (float)Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
+            RectExt.Set(ref rect, (float) Math.Max(rect.Left, _maskBoundsRect.Left),
+                (float) Math.Max(rect.Top, _maskBoundsRect.Top), (float) Math.Min(rect.Right, _maskBoundsRect.Right),
+                (float) Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
         }
 
         private void IntersectBoundsWithMatte(ref Rect rect, Matrix3X3 matrix)
         {
-            if (!HasMatteOnThisLayer())
-            {
-                return;
-            }
+            if (!HasMatteOnThisLayer()) return;
             if (LayerModel.GetMatteType() == Layer.MatteType.Invert)
-            {
                 // We can't trim the bounds if the mask is inverted since it extends all the way to the
                 // composition bounds.
                 return;
-            }
             _matteLayer.GetBounds(ref _matteBoundsRect, matrix);
-            RectExt.Set(ref rect, (float)Math.Max(rect.Left, _matteBoundsRect.Left), (float)Math.Max(rect.Top, _matteBoundsRect.Top), (float)Math.Min(rect.Right, _matteBoundsRect.Right), (float)Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
+            RectExt.Set(ref rect, (float) Math.Max(rect.Left, _matteBoundsRect.Left),
+                (float) Math.Max(rect.Top, _matteBoundsRect.Top), (float) Math.Min(rect.Right, _matteBoundsRect.Right),
+                (float) Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
         }
 
         public abstract void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha);
@@ -342,17 +396,13 @@ namespace Avalonia.Lottie.Model.Layer
 
             var hasMask = false;
             for (var i = 0; i < size; i++)
-            {
                 if (_mask.Masks[i].GetMaskMode() == maskMode)
                 {
                     hasMask = true;
                     break;
                 }
-            }
-            if (!hasMask)
-            {
-                return 0;
-            }
+
+            if (!hasMask) return 0;
             LottieLog.BeginSection("Layer.DrawMask");
             LottieLog.BeginSection("Layer.SaveLayer");
             canvas.SaveLayer(Rect, paint, SaveFlags);
@@ -362,10 +412,7 @@ namespace Avalonia.Lottie.Model.Layer
             for (var i = 0; i < size; i++)
             {
                 var mask = _mask.Masks[i];
-                if (mask.GetMaskMode() != maskMode)
-                {
-                    continue;
-                }
+                if (mask.GetMaskMode() != maskMode) continue;
                 var maskAnimation = _mask.MaskAnimations[i];
                 var maskPath = maskAnimation.Value;
                 _path.Set(maskPath);
@@ -376,6 +423,7 @@ namespace Avalonia.Lottie.Model.Layer
                 canvas.DrawPath(_path, _contentPaint, true);
                 _contentPaint.Alpha = alpha;
             }
+
             LottieLog.BeginSection("Layer.RestoreLayer");
             canvas.Restore();
             LottieLog.EndSection("Layer.RestoreLayer");
@@ -389,54 +437,9 @@ namespace Avalonia.Lottie.Model.Layer
             return _mask != null && _mask.MaskAnimations.Count > 0;
         }
 
-        private bool Visible
-        {
-            set
-            {
-                if (value != _visible)
-                {
-                    _visible = value;
-                    InvalidateSelf();
-                }
-            }
-        }
-
-        public virtual float Progress
-        {
-            set
-            {
-                // Time stretch should not be applied to the layer transform. 
-                Transform.Progress = value;
-                if (_mask != null)
-                {
-                    for (var i = 0; i < _mask.MaskAnimations.Count; i++)
-                    {
-                        _mask.MaskAnimations[i].Progress = value;
-                    }
-                }
-                if (LayerModel.TimeStretch != 0)
-                {
-                    value /= LayerModel.TimeStretch;
-                }
-                if (_matteLayer != null)
-                {
-                    // The matte layer's time stretch is pre-calculated.
-                    var matteTimeStretch = _matteLayer.LayerModel.TimeStretch;
-                    _matteLayer.Progress = value * matteTimeStretch;
-                }
-                for (var i = 0; i < _animations.Count; i++)
-                {
-                    _animations[i].Progress = value;
-                }
-            }
-        }
-
         private void BuildParentLayerListIfNeeded()
         {
-            if (_parentLayers != null)
-            {
-                return;
-            }
+            if (_parentLayers != null) return;
             if (_parentLayer == null)
             {
                 _parentLayers = new List<BaseLayer>();
@@ -452,44 +455,9 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public string Name => LayerModel.Name;
-
-        public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)
+        internal virtual void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator,
+            KeyPath currentPartialKeyPath)
         {
-            // Do nothing
-        }
-
-        public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
-        {
-            if (!keyPath.Matches(Name, depth))
-            {
-                return;
-            }
-
-            if (!"__container".Equals(Name))
-            {
-                currentPartialKeyPath = currentPartialKeyPath.AddKey(Name);
-
-                if (keyPath.FullyResolvesTo(Name, depth))
-                {
-                    accumulator.Add(currentPartialKeyPath.Resolve(this));
-                }
-            }
-
-            if (keyPath.PropagateToChildren(Name, depth))
-            {
-                var newDepth = depth + keyPath.IncrementDepthBy(Name, depth);
-                ResolveChildKeyPath(keyPath, newDepth, accumulator, currentPartialKeyPath);
-            }
-        }
-
-        internal virtual void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
-        {
-        }
-
-        public virtual void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
-        {
-            Transform.ApplyValueCallback(property, callback);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -498,7 +466,6 @@ namespace Avalonia.Lottie.Model.Layer
             {
                 if (disposing)
                 {
-                    
                     _contentPaint.Dispose();
                     _addMaskPaint.Dispose();
                     _subtractMaskPaint.Dispose();
@@ -511,7 +478,7 @@ namespace Avalonia.Lottie.Model.Layer
                     _matteLayer?.Dispose();
                     _matteLayer = null;
 
-                    _parentLayer?.Dispose(); 
+                    _parentLayer?.Dispose();
                     _parentLayer = null;
 
                     if (_parentLayers != null)
@@ -524,14 +491,9 @@ namespace Avalonia.Lottie.Model.Layer
 
                     _animations.Clear();
                 }
+
                 disposedValue = true;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

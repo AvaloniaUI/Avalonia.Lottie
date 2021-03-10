@@ -11,11 +11,11 @@ namespace Avalonia.Lottie.Model.Animatable
         private readonly List<Keyframe<Vector2?>> _keyframes;
 
         /// <summary>
-        /// Create a default static animatable path.
+        ///     Create a default static animatable path.
         /// </summary>
         public AnimatablePathValue()
         {
-            _keyframes = new List<Keyframe<Vector2?>> { new(new Vector2(0, 0)) };
+            _keyframes = new List<Keyframe<Vector2?>> {new(new Vector2(0, 0))};
         }
 
         public AnimatablePathValue(List<Keyframe<Vector2?>> keyframes)
@@ -25,10 +25,7 @@ namespace Avalonia.Lottie.Model.Animatable
 
         public IBaseKeyframeAnimation<Vector2?, Vector2?> CreateAnimation()
         {
-            if (_keyframes[0].Static)
-            {
-                return new PointKeyframeAnimation(_keyframes);
-            }
+            if (_keyframes[0].Static) return new PointKeyframeAnimation(_keyframes);
 
             return new PathKeyframeAnimation(_keyframes.ToList());
         }

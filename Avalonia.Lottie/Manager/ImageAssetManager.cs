@@ -1,12 +1,8 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Avalonia.Media.Imaging;
 
 /* Unmerged change from project 'Avalonia.Lottie (netcoreapp3.0)'
@@ -22,18 +18,17 @@ namespace Avalonia.Lottie.Manager
 {
     internal class ImageAssetManager : IDisposable
     {
+        private readonly Dictionary<string, LottieImageAsset> _imageAssets;
         private readonly string _imagesFolder;
         private IImageAssetDelegate _delegate;
-        private readonly Dictionary<string, LottieImageAsset> _imageAssets;
-　
-        internal ImageAssetManager(string imagesFolder, IImageAssetDelegate @delegate, Dictionary<string, LottieImageAsset> imageAssets)
+
+        internal ImageAssetManager(string imagesFolder, IImageAssetDelegate @delegate,
+            Dictionary<string, LottieImageAsset> imageAssets)
         {
             _imagesFolder = imagesFolder;
-            
+
             if (!string.IsNullOrEmpty(imagesFolder) && _imagesFolder[_imagesFolder.Length - 1] != '/')
-            {
                 _imagesFolder += '/';
-            }
 
             //if (!(callback is UIElement)) // TODO: Makes sense on UWP?
             //{
@@ -57,8 +52,14 @@ namespace Avalonia.Lottie.Manager
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
-        /// Returns the previously set bitmap or null.
+        ///     Returns the previously set bitmap or null.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="bitmap"></param>
@@ -75,35 +76,29 @@ namespace Avalonia.Lottie.Manager
                         asset.Bitmap = null;
                         return ret;
                     }
+
                     return null;
                 }
+
                 PutBitmap(id, bitmap);
                 return bitmap;
             }
         }
 
-        internal virtual Bitmap BitmapForId(　 string id)
+        internal virtual Bitmap BitmapForId(string id)
         {
             lock (this)
             {
                 if (!_imageAssets.TryGetValue(id, out var imageAsset))
-                {
                     return null;
-                }
-                else if (imageAsset.Bitmap != null)
-                {
-                    return imageAsset.Bitmap;
-                }
+                if (imageAsset.Bitmap != null) return imageAsset.Bitmap;
 
                 Bitmap bitmap;
 
                 if (_delegate != null)
                 {
                     bitmap = _delegate.FetchBitmap(imageAsset);
-                    if (bitmap != null)
-                    {
-                        PutBitmap(id, bitmap);
-                    }
+                    if (bitmap != null) PutBitmap(id, bitmap);
                     return bitmap;
                 }
 
@@ -123,7 +118,7 @@ namespace Avalonia.Lottie.Manager
                         return null;
                     }
 
-                    bitmap = LoadFromBuffer(　data);
+                    bitmap = LoadFromBuffer(data);
 
                     PutBitmap(id, bitmap);
                     return bitmap;
@@ -133,9 +128,8 @@ namespace Avalonia.Lottie.Manager
                 try
                 {
                     if (string.IsNullOrEmpty(_imagesFolder))
-                    {
-                        throw new InvalidOperationException("You must set an images folder before loading an image. Set it with LottieDrawable.ImageAssetsFolder");
-                    }
+                        throw new InvalidOperationException(
+                            "You must set an images folder before loading an image. Set it with LottieDrawable.ImageAssetsFolder");
                     @is = File.OpenRead(_imagesFolder + imageAsset.FileName);
                 }
                 catch (IOException e)
@@ -144,7 +138,7 @@ namespace Avalonia.Lottie.Manager
                     return null;
                 }
 
-                bitmap = LoadFromStream(　@is);
+                bitmap = LoadFromStream(@is);
 
                 @is.Dispose();
 
@@ -158,14 +152,14 @@ namespace Avalonia.Lottie.Manager
         {
             // Loads from file using System.Drawing.Image
             using (var stream = new MemoryStream(buffer))
+            {
                 return LoadFromStream(stream);
+            }
         }
 
-        public static Bitmap LoadFromStream( Stream stream)
-        { 
-
-                    return new Bitmap(stream);
-              
+        public static Bitmap LoadFromStream(Stream stream)
+        {
+            return new(stream);
         }
 
         internal virtual void RecycleBitmaps()
@@ -181,7 +175,7 @@ namespace Avalonia.Lottie.Manager
                 }
             }
         }
-　
+
         private Bitmap PutBitmap(string key, Bitmap bitmap)
         {
             lock (this)
@@ -194,12 +188,6 @@ namespace Avalonia.Lottie.Manager
         private void Dispose(bool disposing)
         {
             RecycleBitmaps();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         ~ImageAssetManager()

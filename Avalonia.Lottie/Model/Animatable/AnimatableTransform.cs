@@ -4,7 +4,6 @@ using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Model.Content;
 using Avalonia.Lottie.Model.Layer;
 
-
 namespace Avalonia.Lottie.Model.Animatable
 {
     public class AnimatableTransform : IModifierContent, IContentModel
@@ -22,7 +21,9 @@ namespace Avalonia.Lottie.Model.Animatable
         {
         }
 
-        public AnimatableTransform(AnimatablePathValue anchorPoint, IAnimatableValue<Vector2?, Vector2?> position, AnimatableScaleValue scale, AnimatableFloatValue rotation, AnimatableIntegerValue opacity, AnimatableFloatValue startOpacity, AnimatableFloatValue endOpacity)
+        public AnimatableTransform(AnimatablePathValue anchorPoint, IAnimatableValue<Vector2?, Vector2?> position,
+            AnimatableScaleValue scale, AnimatableFloatValue rotation, AnimatableIntegerValue opacity,
+            AnimatableFloatValue startOpacity, AnimatableFloatValue endOpacity)
         {
             AnchorPoint = anchorPoint;
             Position = position;
@@ -47,14 +48,14 @@ namespace Avalonia.Lottie.Model.Animatable
         internal virtual AnimatableFloatValue StartOpacity { get; }
         internal virtual AnimatableFloatValue EndOpacity { get; }
 
-        public virtual TransformKeyframeAnimation CreateAnimation()
-        {
-            return new(this);
-        }
-
         public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
         {
             return null;
+        }
+
+        public virtual TransformKeyframeAnimation CreateAnimation()
+        {
+            return new(this);
         }
     }
 }

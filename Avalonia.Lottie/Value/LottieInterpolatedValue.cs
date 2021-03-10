@@ -2,9 +2,9 @@
 {
     public abstract class LottieInterpolatedValue<T> : LottieValueCallback<T>
     {
-        private readonly T _startValue;
         private readonly T _endValue;
         private readonly IInterpolator _interpolator;
+        private readonly T _startValue;
 
         protected LottieInterpolatedValue(T startValue, T endValue)
             : this(startValue, endValue, new LinearInterpolator())

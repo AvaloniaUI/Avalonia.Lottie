@@ -2,10 +2,9 @@
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Model.Content;
 
-
 namespace Avalonia.Lottie.Parser
 {
-    static class PolystarShapeParser
+    internal static class PolystarShapeParser
     {
         internal static PolystarShape Parse(JsonReader reader, LottieComposition composition)
         {
@@ -20,14 +19,13 @@ namespace Avalonia.Lottie.Parser
             AnimatableFloatValue innerRoundedness = null;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
                         name = reader.NextString();
                         break;
                     case "sy":
-                        type = (PolystarShape.Type)reader.NextInt();
+                        type = (PolystarShape.Type) reader.NextInt();
                         break;
                     case "pt":
                         points = AnimatableValueParser.ParseFloat(reader, composition, false);
@@ -54,9 +52,9 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
-            return new PolystarShape(name, type, points, position, rotation, innerRadius, outerRadius, innerRoundedness, outerRoundedness);
+            return new PolystarShape(name, type, points, position, rotation, innerRadius, outerRadius, innerRoundedness,
+                outerRoundedness);
         }
     }
 }

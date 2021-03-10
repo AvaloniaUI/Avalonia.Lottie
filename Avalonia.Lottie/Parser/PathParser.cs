@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 
-
 namespace Avalonia.Lottie.Parser
 {
     public class PathParser : IValueParser<Vector2?>

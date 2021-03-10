@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-
-using Avalonia;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Model.Content;
 
@@ -29,7 +27,8 @@ namespace Avalonia.Lottie.Model.Layer
             _contentGroup.GetBounds(ref outBounds, BoundsMatrix);
         }
 
-        internal override void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
+        internal override void ResolveChildKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator,
+            KeyPath currentPartialKeyPath)
         {
             _contentGroup.ResolveKeyPath(keyPath, depth, accumulator, currentPartialKeyPath);
         }

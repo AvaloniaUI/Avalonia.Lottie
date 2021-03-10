@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-
-using Avalonia;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Model;
 using Avalonia.Lottie.Model.Content;
@@ -13,14 +11,14 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class FillContent : IDrawingContent, IKeyPathElementContent
     {
-        private readonly Path _path = new();
-        private readonly Paint _paint = new(Paint.AntiAliasFlag);
-        private readonly BaseLayer _layer;
-        private readonly List<IPathContent> _paths = new();
         private readonly IBaseKeyframeAnimation<Color?, Color?> _colorAnimation;
-        private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
-        private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
+        private readonly BaseLayer _layer;
         private readonly LottieDrawable _lottieDrawable;
+        private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
+        private readonly Paint _paint = new(Paint.AntiAliasFlag);
+        private readonly Path _path = new();
+        private readonly List<IPathContent> _paths = new();
+        private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
 
         internal FillContent(LottieDrawable lottieDrawable, BaseLayer layer, ShapeFill fill)
         {
@@ -37,16 +35,10 @@ namespace Avalonia.Lottie.Animation.Content
             _path.FillType = fill.FillType;
 
             _colorAnimation = fill.Color.CreateAnimation();
-            _colorAnimation.ValueChanged += (sender, args) =>
-            {
-                _lottieDrawable.InvalidateSelf();
-            };
+            _colorAnimation.ValueChanged += (sender, args) => { _lottieDrawable.InvalidateSelf(); };
             layer.AddAnimation(_colorAnimation);
             _opacityAnimation = fill.Opacity.CreateAnimation();
-            _opacityAnimation.ValueChanged += (sender, args) =>
-            {
-                _lottieDrawable.InvalidateSelf();
-            };
+            _opacityAnimation.ValueChanged += (sender, args) => { _lottieDrawable.InvalidateSelf(); };
             layer.AddAnimation(_opacityAnimation);
         }
 
@@ -55,10 +47,7 @@ namespace Avalonia.Lottie.Animation.Content
             for (var i = 0; i < contentsAfter.Count; i++)
             {
                 var content = contentsAfter[i];
-                if (content is IPathContent pathContent)
-                {
-                    _paths.Add(pathContent);
-                }
+                if (content is IPathContent pathContent) _paths.Add(pathContent);
             }
         }
 
@@ -68,19 +57,13 @@ namespace Avalonia.Lottie.Animation.Content
         {
             LottieLog.BeginSection("FillContent.Draw");
             _paint.Color = _colorAnimation.Value ?? Colors.White;
-            var alpha = (byte)(parentAlpha / 255f * _opacityAnimation.Value / 100f * 255);
+            var alpha = (byte) (parentAlpha / 255f * _opacityAnimation.Value / 100f * 255);
             _paint.Alpha = alpha;
 
-            if (_colorFilterAnimation != null)
-            {
-                _paint.ColorFilter = _colorFilterAnimation.Value;
-            }
+            if (_colorFilterAnimation != null) _paint.ColorFilter = _colorFilterAnimation.Value;
 
             _path.Reset();
-            for (var i = 0; i < _paths.Count; i++)
-            {
-                _path.AddPath(_paths[i].Path, parentMatrix);
-            }
+            for (var i = 0; i < _paths.Count; i++) _path.AddPath(_paths[i].Path, parentMatrix);
 
             canvas.DrawPath(_path, _paint);
 
@@ -90,13 +73,11 @@ namespace Avalonia.Lottie.Animation.Content
         public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
         {
             _path.Reset();
-            for (var i = 0; i < _paths.Count; i++)
-            {
-                _path.AddPath(_paths[i].Path, parentMatrix);
-            }
+            for (var i = 0; i < _paths.Count; i++) _path.AddPath(_paths[i].Path, parentMatrix);
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, (float)outBounds.Left - 1, (float)outBounds.Top - 1, (float)outBounds.Right + 1, (float)outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds, (float) outBounds.Left - 1, (float) outBounds.Top - 1,
+                (float) outBounds.Right + 1, (float) outBounds.Bottom + 1);
         }
 
         public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
@@ -108,11 +89,11 @@ namespace Avalonia.Lottie.Animation.Content
         {
             if (property == LottieProperty.Color)
             {
-                _colorAnimation.SetValueCallback((ILottieValueCallback<Color?>)callback);
+                _colorAnimation.SetValueCallback((ILottieValueCallback<Color?>) callback);
             }
             else if (property == LottieProperty.Opacity)
             {
-                _opacityAnimation.SetValueCallback((ILottieValueCallback<int?>)callback);
+                _opacityAnimation.SetValueCallback((ILottieValueCallback<int?>) callback);
             }
             else if (property == LottieProperty.ColorFilter)
             {
@@ -122,11 +103,10 @@ namespace Avalonia.Lottie.Animation.Content
                 }
                 else
                 {
-                    _colorFilterAnimation = new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>((ILottieValueCallback<ColorFilter>)callback);
-                    _colorFilterAnimation.ValueChanged += (sender, args) =>
-                    {
-                        _lottieDrawable.InvalidateSelf();
-                    };
+                    _colorFilterAnimation =
+                        new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>(
+                            (ILottieValueCallback<ColorFilter>) callback);
+                    _colorFilterAnimation.ValueChanged += (sender, args) => { _lottieDrawable.InvalidateSelf(); };
                     _layer.AddAnimation(_colorFilterAnimation);
                 }
             }

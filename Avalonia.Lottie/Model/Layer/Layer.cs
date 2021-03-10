@@ -30,13 +30,18 @@ namespace Avalonia.Lottie.Model.Layer
             Unknown
         }
 
-        private List<IContentModel> _shapes;
-        private LottieComposition _composition;
         private readonly LayerType _layerType;
         private readonly MatteType _matteType;
+        private LottieComposition _composition;
+
+        private List<IContentModel> _shapes;
         private bool disposedValue;
 
-        public Layer(List<IContentModel> shapes, LottieComposition composition, string layerName, long layerId, LayerType layerType, long parentId, string refId, List<Mask> masks, AnimatableTransform transform, int solidWidth, int solidHeight, Color solidColor, float timeStretch, float startFrame, int preCompWidth, int preCompHeight, AnimatableTextFrame text, AnimatableTextProperties textProperties, List<Keyframe<float?>> inOutKeyframes, MatteType matteType, AnimatableFloatValue timeRemapping, bool hidden)
+        public Layer(List<IContentModel> shapes, LottieComposition composition, string layerName, long layerId,
+            LayerType layerType, long parentId, string refId, List<Mask> masks, AnimatableTransform transform,
+            int solidWidth, int solidHeight, Color solidColor, float timeStretch, float startFrame, int preCompWidth,
+            int preCompHeight, AnimatableTextFrame text, AnimatableTextProperties textProperties,
+            List<Keyframe<float?>> inOutKeyframes, MatteType matteType, AnimatableFloatValue timeRemapping, bool hidden)
         {
             _shapes = shapes;
             _composition = composition;
@@ -92,16 +97,6 @@ namespace Avalonia.Lottie.Model.Layer
 
         internal virtual List<Mask> Masks { get; }
 
-        internal virtual LayerType GetLayerType()
-        {
-            return _layerType;
-        }
-
-        internal virtual MatteType GetMatteType()
-        {
-            return _matteType;
-        }
-
         internal virtual long ParentId { get; }
 
         internal virtual List<IContentModel> Shapes => _shapes;
@@ -113,6 +108,22 @@ namespace Avalonia.Lottie.Model.Layer
         internal virtual int SolidHeight { get; }
 
         internal virtual int SolidWidth { get; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        internal virtual LayerType GetLayerType()
+        {
+            return _layerType;
+        }
+
+        internal virtual MatteType GetMatteType()
+        {
+            return _matteType;
+        }
 
         public override string ToString()
         {
@@ -133,31 +144,26 @@ namespace Avalonia.Lottie.Model.Layer
                     sb.Append("->").Append(parent.Name);
                     parent = _composition.LayerModelForId(parent.ParentId);
                 }
+
                 sb.Append(prefix).Append("\n");
             }
-            if (Masks.Count > 0)
-            {
-                sb.Append(prefix).Append("\tMasks: ").Append(Masks.Count).Append("\n");
-            }
+
+            if (Masks.Count > 0) sb.Append(prefix).Append("\tMasks: ").Append(Masks.Count).Append("\n");
             if (SolidWidth != 0 && SolidHeight != 0)
-            {
-                sb.Append(prefix).Append("\tBackground: ").Append(string.Format(CultureInfo.InvariantCulture, "{0}x{1} {2}\n", SolidWidth, SolidHeight, SolidColor));
-            }
+                sb.Append(prefix).Append("\tBackground: ").Append(string.Format(CultureInfo.InvariantCulture,
+                    "{0}x{1} {2}\n", SolidWidth, SolidHeight, SolidColor));
             if (_shapes.Count > 0)
             {
                 sb.Append(prefix).Append("\tShapes:\n");
-                foreach (var shape in _shapes)
-                {
-                    sb.Append(prefix).Append("\t\t").Append(shape).Append("\n");
-                }
+                foreach (var shape in _shapes) sb.Append(prefix).Append("\t\t").Append(shape).Append("\n");
             }
+
             return sb.ToString();
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
-            {
                 if (disposing)
                 {
                     _composition = null;
@@ -173,12 +179,6 @@ namespace Avalonia.Lottie.Model.Layer
 
                     disposedValue = true;
                 }
-            }
-        }
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

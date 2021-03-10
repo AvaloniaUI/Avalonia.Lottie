@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-
 using System.Text.RegularExpressions;
-using Avalonia;
 using Avalonia.Lottie.Model;
 using Avalonia.Lottie.Model.Layer;
 
@@ -27,7 +25,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "w":
@@ -52,9 +49,7 @@ namespace Avalonia.Lottie.Parser
                         var minorVersion = int.Parse(versions[1]);
                         var patchVersion = int.Parse(versions[2]);
                         if (!Utils.Utils.IsAtLeastVersion(majorVersion, minorVersion, patchVersion, 4, 4, 0))
-                        {
                             composition.AddWarning("Lottie only supports bodymovin >= 4.4.0");
-                        }
                         break;
                     case "layers":
                         ParseLayers(reader, composition, layers, layerMap);
@@ -72,41 +67,41 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
 
-            var scaledWidth = (int)(width * scale);
-            var scaledHeight = (int)(height * scale);
+            var scaledWidth = (int) (width * scale);
+            var scaledHeight = (int) (height * scale);
             var bounds = new Rect(0, 0, scaledWidth, scaledHeight);
 
-            composition.Init(bounds, startFrame, endFrame, frameRate, layers, layerMap, precomps, images, characters, fonts);
+            composition.Init(bounds, startFrame, endFrame, frameRate, layers, layerMap, precomps, images, characters,
+                fonts);
 
             return composition;
         }
 
-        private static void ParseLayers(JsonReader reader, LottieComposition composition, List<Layer> layers, Dictionary<long, Layer> layerMap)
+        private static void ParseLayers(JsonReader reader, LottieComposition composition, List<Layer> layers,
+            Dictionary<long, Layer> layerMap)
         {
             var imageCount = 0;
             reader.BeginArray();
             while (reader.HasNext())
             {
                 var layer = LayerParser.Parse(reader, composition);
-                if (layer.GetLayerType() == Layer.LayerType.Image)
-                {
-                    imageCount++;
-                }
+                if (layer.GetLayerType() == Layer.LayerType.Image) imageCount++;
                 layers.Add(layer);
                 layerMap[layer.Id] = layer;
 
                 if (imageCount > 4)
-                {
-                    LottieLog.Warn($"You have {imageCount} images. Lottie should primarily be used with shapes. If you are using Adobe Illustrator, convert the Illustrator layers to shape layers.");
-                }
+                    LottieLog.Warn(
+                        $"You have {imageCount} images. Lottie should primarily be used with shapes. If you are using Adobe Illustrator, convert the Illustrator layers to shape layers.");
             }
+
             reader.EndArray();
         }
 
-        private static void ParseAssets(JsonReader reader, LottieComposition composition, Dictionary<string, List<Layer>> precomps, Dictionary<string, LottieImageAsset> images)
+        private static void ParseAssets(JsonReader reader, LottieComposition composition,
+            Dictionary<string, List<Layer>> precomps, Dictionary<string, LottieImageAsset> images)
         {
             reader.BeginArray();
             while (reader.HasNext())
@@ -122,7 +117,6 @@ namespace Avalonia.Lottie.Parser
                 string relativeFolder = null;
                 reader.BeginObject();
                 while (reader.HasNext())
-                {
                     switch (reader.NextName())
                     {
                         case "id":
@@ -136,6 +130,7 @@ namespace Avalonia.Lottie.Parser
                                 layerMap.Add(layer.Id, layer);
                                 layers.Add(layer);
                             }
+
                             reader.EndArray();
                             break;
                         case "w":
@@ -154,7 +149,7 @@ namespace Avalonia.Lottie.Parser
                             reader.SkipValue();
                             break;
                     }
-                }
+
                 reader.EndObject();
                 if (imageFileName != null)
                 {
@@ -167,6 +162,7 @@ namespace Avalonia.Lottie.Parser
                     precomps.Add(id, layers);
                 }
             }
+
             reader.EndArray();
         }
 
@@ -174,7 +170,6 @@ namespace Avalonia.Lottie.Parser
         {
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "list":
@@ -184,17 +179,19 @@ namespace Avalonia.Lottie.Parser
                             var font = FontParser.Parse(reader);
                             fonts.Add(font.Name, font);
                         }
+
                         reader.EndArray();
                         break;
                     default:
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
         }
 
-        private static void ParseChars(JsonReader reader, LottieComposition composition, Dictionary<int, FontCharacter> characters)
+        private static void ParseChars(JsonReader reader, LottieComposition composition,
+            Dictionary<int, FontCharacter> characters)
         {
             reader.BeginArray();
             while (reader.HasNext())
@@ -202,6 +199,7 @@ namespace Avalonia.Lottie.Parser
                 var character = FontCharacterParser.Parse(reader, composition);
                 characters.Add(character.GetHashCode(), character);
             }
+
             reader.EndArray();
         }
     }

@@ -34,6 +34,7 @@ namespace Avalonia.Lottie.Model.Content
                 Debug.WriteLine("Animation contains merge paths but they are disabled.", LottieLog.Tag);
                 return null;
             }
+
             return new MergePathsContent(this);
         }
 

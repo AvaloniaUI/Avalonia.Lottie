@@ -10,7 +10,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "a":
@@ -20,7 +19,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
             if (anim == null)
             {
@@ -30,7 +29,8 @@ namespace Avalonia.Lottie.Parser
             return anim;
         }
 
-        private static AnimatableTextProperties ParseAnimatableTextProperties(JsonReader reader, LottieComposition composition)
+        private static AnimatableTextProperties ParseAnimatableTextProperties(JsonReader reader,
+            LottieComposition composition)
         {
             AnimatableColorValue color = null;
             AnimatableColorValue stroke = null;
@@ -39,7 +39,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "fc":
@@ -58,7 +57,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
 
             return new AnimatableTextProperties(color, stroke, strokeWidth, tracking);

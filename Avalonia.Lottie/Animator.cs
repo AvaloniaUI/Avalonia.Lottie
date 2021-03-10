@@ -6,10 +6,6 @@ namespace Avalonia.Lottie
 
         public abstract bool IsRunning { get; }
 
-        protected Animator()
-        {
-        }
-
         public virtual void Cancel()
         {
             AnimationCanceled();

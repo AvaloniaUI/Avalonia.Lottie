@@ -46,26 +46,28 @@ namespace Avalonia.Lottie.Parser
             return new(Parse(reader, composition, ColorParser.Instance));
         }
 
-        internal static AnimatableGradientColorValue ParseGradientColor(JsonReader reader, LottieComposition composition, int points)
+        internal static AnimatableGradientColorValue ParseGradientColor(JsonReader reader,
+            LottieComposition composition, int points)
         {
             return new(Parse(reader, composition, new GradientColorParser(points)));
         }
 
         /// <summary>
-        /// Will return null if the animation can't be played such as if it has expressions.
+        ///     Will return null if the animation can't be played such as if it has expressions.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
         /// <param name="composition"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition, IValueParser<T> valueParser)
+        private static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition,
+            IValueParser<T> valueParser)
         {
             return KeyframesParser.Parse(reader, composition, 1, valueParser);
         }
 
         /// <summary>
-        /// Will return null if the animation can't be played such as if it has expressions.
+        ///     Will return null if the animation can't be played such as if it has expressions.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
@@ -73,7 +75,8 @@ namespace Avalonia.Lottie.Parser
         /// <param name="composition"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static List<Keyframe<T>> Parse<T>(JsonReader reader, float scale, LottieComposition composition, IValueParser<T> valueParser)
+        private static List<Keyframe<T>> Parse<T>(JsonReader reader, float scale, LottieComposition composition,
+            IValueParser<T> valueParser)
         {
             return KeyframesParser.Parse(reader, composition, scale, valueParser);
         }

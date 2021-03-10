@@ -1,26 +1,16 @@
 ﻿using System.Numerics;
 
-
 namespace Avalonia.Lottie.Value
 {
     public class Keyframe<T>
     {
         private readonly LottieComposition _composition;
-        public T StartValue { get; }
-        public T EndValue { get; internal set; }
-        public IInterpolator Interpolator { get; }
-        public float? StartFrame { get; }
-        public float? EndFrame { get; internal set; }
-
-        private float _startProgress = float.MinValue;
         private float _endProgress = float.MinValue;
 
-        // Used by PathKeyframe but it has to be parsed by KeyFrame because we use a JsonReader to 
-        // deserialzie the data so we have to parse everything in order 
-        public Vector2? PathCp1 { get; set; }
-        public Vector2? PathCp2 { get; set; }
+        private float _startProgress = float.MinValue;
 
-        public Keyframe(LottieComposition composition, T startValue, T endValue, IInterpolator interpolator, float? startFrame, float? endFrame)
+        public Keyframe(LottieComposition composition, T startValue, T endValue, IInterpolator interpolator,
+            float? startFrame, float? endFrame)
         {
             _composition = composition;
             StartValue = startValue;
@@ -31,7 +21,7 @@ namespace Avalonia.Lottie.Value
         }
 
         /// <summary>
-        /// Non-animated value.
+        ///     Non-animated value.
         /// </summary>
         /// <param name="value"></param>
         public Keyframe(T value)
@@ -44,18 +34,24 @@ namespace Avalonia.Lottie.Value
             EndFrame = float.MaxValue;
         }
 
+        public T StartValue { get; }
+        public T EndValue { get; internal set; }
+        public IInterpolator Interpolator { get; }
+        public float? StartFrame { get; }
+        public float? EndFrame { get; internal set; }
+
+        // Used by PathKeyframe but it has to be parsed by KeyFrame because we use a JsonReader to 
+        // deserialzie the data so we have to parse everything in order 
+        public Vector2? PathCp1 { get; set; }
+        public Vector2? PathCp2 { get; set; }
+
         public virtual float StartProgress
         {
             get
             {
-                if (_composition == null)
-                {
-                    return 0f;
-                }
+                if (_composition == null) return 0f;
                 if (_startProgress == float.MinValue)
-                {
                     _startProgress = (StartFrame.Value - _composition.StartFrame) / _composition.DurationFrames;
-                }
                 return _startProgress;
             }
         }
@@ -64,10 +60,7 @@ namespace Avalonia.Lottie.Value
         {
             get
             {
-                if (_composition == null)
-                {
-                    return 1f;
-                }
+                if (_composition == null) return 1f;
                 if (_endProgress == float.MinValue)
                 {
                     if (EndFrame == null)
@@ -82,6 +75,7 @@ namespace Avalonia.Lottie.Value
                         _endProgress = startProgress + durationProgress;
                     }
                 }
+
                 return _endProgress;
             }
         }
@@ -95,7 +89,8 @@ namespace Avalonia.Lottie.Value
 
         public override string ToString()
         {
-            return "Keyframe{" + "startValue=" + StartValue + ", endValue=" + EndValue + ", startFrame=" + StartFrame + ", endFrame=" + EndFrame + ", interpolator=" + Interpolator + '}';
+            return "Keyframe{" + "startValue=" + StartValue + ", endValue=" + EndValue + ", startFrame=" + StartFrame +
+                   ", endFrame=" + EndFrame + ", interpolator=" + Interpolator + '}';
         }
     }
 }

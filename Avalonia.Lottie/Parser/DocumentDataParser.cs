@@ -1,7 +1,6 @@
 ﻿using Avalonia.Lottie.Model;
 using Avalonia.Media;
 
-
 namespace Avalonia.Lottie.Parser
 {
     public class DocumentDataParser : IValueParser<DocumentData>
@@ -24,7 +23,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "t":
@@ -64,7 +62,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
 
             return new DocumentData(text, fontName, size, justification, tracking, lineHeight,

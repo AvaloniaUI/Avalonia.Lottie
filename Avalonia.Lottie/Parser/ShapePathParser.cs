@@ -3,7 +3,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class ShapePathParser
+    internal static class ShapePathParser
     {
         internal static ShapePath Parse(JsonReader reader, LottieComposition composition)
         {
@@ -12,7 +12,6 @@ namespace Avalonia.Lottie.Parser
             AnimatableShapeValue shape = null;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -28,7 +27,6 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new ShapePath(name, ind, shape);
         }

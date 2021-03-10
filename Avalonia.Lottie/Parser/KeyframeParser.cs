@@ -6,14 +6,15 @@ using Avalonia.Lottie.Value;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class KeyframeParser
+    internal static class KeyframeParser
     {
         /// <summary>
-        /// Some animations get exported with insane cp values in the tens of thousands. 
-        /// PathInterpolator fails to create the interpolator in those cases and hangs. 
-        /// Clamping the cp helps prevent that. 
+        ///     Some animations get exported with insane cp values in the tens of thousands.
+        ///     PathInterpolator fails to create the interpolator in those cases and hangs.
+        ///     Clamping the cp helps prevent that.
         /// </summary>
         private const float MaxCpValue = 100;
+
         private static readonly IInterpolator LinearInterpolator = new LinearInterpolator();
 
         private static readonly object Lock = new();
@@ -22,7 +23,8 @@ namespace Avalonia.Lottie.Parser
         // https://github.com/airbnb/lottie-android/issues/464 
         private static Dictionary<int, WeakReference<IInterpolator>> PathInterpolatorCache()
         {
-            return _pathInterpolatorCache ?? (_pathInterpolatorCache = new Dictionary<int, WeakReference<IInterpolator>>());
+            return _pathInterpolatorCache ??
+                   (_pathInterpolatorCache = new Dictionary<int, WeakReference<IInterpolator>>());
         }
 
         private static bool GetInterpolator(int hash, out WeakReference<IInterpolator> interpolatorRef)
@@ -45,18 +47,16 @@ namespace Avalonia.Lottie.Parser
             }
         }
 
-        internal static Keyframe<T> Parse<T>(JsonReader reader, LottieComposition composition, float scale, IValueParser<T> valueParser, bool animated)
+        internal static Keyframe<T> Parse<T>(JsonReader reader, LottieComposition composition, float scale,
+            IValueParser<T> valueParser, bool animated)
         {
-            if (animated)
-            {
-                return ParseKeyframe(composition, reader, scale, valueParser);
-            }
+            if (animated) return ParseKeyframe(composition, reader, scale, valueParser);
             return ParseStaticValue(reader, scale, valueParser);
         }
 
         /// <summary>
-        /// beginObject will already be called on the keyframe so it can be differentiated with 
-        /// a non animated value.
+        ///     beginObject will already be called on the keyframe so it can be differentiated with
+        ///     a non animated value.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="composition"></param>
@@ -64,7 +64,8 @@ namespace Avalonia.Lottie.Parser
         /// <param name="scale"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader, float scale, IValueParser<T> valueParser)
+        private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader, float scale,
+            IValueParser<T> valueParser)
         {
             Vector2? cp1 = null;
             Vector2? cp2 = null;
@@ -80,7 +81,6 @@ namespace Avalonia.Lottie.Parser
 
             reader.BeginObject();
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "t":
@@ -111,7 +111,7 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
+
             reader.EndObject();
 
             if (hold)
@@ -131,7 +131,8 @@ namespace Avalonia.Lottie.Parser
                 if (GetInterpolator(hash, out var interpolatorRef) == false ||
                     interpolatorRef.TryGetTarget(out interpolator) == false)
                 {
-                    interpolator = new PathInterpolator(cp1.Value.X / scale, cp1.Value.Y / scale, cp2.Value.X / scale, cp2.Value.Y / scale);
+                    interpolator = new PathInterpolator(cp1.Value.X / scale, cp1.Value.Y / scale, cp2.Value.X / scale,
+                        cp2.Value.Y / scale);
                     try
                     {
                         PutInterpolator(hash, new WeakReference<IInterpolator>(interpolator));

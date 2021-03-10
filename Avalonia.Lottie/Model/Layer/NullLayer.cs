@@ -1,7 +1,4 @@
-﻿
-using Avalonia;
-using Avalonia.Lottie.Animation.Content;
-
+﻿using Avalonia.Lottie.Animation.Content;
 
 namespace Avalonia.Lottie.Model.Layer
 {

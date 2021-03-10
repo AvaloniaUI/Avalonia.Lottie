@@ -1,13 +1,13 @@
-﻿using Avalonia.Lottie.Utils;
+﻿using System;
+using Avalonia.Lottie.Utils;
 using Avalonia.Media;
-
 
 namespace Avalonia.Lottie.Model.Content
 {
     public class GradientColor
     {
-        private readonly float[] _positions;
         private readonly Color[] _colors;
+        private readonly float[] _positions;
 
         internal GradientColor(float[] positions, Color[] colors)
         {
@@ -24,9 +24,8 @@ namespace Avalonia.Lottie.Model.Content
         internal virtual void Lerp(GradientColor gc1, GradientColor gc2, float progress)
         {
             if (gc1._colors.Length != gc2._colors.Length)
-            {
-                throw new System.ArgumentException("Cannot interpolate between gradients. Lengths vary (" + gc1._colors.Length + " vs " + gc2._colors.Length + ")");
-            }
+                throw new ArgumentException("Cannot interpolate between gradients. Lengths vary (" +
+                                            gc1._colors.Length + " vs " + gc2._colors.Length + ")");
 
             for (var i = 0; i < gc1._colors.Length; i++)
             {

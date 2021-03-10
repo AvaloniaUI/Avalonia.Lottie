@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 namespace Avalonia.Lottie.Network
 {
     /// <summary>
-    /// Helper class to save and restore animations fetched from an URL to the app disk cache.
+    ///     Helper class to save and restore animations fetched from an URL to the app disk cache.
     /// </summary>
     internal class NetworkCache
     {
@@ -91,16 +92,16 @@ namespace Avalonia.Lottie.Network
         //}
 
         /// <summary>
-        /// If the file created by {@link #writeTempCacheFile(InputStream, FileExtension)} was successfully parsed,
-        /// this should be called to remove the temporary part of its name which will allow it to be a cache hit in the future.
+        ///     If the file created by {@link #writeTempCacheFile(InputStream, FileExtension)} was successfully parsed,
+        ///     this should be called to remove the temporary part of its name which will allow it to be a cache hit in the future.
         /// </summary>
         /// <param name="extension"></param>
-        internal Task RenameTempFileAsync(FileExtension extension, CancellationToken cancellationToken = default(CancellationToken))
+        internal Task RenameTempFileAsync(FileExtension extension, CancellationToken cancellationToken = default)
         {
             return Task.Run(() =>
             {
                 var fileName = FilenameForUrl(_url, extension, true);
-                var file = new System.IO.FileInfo(fileName);
+                var file = new FileInfo(fileName);
                 var newFileName = file.Name.Replace(".temp", "");
                 var oldFilename = file.Name;
                 try
@@ -138,7 +139,8 @@ namespace Avalonia.Lottie.Network
 
         private static string FilenameForUrl(string url, FileExtension extension, bool isTemp)
         {
-            return "lottie_cache_" + Regex.Replace(url, "\\W+", "") + (isTemp ? extension.TempExtension : extension.Extension);
+            return "lottie_cache_" + Regex.Replace(url, "\\W+", "") +
+                   (isTemp ? extension.TempExtension : extension.Extension);
         }
     }
 }

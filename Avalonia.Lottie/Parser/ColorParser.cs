@@ -1,7 +1,6 @@
 ﻿using Avalonia.Media;
 using Newtonsoft.Json;
 
-
 namespace Avalonia.Lottie.Parser
 {
     internal class ColorParser : IValueParser<Color?>
@@ -11,18 +10,12 @@ namespace Avalonia.Lottie.Parser
         public Color? Parse(JsonReader reader, float scale)
         {
             var isArray = reader.Peek() == JsonToken.StartArray;
-            if (isArray)
-            {
-                reader.BeginArray();
-            }
+            if (isArray) reader.BeginArray();
             var r = reader.NextDouble();
             var g = reader.NextDouble();
             var b = reader.NextDouble();
             var a = reader.NextDouble();
-            if (isArray)
-            {
-                reader.EndArray();
-            }
+            if (isArray) reader.EndArray();
 
             if (r <= 1 && g <= 1 && b <= 1 && a <= 1)
             {
@@ -31,7 +24,8 @@ namespace Avalonia.Lottie.Parser
                 b *= 255;
                 a *= 255;
             }
-            return new Color((byte)a, (byte)r, (byte)g, (byte)b);
+
+            return new Color((byte) a, (byte) r, (byte) g, (byte) b);
         }
     }
 }

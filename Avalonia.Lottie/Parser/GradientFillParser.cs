@@ -3,7 +3,7 @@ using Avalonia.Lottie.Model.Content;
 
 namespace Avalonia.Lottie.Parser
 {
-    static class GradientFillParser
+    internal static class GradientFillParser
     {
         internal static GradientFill Parse(JsonReader reader, LottieComposition composition)
         {
@@ -16,7 +16,6 @@ namespace Avalonia.Lottie.Parser
             var fillType = PathFillType.EvenOdd;
 
             while (reader.HasNext())
-            {
                 switch (reader.NextName())
                 {
                     case "nm":
@@ -26,7 +25,6 @@ namespace Avalonia.Lottie.Parser
                         var points = -1;
                         reader.BeginObject();
                         while (reader.HasNext())
-                        {
                             switch (reader.NextName())
                             {
                                 case "p":
@@ -39,7 +37,7 @@ namespace Avalonia.Lottie.Parser
                                     reader.SkipValue();
                                     break;
                             }
-                        }
+
                         reader.EndObject();
                         break;
                     case "o":
@@ -61,10 +59,9 @@ namespace Avalonia.Lottie.Parser
                         reader.SkipValue();
                         break;
                 }
-            }
 
             return new GradientFill(
-            name, gradientType, fillType, color, opacity, startPoint, endPoint, null, null);
+                name, gradientType, fillType, color, opacity, startPoint, endPoint, null, null);
         }
     }
 }

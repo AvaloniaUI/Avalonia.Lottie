@@ -3,12 +3,12 @@ using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Model.Animatable;
 using Avalonia.Lottie.Model.Layer;
 
-
 namespace Avalonia.Lottie.Model.Content
 {
     public class CircleShape : IContentModel
     {
-        public CircleShape(string name, IAnimatableValue<Vector2?, Vector2?> position, AnimatablePointValue size, bool isReversed)
+        public CircleShape(string name, IAnimatableValue<Vector2?, Vector2?> position, AnimatablePointValue size,
+            bool isReversed)
         {
             Name = name;
             Position = position;

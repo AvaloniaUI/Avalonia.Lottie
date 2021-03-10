@@ -1,27 +1,16 @@
-﻿
-using System.Numerics;
-using Avalonia;
+﻿using System.Numerics;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;
-/* Unmerged change from project 'Avalonia.Lottie (netcoreapp3.0)'
-Before:
-using Avalonia.Lottie.Value;
-After:
-using Avalonia.Lottie.Value;
-
-
-*/
-
 
 namespace Avalonia.Lottie.Model.Layer
 {
     internal class SolidLayer : BaseLayer
     {
         private readonly Paint _paint = new();
-        private Vector2[] _points = new Vector2[4];
         private readonly Path _path = new();
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
+        private Vector2[] _points = new Vector2[4];
 
         internal SolidLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
         {
@@ -35,17 +24,11 @@ namespace Avalonia.Lottie.Model.Layer
         public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
         {
             int backgroundAlpha = LayerModel.SolidColor.A;
-            if (backgroundAlpha == 0)
-            {
-                return;
-            }
+            if (backgroundAlpha == 0) return;
 
-            var alpha = (byte)(parentAlpha / 255f * (backgroundAlpha / 255f * Transform.Opacity.Value / 100f) * 255);
+            var alpha = (byte) (parentAlpha / 255f * (backgroundAlpha / 255f * Transform.Opacity.Value / 100f) * 255);
             _paint.Alpha = alpha;
-            if (_colorFilterAnimation != null)
-            {
-                _paint.ColorFilter = _colorFilterAnimation.Value;
-            }
+            if (_colorFilterAnimation != null) _paint.ColorFilter = _colorFilterAnimation.Value;
             if (alpha > 0)
             {
                 _points[0] = new Vector2(0, 0);
@@ -81,13 +64,11 @@ namespace Avalonia.Lottie.Model.Layer
             if (property == LottieProperty.ColorFilter)
             {
                 if (callback == null)
-                {
                     _colorFilterAnimation = null;
-                }
                 else
-                {
-                    _colorFilterAnimation = new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>((ILottieValueCallback<ColorFilter>)callback);
-                }
+                    _colorFilterAnimation =
+                        new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>(
+                            (ILottieValueCallback<ColorFilter>) callback);
             }
         }
     }
