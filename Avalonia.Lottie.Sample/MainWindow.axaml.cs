@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform;
 
 namespace Avalonia.Lottie.Sample
 {
@@ -15,7 +17,6 @@ namespace Avalonia.Lottie.Sample
             this.AttachDevTools();
 #endif
         }
-
 
         private void InitializeComponent()
         {
@@ -44,14 +45,14 @@ namespace Avalonia.Lottie.Sample
             // }
 
 
-            // var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            //var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/animated_laptop.json"));
-            // var a = await new StreamReader(getstr).ReadToEndAsync();
+             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/lottie_logo_1.json"));
+             var a = await new StreamReader(getstr).ReadToEndAsync();
 
-            var res = await LottieCompositionFactory.FromUrlAsync(
-                "https://github.com/jmacato/Avalonia.Lottie/raw/master/Avalonia.Lottie.Sample/Assets/42495-payment-security.json");
+             var res = await LottieCompositionFactory.FromJsonString(a, "asd");
             if (res is not null)
             {
+                LottieLog.TraceEnabled = true;
                 _lottieDrawable.SetComposition(res.Value);
                 //_lottieDrawable.DirectScale = 0.25f;
                 _lottieDrawable.Start();

@@ -7,16 +7,10 @@
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="0.10.0" />
-        <PackageReference Include="Avalonia.Controls.PanAndZoom" Version="3.0.0" />
-        <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
-        <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />　
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Update="MainWindow.axaml.cs">
-        <DependentUpon>MainWindow.axaml</DependentUpon>
-      </Compile>
+        <PackageReference Include="Avalonia" Version="0.10.999-cibuild0013382-beta" />
+        <PackageReference Include="Avalonia.Desktop" Version="0.10.999-cibuild0013382-beta" />
+        <PackageReference Include="Avalonia.Diagnostics" Version="0.10.999-cibuild0013382-beta" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.999-cibuild0013382-beta" />　
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Avalonia.Lottie\Avalonia.Lottie.csproj" />

@@ -565,11 +565,11 @@ namespace Avalonia.Lottie
                             Scale * halfHeight - scaledHalfHeight);
                         _bitmapCanvas.Scale(extraScale, extraScale, scaledHalfWidth, scaledHalfHeight);
                     }
-                    Console.WriteLine("Frame Start");
+                   //  Console.WriteLine("Frame Start");
                     _matrix.Reset();
                     _matrix = MatrixExt.PreScale(_matrix, scale, scale);
                     _compositionLayer.Draw(_bitmapCanvas, _matrix, _alpha);
-                    Console.WriteLine("Frame End");
+                   //  Console.WriteLine("Frame End");
 
                     LottieLog.EndSection("Drawable.Draw");
 
