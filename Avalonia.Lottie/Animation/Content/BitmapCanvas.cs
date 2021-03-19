@@ -125,14 +125,6 @@ namespace Avalonia.Lottie.Animation.Content
             var finalBrush =  brush;
 
             var geometry = path.GetGeometry();
-
-            var h = JsonConvert.SerializeObject(path);
-            if (h.Contains("[]"))
-            {
-                    
-            }
-           //  Console.WriteLine("\t " + h);
-            
             if (paint.Style == Paint.PaintStyle.Stroke)
             {
                 var pen = new Pen(brush,
@@ -362,19 +354,16 @@ namespace Avalonia.Lottie.Animation.Content
                 if (renderTargetSave.PaintXfermode != null)
                     blendingMode = renderTargetSave.PaintXfermode.Mode switch
                     {
-                        PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
+                         PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
                         PorterDuff.Mode.DstOut => BitmapBlendingMode.DestinationOut,
-                        PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationOver,
+                        PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationIn,
                         _ => blendingMode
                     };
 
                 CurrentDrawingContext.PushBitmapBlendMode(blendingMode);
                 CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl, 1, j, j);
                 CurrentDrawingContext.PopBitmapBlendMode();
-                
-                drawingSession.Bitmap.Dispose();
-                drawingSession.DrawingContext.Dispose();
-
+                 
                 // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
                 //     new RawVector2(0, 0),
                 //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
