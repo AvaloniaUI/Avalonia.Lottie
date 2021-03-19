@@ -4,8 +4,7 @@
     <TargetFrameworks>net5.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="*" />
-    <PackageReference Include="Avalonia.Skia" Version="*" />
+    <PackageReference Include="Avalonia" Version="0.10.999-cibuild0013382-beta" />
     <PackageReference Include="DotNetZip" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
   </ItemGroup>

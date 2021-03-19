@@ -51,7 +51,7 @@ namespace Avalonia.Lottie
         ///     Warn to Debug. Keeps track of messages so they are only logged once ever.
         /// </summary>
         /// <param name="msg"></param>
-        // [Conditional("DEBUG")]
+        [Conditional("DEBUG")]
         public static void Warn(string msg)
         {
             if (_loggedMessages.Contains(msg)) return;
@@ -59,7 +59,7 @@ namespace Avalonia.Lottie
             _loggedMessages.Add(msg);
         }
 
-        // [Conditional("DEBUG")]
+        [Conditional("DEBUG")]
         internal static void BeginSection(string section)
         {
             TryResetTrace();
@@ -103,7 +103,7 @@ namespace Avalonia.Lottie
             return 0f;
         }
 
-        // [Conditional("DEBUG")]
+        [Conditional("DEBUG")]
         private static void TryResetTrace()
         {
             if (_shouldResetTrace && _traceDepth == 0)
@@ -118,7 +118,7 @@ namespace Avalonia.Lottie
             }
         }
 
-        // [Conditional("DEBUG")]
+        [Conditional("DEBUG")]
         private static void BatchedDebugWriteLine(string message)
         {
             Msgs.Enqueue($"{new string(' ', _traceDepth)}{message}");

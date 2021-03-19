@@ -1,74 +1,47 @@
 using System;
 using System.Numerics;
 using Avalonia.Media;
-using SkiaSharp;
+using Avalonia.Platform;
 
 namespace Avalonia.Lottie
 {
     internal class PathMeasure : IDisposable
     {
-        private Geometry _geometry;
-        private SKPathMeasure _internalSKPathMeasure;
         private CachedPathIteratorFactory _originalPathIterator;
         private Path _path;
+        private Geometry _geometry;
 
         public PathMeasure(Path path)
         {
             SetPath(path);
         }
 
-        public float Length { get; private set; }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            // GC.SuppressFinalize(this);
-        }
-
         public void SetPath(Path path)
         {
-            // TODO: HACK HACK HACK
-            _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
             _path = path;
+            _geometry = null;
             _geometry = _path.GetGeometry();
-            var k = _geometry.PlatformImpl;
-            var propertyInfo = k.GetType().GetProperty("EffectivePath");
-            var internalSKPath = propertyInfo.GetValue(k, null) as SKPath;
-
-            if (internalSKPath != null) _internalSKPathMeasure = new SKPathMeasure(internalSKPath);
-
-            Length = _internalSKPathMeasure.Length;
+            _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
+            Length = (float) _geometry.PlatformImpl.ContourLength;
+            if (Length > 0)
+            {
+                
+            }
         }
+
+        public float Length { get; private set; }
 
         public Vector2 GetPosTan(float distance)
         {
-            if (distance < 0)
-                distance = 0;
-
-            var length = Length;
-            if (distance > length)
-                distance = length;
-
-            // RawVector2 vectOutput;
-            // var vect2 = _geometry.ComputePointAtLength(distance, out vectOutput);
-
-            var h = _internalSKPathMeasure.GetPositionAndTangent(distance, out var position, out var tangent);
-
-            if (h) return new Vector2(position.X, position.Y);
-
-            return Vector2.One;
+            if (_geometry.PlatformImpl.TryGetPointAndTangentAtDistance(distance, out var vect2, out _))
+            {
+                return new Vector2((float) vect2.X, (float) vect2.Y);
+            }
+            return Vector2.Zero;
         }
 
-        public bool GetSegment(float startD, float stopD, Path dst, bool startWithMoveTo)
+        public bool GetSegment(float startD, float stopD, ref Path dst, bool startWithMoveTo)
         {
-            var k = dst.GetGeometry().PlatformImpl;
-            var propertyInfo = k.GetType().GetProperty("EffectivePath");
-            var internalSKPath = propertyInfo.GetValue(k, null) as SKPath;
-
-            if (internalSKPath != null) _internalSKPathMeasure = new SKPathMeasure(internalSKPath);
-
-            return _internalSKPathMeasure.GetSegment(startD, stopD, internalSKPath, startWithMoveTo);
-            //
             // var length = Length;
             //
             // if (startD < 0)
@@ -145,35 +118,19 @@ namespace Avalonia.Lottie
         {
             if (_geometry != null)
             {
-                // try
-                // {
-                //     if (disposing)
-                //     {
-                //         _geometry.Dispose();
-                //     }
-                //     else
-                //     {
-                //         if (System.Runtime.InteropServices.Marshal.IsComObject(_geometry))
-                //         {
-                //             System.Runtime.InteropServices.Marshal.ReleaseComObject(_geometry);
-                //         }
-                //     }
-                // }
-                // catch (Exception)
-                // {
-                //     // Ignore, but should not happen
-                // }
-                // finally
-                // {
-                _internalSKPathMeasure.Dispose();
-                _geometry = null;
-                // }
+
             }
         }
 
-        // ~PathMeasure()
-        // {
-        //     Dispose(false);
-        // }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~PathMeasure()
+        {
+            Dispose(false);
+        }
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
-using Avalonia.Platform;
-using Avalonia.Skia;
+using Avalonia.Platform; 
 using Avalonia.Utilities;
 using Avalonia.Visuals.Media.Imaging;
-using SkiaSharp;
+using Newtonsoft.Json; 
 
 namespace Avalonia.Lottie.Animation.Content
 {
@@ -56,6 +56,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void UpdateClip(double width, double height)
         {
+           //  Console.WriteLine("\t UpdateClip");
+
             if (Math.Abs(width - Width) > 0 || Math.Abs(height - Height) > 0) Dispose(false);
 
             Width = width;
@@ -65,6 +67,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         internal IDisposable CreateSession(double width, double height, IDrawingContextImpl drawingSession)
         {
+           //  Console.WriteLine("\t CreateSession");
+
             _canvasDrawingSessions.Clear();
             //_renderTarget = drawingSession;
             _canvasDrawingSessions.Push(new RenderTargetHolder
@@ -82,6 +86,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
         {
+           //  Console.WriteLine("\t DrawRect Sub");
+
             DrawRect(new Rect(x1, y1, x2 - x1, y2 - y1), paint);
         }
 
@@ -89,6 +95,7 @@ namespace Avalonia.Lottie.Animation.Content
         internal void DrawRect(Rect rect, Paint paint)
         {
             // UpdateDrawingSessionWithFlags(paint.Flags);
+           //  Console.WriteLine("\t DrawRect Main");
 
             // CurrentDrawingContext.Transform = GetCurrentTransform();
             var brush = new ImmutableSolidColorBrush(paint.Color);
@@ -111,13 +118,21 @@ namespace Avalonia.Lottie.Animation.Content
             // UpdateDrawingSessionWithFlags(paint.Flags);
 
             // CurrentDrawingContext.Transform = GetCurrentTransform();
+           //  Console.WriteLine("\t DrawPath");
 
             var gradient = paint.Shader as Gradient;
-            var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new SolidColorBrush(paint.Color);
-            var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
+            var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new ImmutableSolidColorBrush(paint.Color);
+            var finalBrush =  brush;
 
             var geometry = path.GetGeometry();
 
+            var h = JsonConvert.SerializeObject(path);
+            if (h.Contains("[]"))
+            {
+                    
+            }
+           //  Console.WriteLine("\t " + h);
+            
             if (paint.Style == Paint.PaintStyle.Stroke)
             {
                 var pen = new Pen(brush,
@@ -125,6 +140,7 @@ namespace Avalonia.Lottie.Animation.Content
                     lineCap: paint.StrokeCap,
                     lineJoin: paint.StrokeJoin,
                     miterLimit: paint.StrokeMiter);
+
                 CurrentDrawingContext.DrawGeometry(null, pen, geometry.PlatformImpl);
             }
 
@@ -148,12 +164,21 @@ namespace Avalonia.Lottie.Animation.Content
 
         public Disposable PushMask(Rect rect, double alpha, Path path = null)
         {
+           //  Console.WriteLine("\t PushMask");
+
             if (alpha >= 1 && path == null)
             {
+               //  Console.WriteLine("\t\t PushClip");
+
                 CurrentDrawingContext.PushClip(rect);
                 // CurrentDrawingContext.PushAxisAlignedClip(rect, CurrentDrawingContext.AntialiasMode);
 
-                return new Disposable(() => { CurrentDrawingContext.PopClip(); });
+                return new Disposable(() =>
+                {
+                   //  Console.WriteLine("\t\t PopClip");
+
+                    CurrentDrawingContext.PopClip();
+                });
             }
 
             var geometery = path.GetGeometry();
@@ -167,15 +192,19 @@ namespace Avalonia.Lottie.Animation.Content
             // };
             //
             // var layer = new Layer(CurrentDrawingContext);
+           //  Console.WriteLine("\t\t PushGeometryClip");
 
             CurrentDrawingContext.PushGeometryClip(geometery.PlatformImpl);
 
             return new Disposable(() =>
             {
+               //  Console.WriteLine("\t\t PopGeometryClip");
+
                 CurrentDrawingContext.PopGeometryClip();
                 // this.CurrentDrawingContext.PopLayer();
                 // layer.Dispose();
                 // geometery?.Dispose();
+                
             });
         }
 
@@ -215,6 +244,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void SaveLayer(Rect bounds, Paint paint, int flags, Path path = null)
         {
+           //  Console.WriteLine("\t SaveLayer");
+
             _flagSaves.Push(flags);
             if ((flags & MatrixSaveFlag) == MatrixSaveFlag) SaveMatrix();
 
@@ -238,6 +269,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         private RenderTargetHolder CreateRenderTarget(Rect bounds, int index)
         {
+           //  Console.WriteLine("\t CreateRenderTarget");
+
             if (!_renderTargets.TryGetValue(index, out var rendertarget))
             {
                 var bitmap = new RenderTargetBitmap(new PixelSize((int) bounds.Width, (int) bounds.Height),
@@ -265,6 +298,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void SaveClip(byte alpha, Path path = null)
         {
+           //  Console.WriteLine("\t SaveClip");
+
             var currentLayer = PushMask(_currentClip, alpha / 255f, path);
 
             _clipSaves.Push(new ClipSave(_currentClip, currentLayer));
@@ -322,8 +357,23 @@ namespace Avalonia.Lottie.Animation.Content
 
                 var j = new Rect(0, 0, drawingSession.Bitmap.Size.Width, drawingSession.Bitmap.Size.Height);
 
-                HackedSkiaDrawBitmap(CurrentDrawingContext, drawingSession.Bitmap.PlatformImpl, 1, j, j,
-                    BitmapInterpolationMode.Default, renderTargetSave.PaintXfermode);
+                BitmapBlendingMode blendingMode = BitmapBlendingMode.SourceOver;
+                
+                if (renderTargetSave.PaintXfermode != null)
+                    blendingMode = renderTargetSave.PaintXfermode.Mode switch
+                    {
+                        PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
+                        PorterDuff.Mode.DstOut => BitmapBlendingMode.DestinationOut,
+                        PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationOver,
+                        _ => blendingMode
+                    };
+
+                CurrentDrawingContext.PushBitmapBlendMode(blendingMode);
+                CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl, 1, j, j);
+                CurrentDrawingContext.PopBitmapBlendMode();
+                
+                drawingSession.Bitmap.Dispose();
+                drawingSession.DrawingContext.Dispose();
 
                 // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
                 //     new RawVector2(0, 0),
@@ -361,54 +411,10 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public void HackedSkiaDrawBitmap(IDrawingContextImpl ctx, IRef<IBitmapImpl> source, double opacity,
-            Rect sourceRect,
-            Rect destRect, BitmapInterpolationMode bitmapInterpolationMode, PorterDuffXfermode porterDuffXfermode)
-        {
-            // The mother of all Hacks
-            var assm = typeof(SkiaPlatform).Assembly;
-            var drawableBitmapImplType = assm.GetType("Avalonia.Skia.IDrawableBitmapImpl");
-            var drawingContextImplType = assm.GetType("Avalonia.Skia.DrawingContextImpl");
-            var castedDrawableBitmap = ReflCast(source.Item, drawableBitmapImplType);
-            var castedDrawingContextImpl = ReflCast(ctx, drawingContextImplType);
-            var hackedDrawMethod = drawableBitmapImplType?.GetMethod("Draw");
-            var hackedCurrentOpacityField = drawingContextImplType?.GetField("_currentOpacity", BindingFlags.NonPublic |
-                BindingFlags.Instance);
-            var curOpacity = (double) hackedCurrentOpacityField?.GetValue(castedDrawingContextImpl);
-            var s = sourceRect.ToSKRect();
-            var d = destRect.ToSKRect();
-
-            using (var paint =
-                new SKPaint
-                {
-                    Color = new SKColor(255, 255, 255, (byte) (255 * opacity * curOpacity))
-                })
-            {
-                paint.FilterQuality = bitmapInterpolationMode.ToSKFilterQuality();
-                if (porterDuffXfermode != null)
-                    switch (porterDuffXfermode.Mode)
-                    {
-                        case PorterDuff.Mode.SrcAtop:
-                            paint.BlendMode = SKBlendMode.SrcATop;
-                            break;
-                        case PorterDuff.Mode.DstOut:
-                            paint.BlendMode = SKBlendMode.DstOut;
-                            break;
-                        case PorterDuff.Mode.DstIn:
-                            paint.BlendMode = SKBlendMode.DstIn;
-                            break;
-                        case PorterDuff.Mode.Clear:
-                            paint.BlendMode = SKBlendMode.Clear;
-                            break;
-                    }
-
-                hackedDrawMethod?.Invoke(castedDrawableBitmap, new object[] {ctx, s, d, paint});
-            }
-        }
-
-
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
+           /////  Console.WriteLine("\t DrawBitmap");
+
             // UpdateDrawingSessionWithFlags(paint.Flags);
             // var curMatrix = GetCurrentTransform();
             // CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22,
@@ -430,6 +436,7 @@ namespace Avalonia.Lottie.Animation.Content
         public void Clear(Color color)
         {
             //   UpdateDrawingSessionWithFlags(0);
+           //  Console.WriteLine("\t Clear");
 
             CurrentDrawingContext.Clear(color);
 

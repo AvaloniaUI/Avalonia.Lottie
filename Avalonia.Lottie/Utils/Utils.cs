@@ -10,8 +10,8 @@ namespace Avalonia.Lottie.Utils
     public static class Utils
     {
         public const int SecondInNanos = 1000000000;
-        private static readonly Path _tempPath = new();
-        private static readonly Path _tempPath2 = new();
+        private static  Path _tempPath = new();
+        private static  Path _tempPath2 = new();
         private static Vector2[] _points = new Vector2[2];
         private static readonly float Sqrt2 = (float) Math.Sqrt(2);
         private static float _dpScale = -1;
@@ -81,6 +81,11 @@ namespace Avalonia.Lottie.Utils
             using (var pathMeasure = new PathMeasure(path))
             {
                 var length = pathMeasure.Length;
+                if (length > 0)
+                {
+                    
+                }
+                
                 if (startValue == 1f && endValue == 0f)
                 {
                     LottieLog.EndSection("applyTrimPathIfNeeded");
@@ -123,18 +128,18 @@ namespace Avalonia.Lottie.Utils
                 if (newStart >= newEnd) newStart -= length;
 
                 _tempPath.Reset();
-                pathMeasure.GetSegment(newStart, newEnd, _tempPath, true);
+                pathMeasure.GetSegment(newStart, newEnd,ref _tempPath, true);
 
                 if (newEnd > length)
                 {
                     _tempPath2.Reset();
-                    pathMeasure.GetSegment(0, newEnd % length, _tempPath2, true);
+                    pathMeasure.GetSegment(0, newEnd % length, ref _tempPath2, true);
                     _tempPath.AddPath(_tempPath2);
                 }
                 else if (newStart < 0)
                 {
                     _tempPath2.Reset();
-                    pathMeasure.GetSegment(length + newStart, length, _tempPath2, true);
+                    pathMeasure.GetSegment(length + newStart, length, ref _tempPath2, true);
                     _tempPath.AddPath(_tempPath2);
                 }
             }
