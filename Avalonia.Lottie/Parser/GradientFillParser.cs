@@ -14,7 +14,9 @@ namespace Avalonia.Lottie.Parser
             AnimatablePointValue startPoint = null;
             AnimatablePointValue endPoint = null;
             var fillType = PathFillType.EvenOdd;
-
+            AnimatableFloatValue highlightAngle = null;
+            AnimatableFloatValue highlightLength = null;
+           
             while (reader.HasNext())
                 switch (reader.NextName())
                 {
@@ -55,13 +57,19 @@ namespace Avalonia.Lottie.Parser
                     case "r":
                         fillType = reader.NextInt() == 1 ? PathFillType.Winding : PathFillType.EvenOdd;
                         break;
+                    case "h": 
+                        highlightLength = AnimatableValueParser.ParseFloat(reader, composition);
+                        break;
+                    case "a":
+                        highlightAngle = AnimatableValueParser.ParseFloat(reader, composition);
+                        break;
                     default:
                         reader.SkipValue();
                         break;
                 }
 
             return new GradientFill(
-                name, gradientType, fillType, color, opacity, startPoint, endPoint, null, null);
+                name, gradientType, fillType, color, opacity, startPoint, endPoint, highlightLength, highlightAngle);
         }
     }
 }

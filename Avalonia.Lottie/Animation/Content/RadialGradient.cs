@@ -19,13 +19,17 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly float _r;
         private readonly float _x0;
         private readonly float _y0;
-        private ImmutableRadialGradientBrush _canvasRadialGradientBrush;
+        private readonly float _fx;
+        private readonly float _fy;
+        private IBrush _canvasRadialGradientBrush;
 
-        public RadialGradient(float x0, float y0, float r, Color[] colors, float[] positions)
+        public RadialGradient(float x0, float y0, float fx, float fy, float r, Color[] colors, float[] positions)
         {
             _x0 = x0;
             _y0 = y0;
             _r = r;
+            _fx = fx;
+            _fy = fy;
             _canvasGradientStopCollection = new List<ImmutableGradientStop>();
             for (var i = 0; i < colors.Length; i++)
                 _canvasGradientStopCollection.Add(new ImmutableGradientStop(positions[i], colors[i]));
@@ -38,13 +42,18 @@ namespace Avalonia.Lottie.Animation.Content
 
         public override IBrush GetBrush(byte alpha)
         {
-            if (_canvasRadialGradientBrush == null)
-            {
-                var center = new Vector2(_x0, _y0);
-                center = LocalMatrix.Transform(center);
-                _canvasRadialGradientBrush = new ImmutableRadialGradientBrush(_canvasGradientStopCollection,
-                    alpha / 255f, center: new RelativePoint(center.X, center.Y, RelativeUnit.Absolute), radius: _r);
-            }
+            if (_canvasRadialGradientBrush is not null) return _canvasRadialGradientBrush;
+            
+            var center = new Vector2(_x0,_y0);
+            var focal = new Vector2(_fx, _fy);
+            
+            center = LocalMatrix.Transform(center);
+            focal = LocalMatrix.Transform(focal);
+            
+            _canvasRadialGradientBrush = new ImmutableRadialGradientBrush(
+                _canvasGradientStopCollection
+                , center: new RelativePoint(center.X, center.Y, RelativeUnit.Absolute)
+                , gradientOrigin: new RelativePoint(focal.X, focal.Y, RelativeUnit.Absolute));
 
             return _canvasRadialGradientBrush;
         }
