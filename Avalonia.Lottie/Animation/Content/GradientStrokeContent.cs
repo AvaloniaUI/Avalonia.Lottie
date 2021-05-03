@@ -94,8 +94,7 @@ namespace Avalonia.Lottie.Animation.Content
                 var y0 = (int) (_boundsRect.Top + _boundsRect.Height / 2 + startPoint.Value.Y);
                 var x1 = (int) (_boundsRect.Left + _boundsRect.Width / 2 + endPoint.Value.X);
                 var y1 = (int) (_boundsRect.Top + _boundsRect.Height / 2 + endPoint.Value.Y);
-                var r = (float) MathExt.Hypot(x1 - x0, y1 - y0);
-                gradient = new RadialGradient(x0, y0, 0, 0, r, colors, positions);
+                gradient = new RadialGradient(x0, y0, x1, y1, colors, positions);
                 _radialGradientCache.Add(gradientHash, gradient);
                 return gradient;
             }

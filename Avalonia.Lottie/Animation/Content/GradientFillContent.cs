@@ -47,7 +47,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly GradientType _type;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _highlightAngleAnimation;
-        private readonly IBaseKeyframeAnimation<float?,float?> _highlightLengthAnimation;
+        private readonly IBaseKeyframeAnimation<float?, float?> _highlightLengthAnimation;
 
         internal GradientFillContent(LottieDrawable lottieDrawable, BaseLayer layer, GradientFill fill)
         {
@@ -122,28 +122,11 @@ namespace Avalonia.Lottie.Animation.Content
                 var y0 = startPoint.Value.Y;
                 var x1 = endPoint.Value.X;
                 var y1 = endPoint.Value.Y;
-                var r = (float) MathExt.Hypot(x1 - x0, y1 - y0);
-                var ang = Math.Atan2(x1 - x0, y1 - y0);
+                
+                var ha = _highlightAngleAnimation.Value ?? 0;
+                var hl = _highlightLengthAnimation.Value ?? 0;
 
-                var ha = _highlightAngleAnimation.Value;
-                var hl = _highlightLengthAnimation.Value;
-                
-                
-                var percent = hl ?? 0;
-                
-                if (percent >= 1) {
-                    percent = 0.99f;
-                } else if (percent <= -1) {
-                    percent = -0.99f;
-                }
-                
-                var dist = r * percent;
-                
-                
-                var fx = (float)Math.Cos((double) (ang + ha)) * dist + x0;
-                var fy = (float)Math.Sin((double) (ang + ha)) * dist + y0;
-                
-                gradient = new RadialGradient(x0, y0,fx, fy, r, colors, positions);
+                gradient = new RadialGradient(x0, y0, x1, y1, colors, positions, ha, hl);
                 _radialGradientCache.Add(gradientHash, gradient);
                 return gradient;
             }
