@@ -1,7 +1,6 @@
 ﻿// using Avalonia.Lottie.Model;
 // using Avalonia.Lottie.Value;
 //
-//
 // using System;
 // using System.Collections.Generic;
 // using System.ComponentModel;
@@ -14,8 +13,7 @@
 // using Avalonia.Controls;
 // using Avalonia.Media;
 // using Avalonia.Media.Imaging;
-//
-// ..Controls;
+//  
 //
 // namespace Avalonia.Lottie
 // {
@@ -936,4 +934,4 @@
 //         }
 //     }
 // }
-
+//

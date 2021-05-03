@@ -9,8 +9,9 @@
         FontFamily="Segoe UI, SF Pro Display, Noto Sans, Cantarel"
         Title="Avalonia.Lottie.Sample">
 
-    <Panel Background="Black">
-
-        <ContentControl x:Name="Cont" />
+    <Panel Background="Gray">
+        <ContentControl x:Name="Cont" >
+             
+        </ContentControl>
     </Panel>
 </Window>
