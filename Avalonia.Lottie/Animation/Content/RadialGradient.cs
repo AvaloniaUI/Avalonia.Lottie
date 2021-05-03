@@ -59,7 +59,7 @@ namespace Avalonia.Lottie.Animation.Content
             var x1 = endPoint.X;
             var y1 = endPoint.Y;
             
-            var r = (float) Math.Sqrt(Math.Pow(x1 - x0, 2) +  Math.Pow(y1 - y0, 2));
+            var r = (float) Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1 - y0, 2));
             var ang = Math.Atan2(x1 - x0, y1 - y0);
 
             var percent = _hl;
@@ -78,6 +78,7 @@ namespace Avalonia.Lottie.Animation.Content
             
             _canvasRadialGradientBrush = new ImmutableRadialGradientBrush(
                 _canvasGradientStopCollection
+                , opacity: alpha / 255f
                 , center: new RelativePoint(x0, y0, RelativeUnit.Absolute)
                 , gradientOrigin: new RelativePoint(fx, fy, RelativeUnit.Absolute));
 
