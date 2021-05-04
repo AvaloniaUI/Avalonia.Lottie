@@ -3,8 +3,22 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0</TargetFrameworks>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Avalonia.Lottie</Product>
+    <Version>0.10.3</Version>
+    <Copyright>Copyright 2018 &#169; Ascora GmbH; Copyright 2021 &#169; The AvaloniaUI Project</Copyright>
+    <PackageProjectUrl>https://avaloniaui.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AvaloniaUI/Avalonia.Lottie/</RepositoryUrl>
+    <LangVersion>latest</LangVersion>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageDescription>Lottie/Bodymovin renderer and player for Avalonia UI Framework.</PackageDescription>
+    <PackageTags>avalonia;avaloniaui;lottie;bodymovin</PackageTags>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.999-cibuild0013382-beta" />
+    <PackageReference Include="Avalonia" Version="0.10.3" />
     <PackageReference Include="DotNetZip" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
   </ItemGroup>
