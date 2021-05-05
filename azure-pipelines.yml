@@ -11,7 +11,8 @@ steps:
     inputs:
       packagesToPack: '**/*Avalonia.Lottie.csproj'
       command: custom
-      custom: 'pack --version-suffix cibuild$(Build.BuildId)'
+      custom: 'pack'
+      arguments: 'Avalonia.Lottie/Avalonia.Lottie.csproj -c Release --version-suffix cibuild$(Build.BuildId)'
       outputDir: '$(Build.ArtifactStagingDirectory)/NuGet'
       verbosityPack: normal
   - task: PublishBuildArtifacts@1
