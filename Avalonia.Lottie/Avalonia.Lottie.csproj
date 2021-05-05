@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <Product>Avalonia.Lottie</Product>
-    <Version>0.10.3</Version>
+    <VersionPrefix>0.10.3</VersionPrefix>
     <Copyright>Copyright 2018 &#169; Ascora GmbH; Copyright 2021 &#169; The AvaloniaUI Project</Copyright>
     <PackageProjectUrl>https://avaloniaui.net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AvaloniaUI/Avalonia.Lottie/</RepositoryUrl>
