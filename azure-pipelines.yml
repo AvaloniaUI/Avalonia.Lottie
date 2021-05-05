@@ -7,9 +7,10 @@ steps:
       packageType: 'sdk'
       version: 5.0.x
   - task: DotNetCoreCLI@2
-    displayName: 'Pack Templates'
+    displayName: 'Pack NuGet'
     inputs:
       packagesToPack: '**/*Avalonia.Lottie.csproj'
+      command: custom
       custom: 'pack --version-suffix cibuild$(Build.BuildId)'
       outputDir: '$(Build.ArtifactStagingDirectory)/NuGet'
       verbosityPack: normal
