@@ -15,6 +15,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Metadata;
 using static Avalonia.Media.MediaExtensions;
 
 namespace Avalonia.Lottie
@@ -479,6 +480,16 @@ namespace Avalonia.Lottie
         {
             return _composition is null ? Size.Empty : Stretch.CalculateSize(finalSize, _composition.Bounds.Size);
         }
+
+        public static readonly StyledProperty<LottieCompositionSource> SourceProperty =
+            AvaloniaProperty.Register<Lottie, LottieCompositionSource>(nameof(Source));
+
+        [Content]
+        public LottieCompositionSource Source
+        {
+            get => GetValue(SourceProperty);
+            set => SetValue(SourceProperty, value);
+        }
         
         /// <summary>
         /// Defines the <see cref="Stretch"/> property.
@@ -512,6 +523,26 @@ namespace Avalonia.Lottie
                 nameof(StretchDirection),
                 StretchDirection.Both);
 
+
+        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
+        {
+            base.OnPropertyChanged(change);
+
+            if (change.Property == SourceProperty)
+            {
+                var newValue = change.NewValue.GetValueOrDefault<LottieCompositionSource>();
+
+                if (newValue is { } && newValue.Composition is { })
+                {
+                    SetComposition(newValue.Composition);
+                    Start();
+                }
+                else
+                {
+                    ClearComposition();
+                }
+            }
+        }
 
         public override void Render(DrawingContext renderCtx)
         {

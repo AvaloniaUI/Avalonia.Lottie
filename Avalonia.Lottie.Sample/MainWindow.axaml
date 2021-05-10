@@ -9,9 +9,9 @@
         FontFamily="Segoe UI, SF Pro Display, Noto Sans, Cantarel"
         Title="Avalonia.Lottie.Sample">
 
-    <Panel Background="Gray">
-        <ContentControl x:Name="Cont" >
-             
-        </ContentControl>
+    <Panel Background="#272931">
+        <Lottie
+          RepeatMode="Reverse" RepeatCount="-1"
+            Source="avares://Avalonia.Lottie.Sample/Assets/uk.json" />
     </Panel>
 </Window>

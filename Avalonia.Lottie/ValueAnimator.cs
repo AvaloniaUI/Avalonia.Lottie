@@ -16,6 +16,7 @@ namespace Avalonia.Lottie
         public abstract float FrameRate { get; set; }
 
         public int RepeatCount { get; set; }
+        
         public virtual RepeatMode RepeatMode { get; set; }
 
         public override bool IsRunning => _timer != null;

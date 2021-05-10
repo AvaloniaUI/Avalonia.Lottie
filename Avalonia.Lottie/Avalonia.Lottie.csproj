@@ -7,7 +7,7 @@
   <PropertyGroup>
     <Product>Avalonia.Lottie</Product>
     <VersionPrefix>0.10.3</VersionPrefix>
-    <Copyright>Copyright 2018 &#169; Ascora GmbH; Copyright 2021 &#169; The AvaloniaUI Project</Copyright>
+    <Copyright>Copyright 2018 © Ascora GmbH; Copyright 2021 © The AvaloniaUI Project</Copyright>
     <PackageProjectUrl>https://avaloniaui.net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AvaloniaUI/Avalonia.Lottie/</RepositoryUrl>
     <LangVersion>latest</LangVersion>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.3" />
+    <PackageReference Include="Avalonia" Version="0.10.4" />
     <PackageReference Include="DotNetZip" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
   </ItemGroup>
