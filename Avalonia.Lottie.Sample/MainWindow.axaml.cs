@@ -59,8 +59,7 @@ namespace Avalonia.Lottie.Sample
                 //_lottieDrawable.DirectScale = 0.25f;
                 _lottieDrawable.Start();
                 _lottieDrawable.RepeatCount = -1;
-              _lottieDrawable.Scale = 0.5f;
-            }
+             }
         }
     }
 }

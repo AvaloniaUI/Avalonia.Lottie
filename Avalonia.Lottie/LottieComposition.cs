@@ -42,6 +42,7 @@ namespace Avalonia.Lottie
 
         public virtual bool PerformanceTrackingEnabled
         {
+            get => _performanceTracker.Enabled;
             set => _performanceTracker.Enabled = value;
         }
 

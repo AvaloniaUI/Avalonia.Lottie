@@ -13,6 +13,9 @@ using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using static Avalonia.Media.MediaExtensions;
 
 namespace Avalonia.Lottie
 {
@@ -81,6 +84,10 @@ namespace Avalonia.Lottie
 
         public virtual bool PerformanceTrackingEnabled
         {
+            get
+            {
+                return _composition?.PerformanceTrackingEnabled ?? false;
+            }
             set
             {
                 _performanceTrackingEnabled = value;
@@ -93,8 +100,9 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Gets or sets the minimum frame that the animation will start from when playing or looping.
         /// </summary>
-        public float MinFrame
+        internal float MinFrame
         {
+            get => 0;
             set
             {
                 if (_composition == null)
@@ -106,14 +114,15 @@ namespace Avalonia.Lottie
                 _animator.MinFrame = value;
             }
 
-            get => _animator.MinFrame;
-        }
+         }
 
         /// <summary>
         ///     Sets the minimum progress that the animation will start from when playing or looping.
         /// </summary>
-        public float MinProgress
+        internal float MinProgress
         {
+            get => 0;
+
             set
             {
                 if (_composition == null)
@@ -129,8 +138,9 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Gets or sets the maximum frame that the animation will end at when playing or looping.
         /// </summary>
-        public float MaxFrame
-        {
+        internal float MaxFrame
+        {          
+ 
             set
             {
                 if (_composition == null)
@@ -148,8 +158,9 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Sets the maximum progress that the animation will end at when playing or looping.
         /// </summary>
-        public float MaxProgress
-        {
+        internal float MaxProgress
+        {            get => 0;
+
             set
             {
                 if (value < 0)
@@ -177,7 +188,7 @@ namespace Avalonia.Lottie
             get => _animator.Speed;
         }
 
-        public float Frame
+        internal float Frame
         {
             /**
             * Sets the progress to the specified frame.
@@ -257,6 +268,8 @@ namespace Avalonia.Lottie
         /// </summary>
         public virtual FontAssetDelegate FontAssetDelegate
         {
+            get => null;
+
             set
             {
                 _fontAssetDelegate = value;
@@ -280,8 +293,9 @@ namespace Avalonia.Lottie
         ///     You can also use a fixed view width/height in conjunction with the normal ImageView
         ///     scaleTypes centerCrop and centerInside.
         /// </summary>
-        public virtual float Scale
-        {
+        internal virtual float Scale
+        {           
+ 
             set
             {
                 _scale = value;
@@ -311,8 +325,9 @@ namespace Avalonia.Lottie
         ///     the documentation at http://airbnb.io/lottie for more information about importing shapes from
         ///     Sketch or Illustrator to avoid this.
         /// </summary>
-        public virtual IImageAssetDelegate ImageAssetDelegate
+        internal virtual IImageAssetDelegate ImageAssetDelegate
         {
+            get => null;
             set
             {
                 _imageAssetDelegate = value;
@@ -328,6 +343,7 @@ namespace Avalonia.Lottie
 
         private ImageAssetManager ImageAssetManager
         {
+             
             get
             {
                 if (_imageAssetManager != null)
@@ -348,8 +364,7 @@ namespace Avalonia.Lottie
             }
         }
 
-        private FontAssetManager FontAssetManager => _fontAssetManager ??
-                                                     (_fontAssetManager = new FontAssetManager(_fontAssetDelegate));
+        private FontAssetManager FontAssetManager => _fontAssetManager ??= new FontAssetManager(_fontAssetDelegate);
 
         public void Start()
         {
@@ -500,22 +515,72 @@ namespace Avalonia.Lottie
         {
             return _alpha;
         }
-
-        //public int Opacity
-        //{
-        //    get
-        //    {
-        //        return PixelFormat.TRANSLUCENT;
-        //    }
-        //}
-
+ 
+        
+        /// <summary>
+        /// Measures the control.
+        /// </summary>
+        /// <param name="availableSize">The available size.</param>
+        /// <returns>The desired size of the control.</returns>
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (_composition != null)
-                return new Size(_composition.Bounds.Width * _scale, _composition.Bounds.Height * _scale);
+             var result = new Size();
 
-            return base.MeasureOverride(availableSize);
+            if (_composition != null)
+            {
+                result = Stretch.CalculateSize(availableSize, _composition.Bounds.Size, StretchDirection);
+            }
+
+            return result;
         }
+
+        /// <inheritdoc/>
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+ 
+            if (_composition != null)
+            {
+                var sourceSize = _composition.Bounds.Size;
+                var result = Stretch.CalculateSize(finalSize, sourceSize);
+                return result;
+            }
+            else
+            {
+                return new Size();
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="Stretch"/> property.
+        /// </summary>
+        public static readonly StyledProperty<Stretch> StretchProperty =
+            AvaloniaProperty.Register<Image, Stretch>(nameof(Stretch), Stretch.Uniform);
+
+        /// <summary>
+        /// Gets or sets a value controlling how the image will be stretched.
+        /// </summary>
+        public Stretch Stretch
+        {
+            get { return GetValue(StretchProperty); }
+            set { SetValue(StretchProperty, value); }
+        }
+        /// <summary>
+        /// Gets or sets a value controlling in what direction the image will be stretched.
+        /// </summary>
+        public StretchDirection StretchDirection
+        {
+            get { return GetValue(StretchDirectionProperty); }
+            set { SetValue(StretchDirectionProperty, value); }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="StretchDirection"/> property.
+        /// </summary>
+        public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
+            AvaloniaProperty.Register<Image, StretchDirection>(
+                nameof(StretchDirection),
+                StretchDirection.Both);
+
 
         public override void Render(DrawingContext renderCtx)
         {
@@ -532,50 +597,29 @@ namespace Avalonia.Lottie
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
                     LottieLog.BeginSection("Drawable.Draw");
-                    if (_compositionLayer == null) return;
-
-                    var scale = _scale;
-                    var extraScale = 1f;
-
-                    var maxScale = GetMaxScale(_bitmapCanvas);
-                    if (scale > maxScale)
+  
+                    if (_compositionLayer != null && Bounds.Width > 0 && Bounds.Height > 0)
                     {
-                        scale = maxScale;
-                        extraScale = _scale / scale;
+                        _matrix.Reset();
+                         
+                        Rect viewPort = new Rect(Bounds.Size);
+                        Size sourceSize = _composition.Bounds.Size;
+                       
+                        Vector scale = Stretch.CalculateScaling (Bounds.Size, sourceSize, StretchDirection);
+                        Size scaledSize = sourceSize * scale;
+                        Rect destRect = viewPort
+                            .CenterRect(new Rect(scaledSize))
+                            .Intersect(viewPort);
+                        Rect sourceRect = new Rect(sourceSize)
+                            .CenterRect(new Rect(destRect.Size / scale));
+                        
+                        _compositionLayer.Draw(_bitmapCanvas, _matrix, _alpha);
                     }
-
-                    if (extraScale > 1)
-                    {
-                        // This is a bit tricky... 
-                        // We can't draw on a canvas larger than ViewConfiguration.get(context).getScaledMaximumDrawingCacheSize() 
-                        // which works out to be roughly the size of the screen because Android can't generate a 
-                        // bitmap large enough to render to. 
-                        // As a result, we cap the scale such that it will never be wider/taller than the screen 
-                        // and then only render in the top left corner of the canvas. We then use extraScale 
-                        // to scale up the rest of the scale. However, since we rendered the animation to the top 
-                        // left corner, we need to scale up and translate the canvas to zoom in on the top left 
-                        // corner. 
-                        _bitmapCanvas.Save();
-                        var halfWidth = (float) _composition.Bounds.Width / 2f;
-                        var halfHeight = (float) _composition.Bounds.Height / 2f;
-                        var scaledHalfWidth = halfWidth * scale;
-                        var scaledHalfHeight = halfHeight * scale;
-                        _bitmapCanvas.Translate(
-                            Scale * halfWidth - scaledHalfWidth,
-                            Scale * halfHeight - scaledHalfHeight);
-                        _bitmapCanvas.Scale(extraScale, extraScale, scaledHalfWidth, scaledHalfHeight);
-                    }
-                   //  Console.WriteLine("Frame Start");
-                    _matrix.Reset();
-                    _matrix = MatrixExt.PreScale(_matrix, scale, scale);
-                    _compositionLayer.Draw(_bitmapCanvas, _matrix, _alpha);
-                   //  Console.WriteLine("Frame End");
-
+                    
+                    
+                    
                     LottieLog.EndSection("Drawable.Draw");
-
-                    if (extraScale > 1)
-                        //_bitmapCanvas.Restore();
-                        _bitmapCanvas.RestoreAll();
+ 
                 }
 
 

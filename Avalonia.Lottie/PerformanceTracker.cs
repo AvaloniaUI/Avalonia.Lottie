@@ -14,6 +14,7 @@ namespace Avalonia.Lottie
 
         public virtual bool Enabled
         {
+            get => _enabled;
             set => _enabled = value;
         }
 
