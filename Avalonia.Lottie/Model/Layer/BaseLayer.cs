@@ -23,7 +23,7 @@ namespace Avalonia.Lottie.Model.Layer
 
         private readonly Path _path = new();
         private readonly Paint _subtractMaskPaint = new(Paint.AntiAliasFlag);
-        internal readonly LottieDrawable LottieDrawable;
+        internal readonly Lottie Lottie;
         internal readonly TransformKeyframeAnimation Transform;
         private Rect _maskBoundsRect;
         private Rect _matteBoundsRect;
@@ -38,9 +38,9 @@ namespace Avalonia.Lottie.Model.Layer
         internal Matrix3X3 Matrix = Matrix3X3.CreateIdentity();
         protected Rect Rect;
 
-        internal BaseLayer(LottieDrawable lottieDrawable, Layer layerModel)
+        internal BaseLayer(Lottie lottie, Layer layerModel)
         {
-            LottieDrawable = lottieDrawable;
+            Lottie = lottie;
             LayerModel = layerModel;
             _drawTraceName = layerModel.Name + ".Draw";
             _contentPaint.Alpha = 255;
@@ -228,7 +228,7 @@ namespace Avalonia.Lottie.Model.Layer
             Transform.ApplyValueCallback(property, callback);
         }
 
-        internal static BaseLayer ForModel(Layer layerModel, LottieDrawable drawable, LottieComposition composition)
+        internal static BaseLayer ForModel(Layer layerModel, Lottie drawable, LottieComposition composition)
         {
             switch (layerModel.GetLayerType())
             {
@@ -281,7 +281,7 @@ namespace Avalonia.Lottie.Model.Layer
 
         private void InvalidateSelf()
         {
-            LottieDrawable.InvalidateSelf();
+            Lottie.InvalidateSelf();
         }
 
         internal void AddAnimation(IBaseKeyframeAnimation newAnimation)
@@ -291,7 +291,7 @@ namespace Avalonia.Lottie.Model.Layer
 
         private void RecordRenderTime(float ms)
         {
-            LottieDrawable.Composition.PerformanceTracker.RecordRenderTime(LayerModel.Name, ms);
+            Lottie.Composition.PerformanceTracker.RecordRenderTime(LayerModel.Name, ms);
         }
 
         private void ClearCanvas(BitmapCanvas canvas)

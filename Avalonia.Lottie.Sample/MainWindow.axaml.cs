@@ -8,7 +8,7 @@ namespace Avalonia.Lottie.Sample
 {
     public class MainWindow : Window
     {
-        private LottieDrawable _lottieDrawable;
+        private Lottie _lottie;
 
         public MainWindow()
         {
@@ -34,8 +34,8 @@ namespace Avalonia.Lottie.Sample
 
         private async void DoLoadDrawable(ContentControl contentControl)
         {
-            _lottieDrawable = new LottieDrawable();
-            contentControl.Content = _lottieDrawable;
+            _lottie = new Lottie();
+            contentControl.Content = _lottie;
             // var xurl =
             //     "https://raw.githubusercontent.com/wintb/lottie-example/master/LottieSample/src/androidTest/assets/LightBulb.json";
             // string s;
@@ -45,21 +45,21 @@ namespace Avalonia.Lottie.Sample
             // }
 
 
-             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-           var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/day_night_cycle.json"));
-          // var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/42495-payment-security.json"));
+            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+            var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/day_night_cycle.json"));
+            // var getstr = assets.Open(new Uri("avares://Avalonia.Lottie.Sample/Assets/42495-payment-security.json"));
 
-             var a = await new StreamReader(getstr).ReadToEndAsync();
+            var a = await new StreamReader(getstr).ReadToEndAsync();
 
-             var res = await LottieCompositionFactory.FromJsonString(a, "asd");
+            var res = await LottieCompositionFactory.FromJsonString(a, "asd");
             if (res is not null)
             {
                 LottieLog.TraceEnabled = true;
-                _lottieDrawable.SetComposition(res.Value);
+                _lottie.SetComposition(res.Value);
                 //_lottieDrawable.DirectScale = 0.25f;
-                _lottieDrawable.Start();
-                _lottieDrawable.RepeatCount = -1;
-             }
+                _lottie.Start();
+                _lottie.RepeatCount = -1;
+            }
         }
     }
 }

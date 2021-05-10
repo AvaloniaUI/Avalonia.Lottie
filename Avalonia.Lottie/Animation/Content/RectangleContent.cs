@@ -25,7 +25,7 @@ namespace Avalonia.Lottie.Animation.Content
     {
         private readonly IBaseKeyframeAnimation<float?, float?> _cornerRadiusAnimation;
 
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly Path _path = new();
         private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
         private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _sizeAnimation;
@@ -34,10 +34,10 @@ namespace Avalonia.Lottie.Animation.Content
 
         private TrimPathContent _trimPath;
 
-        internal RectangleContent(LottieDrawable lottieDrawable, BaseLayer layer, RectangleShape rectShape)
+        internal RectangleContent(Lottie lottie, BaseLayer layer, RectangleShape rectShape)
         {
             Name = rectShape.Name;
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _positionAnimation = rectShape.Position.CreateAnimation();
             _sizeAnimation = rectShape.Size.CreateAnimation();
             _cornerRadiusAnimation = rectShape.CornerRadius.CreateAnimation();
@@ -168,7 +168,7 @@ namespace Avalonia.Lottie.Animation.Content
         private void Invalidate()
         {
             _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
     }
 }

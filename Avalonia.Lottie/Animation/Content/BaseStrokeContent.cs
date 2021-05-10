@@ -17,7 +17,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly IBaseKeyframeAnimation<float?, float?> _dashPatternOffsetAnimation;
         private readonly float[] _dashPatternValues;
         private readonly BaseLayer _layer;
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
         private readonly Path _path = new();
         private readonly List<PathGroup> _pathGroups = new();
@@ -28,11 +28,11 @@ namespace Avalonia.Lottie.Animation.Content
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
         private Rect _rect;
 
-        internal BaseStrokeContent(LottieDrawable lottieDrawable, BaseLayer layer, PenLineCap cap, PenLineJoin join,
+        internal BaseStrokeContent(Lottie lottie, BaseLayer layer, PenLineCap cap, PenLineJoin join,
             float miterLimit, AnimatableIntegerValue opacity, AnimatableFloatValue width,
             List<AnimatableFloatValue> dashPattern, AnimatableFloatValue offset)
         {
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _layer = layer;
 
             Paint.Style = Paint.PaintStyle.Stroke;
@@ -196,7 +196,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public virtual void OnValueChanged(object sender, EventArgs eventArgs)
         {
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
 
         private void ApplyTrimPath(BitmapCanvas canvas, PathGroup pathGroup, Matrix3X3 parentMatrix)

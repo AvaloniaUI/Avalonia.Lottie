@@ -23,7 +23,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual AnimatableTransform Transform { get; }
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new RepeaterContent(drawable, layer, this);
         }

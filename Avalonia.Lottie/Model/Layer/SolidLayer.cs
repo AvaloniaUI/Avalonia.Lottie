@@ -12,7 +12,7 @@ namespace Avalonia.Lottie.Model.Layer
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
         private Vector2[] _points = new Vector2[4];
 
-        internal SolidLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
+        internal SolidLayer(Lottie lottie, Layer layerModel) : base(lottie, layerModel)
         {
             LayerModel = layerModel;
 

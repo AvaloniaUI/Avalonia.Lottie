@@ -19,7 +19,7 @@ namespace Avalonia.Lottie.Model.Content
 
         public virtual List<IContentModel> Items => _items;
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new ContentGroup(drawable, layer, this);
         }

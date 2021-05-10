@@ -15,8 +15,8 @@ namespace Avalonia.Lottie.Model.Layer
         private Rect _newClipRect;
         private IBaseKeyframeAnimation<float?, float?> _timeRemapping;
 
-        internal CompositionLayer(LottieDrawable lottieDrawable, Layer layerModel, List<Layer> layerModels,
-            LottieComposition composition) : base(lottieDrawable, layerModel)
+        internal CompositionLayer(Lottie lottie, Layer layerModel, List<Layer> layerModels,
+            LottieComposition composition) : base(lottie, layerModel)
         {
             var timeRemapping = layerModel.TimeRemapping;
             if (timeRemapping != null)
@@ -36,7 +36,7 @@ namespace Avalonia.Lottie.Model.Layer
             for (var i = layerModels.Count - 1; i >= 0; i--)
             {
                 var lm = layerModels[i];
-                var layer = ForModel(lm, lottieDrawable, composition);
+                var layer = ForModel(lm, lottie, composition);
                 if (layer == null) continue;
                 layerMap[layer.LayerModel.Id] = layer;
                 if (mattedLayer != null)
@@ -77,7 +77,7 @@ namespace Avalonia.Lottie.Model.Layer
 
                 if (_timeRemapping?.Value != null)
                 {
-                    var duration = LottieDrawable.Composition.Duration;
+                    var duration = Lottie.Composition.Duration;
                     var remappedTime = (long) (_timeRemapping.Value.Value * 1000);
                     value = remappedTime / duration;
                 }

@@ -10,7 +10,7 @@ namespace Avalonia.Lottie
     public class TextDelegate
     {
         // private readonly LottieAnimationView _animationView;
-        private readonly LottieDrawable _drawable;
+        private readonly Lottie _drawable;
         private readonly Dictionary<string, string> _stringMap = new();
         private bool _cacheText = true;
 
@@ -29,7 +29,7 @@ namespace Avalonia.Lottie
         //     _drawable = null;
         // }
 
-        public TextDelegate(LottieDrawable drawable)
+        public TextDelegate(Lottie drawable)
         {
             _drawable = drawable;
             // _animationView = null;

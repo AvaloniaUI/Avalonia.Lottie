@@ -14,16 +14,16 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly IBaseKeyframeAnimation<float?, float?> _copies;
         private readonly BaseLayer _layer;
 
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<float?, float?> _offset;
         private readonly Path _path = new();
         private readonly TransformKeyframeAnimation _transform;
         private ContentGroup _contentGroup;
         private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
 
-        internal RepeaterContent(LottieDrawable lottieDrawable, BaseLayer layer, Repeater repeater)
+        internal RepeaterContent(Lottie lottie, BaseLayer layer, Repeater repeater)
         {
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _layer = layer;
             Name = repeater.Name;
             _copies = repeater.Copies.CreateAnimation();
@@ -100,7 +100,7 @@ namespace Avalonia.Lottie.Animation.Content
             }
 
             contents.Reverse();
-            _contentGroup = new ContentGroup(_lottieDrawable, _layer, "Repeater", contents, null);
+            _contentGroup = new ContentGroup(_lottie, _layer, "Repeater", contents, null);
         }
 
         public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)
@@ -138,7 +138,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void OnValueChanged(object sender, EventArgs e)
         {
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
     }
 }

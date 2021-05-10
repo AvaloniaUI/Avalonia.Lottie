@@ -34,14 +34,14 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly GradientType _type;
         private Rect _boundsRect;
 
-        internal GradientStrokeContent(LottieDrawable lottieDrawable, BaseLayer layer, GradientStroke stroke)
-            : base(lottieDrawable, layer, ShapeStroke.LineCapTypeToPaintCap(stroke.CapType),
+        internal GradientStrokeContent(Lottie lottie, BaseLayer layer, GradientStroke stroke)
+            : base(lottie, layer, ShapeStroke.LineCapTypeToPaintCap(stroke.CapType),
                 ShapeStroke.LineJoinTypeToPaintLineJoin(stroke.JoinType), stroke.MiterLimit, stroke.Opacity,
                 stroke.Width, stroke.LineDashPattern, stroke.DashOffset)
         {
             Name = stroke.Name;
             _type = stroke.GradientType;
-            _cacheSteps = (int) (lottieDrawable.Composition.Duration / CacheStepsMs);
+            _cacheSteps = (int) (lottie.Composition.Duration / CacheStepsMs);
 
             _colorAnimation = stroke.GradientColor.CreateAnimation();
             _colorAnimation.ValueChanged += OnValueChanged;

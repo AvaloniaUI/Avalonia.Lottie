@@ -33,7 +33,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly BaseLayer _layer;
         private readonly Dictionary<long, LinearGradient> _linearGradientCache = new();
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
         private readonly Paint _paint = new(Paint.AntiAliasFlag);
 
@@ -49,14 +49,14 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly IBaseKeyframeAnimation<float?, float?> _highlightAngleAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _highlightLengthAnimation;
 
-        internal GradientFillContent(LottieDrawable lottieDrawable, BaseLayer layer, GradientFill fill)
+        internal GradientFillContent(Lottie lottie, BaseLayer layer, GradientFill fill)
         {
             _layer = layer;
             Name = fill.Name;
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _type = fill.GradientType;
             _path.FillType = fill.FillType;
-            _cacheSteps = (int) (lottieDrawable.Composition.Duration / CacheStepsMs);
+            _cacheSteps = (int) (lottie.Composition.Duration / CacheStepsMs);
 
             _colorAnimation = fill.GradientColor.CreateAnimation();
             _colorAnimation.ValueChanged += OnValueChanged;
@@ -222,7 +222,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void OnValueChanged(object sender, EventArgs eventArgs)
         {
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
     }
 }

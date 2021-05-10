@@ -13,7 +13,7 @@ namespace Avalonia.Lottie
     ///     animation will be created.
     ///     To create one, use <see cref="LottieCompositionFactory" />.
     ///     It can be used with a <seealso cref="LottieAnimationView" /> or
-    ///     <seealso cref="LottieDrawable" />.
+    ///     <seealso cref="Lottie" />.
     /// </summary>
     public class LottieComposition : IDisposable
     {

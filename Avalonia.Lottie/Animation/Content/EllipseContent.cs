@@ -25,7 +25,7 @@ namespace Avalonia.Lottie.Animation.Content
         private const float EllipseControlPointPercentage = 0.55228f;
         private readonly CircleShape _circleShape;
 
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
 
         private readonly Path _path = new();
         private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
@@ -34,10 +34,10 @@ namespace Avalonia.Lottie.Animation.Content
 
         private TrimPathContent _trimPath;
 
-        internal EllipseContent(LottieDrawable lottieDrawable, BaseLayer layer, CircleShape circleShape)
+        internal EllipseContent(Lottie lottie, BaseLayer layer, CircleShape circleShape)
         {
             Name = circleShape.Name;
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _sizeAnimation = circleShape.Size.CreateAnimation();
             _positionAnimation = circleShape.Position.CreateAnimation();
             _circleShape = circleShape;
@@ -130,7 +130,7 @@ namespace Avalonia.Lottie.Animation.Content
         private void Invalidate()
         {
             _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
     }
 }

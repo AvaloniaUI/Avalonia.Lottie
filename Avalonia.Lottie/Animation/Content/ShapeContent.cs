@@ -8,17 +8,17 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class ShapeContent : IPathContent
     {
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly Path _path = new();
         private readonly IBaseKeyframeAnimation<ShapeData, Path> _shapeAnimation;
 
         private bool _isPathValid;
         private TrimPathContent _trimPath;
 
-        internal ShapeContent(LottieDrawable lottieDrawable, BaseLayer layer, ShapePath shape)
+        internal ShapeContent(Lottie lottie, BaseLayer layer, ShapePath shape)
         {
             Name = shape.Name;
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _shapeAnimation = shape.GetShapePath().CreateAnimation();
             layer.AddAnimation(_shapeAnimation);
             _shapeAnimation.ValueChanged += OnValueChanged;
@@ -64,7 +64,7 @@ namespace Avalonia.Lottie.Animation.Content
         private void Invalidate()
         {
             _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
     }
 }

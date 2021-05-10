@@ -27,7 +27,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual IAnimatableValue<Vector2?, Vector2?> Position => _position;
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new RectangleContent(drawable, layer, this);
         }

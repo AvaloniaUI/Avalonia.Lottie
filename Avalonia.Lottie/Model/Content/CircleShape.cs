@@ -24,7 +24,7 @@ namespace Avalonia.Lottie.Model.Content
 
         public bool IsReversed { get; }
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new EllipseContent(drawable, layer, this);
         }

@@ -30,7 +30,7 @@ namespace Avalonia.Lottie.Model.Layer
             Style = Paint.PaintStyle.Fill
         };
 
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<Color?, Color?> _strokeColorAnimation;
 
         private readonly Paint _strokePaint = new(Paint.AntiAliasFlag)
@@ -42,9 +42,9 @@ namespace Avalonia.Lottie.Model.Layer
         private readonly TextKeyframeAnimation _textAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _trackingAnimation;
 
-        internal TextLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
+        internal TextLayer(Lottie lottie, Layer layerModel) : base(lottie, layerModel)
         {
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             _composition = layerModel.Composition;
             _textAnimation = (TextKeyframeAnimation) layerModel.Text.CreateAnimation();
             _textAnimation.ValueChanged += OnValueChanged;
@@ -83,7 +83,7 @@ namespace Avalonia.Lottie.Model.Layer
         public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
         {
             canvas.Save();
-            if (!_lottieDrawable.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
+            if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
             var documentData = _textAnimation.Value;
             if (!_composition.Fonts.TryGetValue(documentData.FontName, out var font))
             {
@@ -109,7 +109,7 @@ namespace Avalonia.Lottie.Model.Layer
                 _strokePaint.StrokeWidth = documentData.StrokeWidth * Utils.Utils.DpScale() * parentScale;
             }
 
-            if (_lottieDrawable.UseTextGlyphs())
+            if (_lottie.UseTextGlyphs())
                 DrawTextGlyphs(documentData, parentMatrix, font, canvas);
             else
                 DrawTextWithFont(documentData, font, parentMatrix, canvas);
@@ -143,10 +143,10 @@ namespace Avalonia.Lottie.Model.Layer
         private void DrawTextWithFont(DocumentData documentData, Font font, Matrix3X3 parentMatrix, BitmapCanvas canvas)
         {
             var parentScale = Utils.Utils.GetScale(parentMatrix);
-            var typeface = _lottieDrawable.GetTypeface(font.Family, font.Style);
+            var typeface = _lottie.GetTypeface(font.Family, font.Style);
             if (typeface == null) return;
             var text = documentData.Text;
-            var textDelegate = _lottieDrawable.TextDelegate;
+            var textDelegate = _lottie.TextDelegate;
             if (textDelegate != null) text = textDelegate.GetTextInternal(text);
             _fillPaint.Typeface = typeface;
             _fillPaint.TextSize = (float) documentData.Size * Utils.Utils.DpScale();
@@ -226,7 +226,7 @@ namespace Avalonia.Lottie.Model.Layer
             for (var i = 0; i < size; i++)
             {
                 var sg = shapes[i];
-                contents.Add(new ContentGroup(_lottieDrawable, this, sg));
+                contents.Add(new ContentGroup(_lottie, this, sg));
             }
 
             _contentsForCharacter[character] = contents;

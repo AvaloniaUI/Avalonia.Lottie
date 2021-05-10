@@ -34,7 +34,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly IBaseKeyframeAnimation<float?, float?> _innerRadiusAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _innerRoundednessAnimation;
 
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<float?, float?> _outerRadiusAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _outerRoundednessAnimation;
         private readonly Path _path = new();
@@ -46,9 +46,9 @@ namespace Avalonia.Lottie.Animation.Content
 
         private TrimPathContent _trimPath;
 
-        internal PolystarContent(LottieDrawable lottieDrawable, BaseLayer layer, PolystarShape polystarShape)
+        internal PolystarContent(Lottie lottie, BaseLayer layer, PolystarShape polystarShape)
         {
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
 
             Name = polystarShape.Name;
             _type = polystarShape.GetType();
@@ -162,7 +162,7 @@ namespace Avalonia.Lottie.Animation.Content
         private void Invalidate()
         {
             _isPathValid = false;
-            _lottieDrawable.InvalidateSelf();
+            _lottie.InvalidateSelf();
         }
 
         private void CreateStarPath()

@@ -19,7 +19,7 @@ namespace Avalonia.Lottie.Model.Content
 
         public virtual string Name => _name;
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new ShapeContent(drawable, layer, this);
         }

@@ -48,7 +48,7 @@ namespace Avalonia.Lottie.Model.Animatable
         internal virtual AnimatableFloatValue StartOpacity { get; }
         internal virtual AnimatableFloatValue EndOpacity { get; }
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return null;
         }

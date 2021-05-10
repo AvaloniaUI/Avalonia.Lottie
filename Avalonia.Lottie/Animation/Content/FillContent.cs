@@ -13,18 +13,18 @@ namespace Avalonia.Lottie.Animation.Content
     {
         private readonly IBaseKeyframeAnimation<Color?, Color?> _colorAnimation;
         private readonly BaseLayer _layer;
-        private readonly LottieDrawable _lottieDrawable;
+        private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
         private readonly Paint _paint = new(Paint.AntiAliasFlag);
         private readonly Path _path = new();
         private readonly List<IPathContent> _paths = new();
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
 
-        internal FillContent(LottieDrawable lottieDrawable, BaseLayer layer, ShapeFill fill)
+        internal FillContent(Lottie lottie, BaseLayer layer, ShapeFill fill)
         {
             _layer = layer;
             Name = fill.Name;
-            _lottieDrawable = lottieDrawable;
+            _lottie = lottie;
             if (fill.Color == null || fill.Opacity == null)
             {
                 _colorAnimation = null;
@@ -35,10 +35,10 @@ namespace Avalonia.Lottie.Animation.Content
             _path.FillType = fill.FillType;
 
             _colorAnimation = fill.Color.CreateAnimation();
-            _colorAnimation.ValueChanged += (sender, args) => { _lottieDrawable.InvalidateSelf(); };
+            _colorAnimation.ValueChanged += (sender, args) => { _lottie.InvalidateSelf(); };
             layer.AddAnimation(_colorAnimation);
             _opacityAnimation = fill.Opacity.CreateAnimation();
-            _opacityAnimation.ValueChanged += (sender, args) => { _lottieDrawable.InvalidateSelf(); };
+            _opacityAnimation.ValueChanged += (sender, args) => { _lottie.InvalidateSelf(); };
             layer.AddAnimation(_opacityAnimation);
         }
 
@@ -106,7 +106,7 @@ namespace Avalonia.Lottie.Animation.Content
                     _colorFilterAnimation =
                         new ValueCallbackKeyframeAnimation<ColorFilter, ColorFilter>(
                             (ILottieValueCallback<ColorFilter>) callback);
-                    _colorFilterAnimation.ValueChanged += (sender, args) => { _lottieDrawable.InvalidateSelf(); };
+                    _colorFilterAnimation.ValueChanged += (sender, args) => { _lottie.InvalidateSelf(); };
                     _layer.AddAnimation(_colorFilterAnimation);
                 }
             }

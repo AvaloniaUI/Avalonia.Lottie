@@ -8,11 +8,11 @@ namespace Avalonia.Lottie.Model.Layer
     {
         private readonly ContentGroup _contentGroup;
 
-        internal ShapeLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
+        internal ShapeLayer(Lottie lottie, Layer layerModel) : base(lottie, layerModel)
         {
             // Naming this __container allows it to be ignored in KeyPath matching. 
             var shapeGroup = new ShapeGroup("__container", layerModel.Shapes);
-            _contentGroup = new ContentGroup(lottieDrawable, this, shapeGroup);
+            _contentGroup = new ContentGroup(lottie, this, shapeGroup);
             _contentGroup.SetContents(new List<IContent>(), new List<IContent>());
         }
 

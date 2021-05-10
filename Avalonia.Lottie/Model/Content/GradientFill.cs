@@ -39,7 +39,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual AnimatableFloatValue HighlightAngle { get; }
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new GradientFillContent(drawable, layer, this);
         }

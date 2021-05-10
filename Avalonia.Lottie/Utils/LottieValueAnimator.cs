@@ -172,7 +172,7 @@ namespace Avalonia.Lottie.Utils
             OnAnimationUpdate();
             if (ended)
             {
-                if (RepeatCount != LottieDrawable.Infinite && _repeatCount >= RepeatCount)
+                if (RepeatCount != Lottie.Infinite && _repeatCount >= RepeatCount)
                 {
                     _frame = MaxFrame;
                     RemoveFrameCallback();

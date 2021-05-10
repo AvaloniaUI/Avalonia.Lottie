@@ -4,7 +4,7 @@ namespace Avalonia.Lottie.Model.Layer
 {
     internal class NullLayer : BaseLayer
     {
-        internal NullLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
+        internal NullLayer(Lottie lottie, Layer layerModel) : base(lottie, layerModel)
         {
         }
 

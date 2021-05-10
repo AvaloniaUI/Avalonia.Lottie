@@ -20,14 +20,14 @@ namespace Avalonia.Lottie.Animation.Content
         private List<IPathContent> _pathContents;
         private Rect _rect;
 
-        internal ContentGroup(LottieDrawable lottieDrawable, BaseLayer layer, ShapeGroup shapeGroup)
-            : this(lottieDrawable, layer, shapeGroup.Name,
-                ContentsFromModels(lottieDrawable, layer, shapeGroup.Items),
+        internal ContentGroup(Lottie lottie, BaseLayer layer, ShapeGroup shapeGroup)
+            : this(lottie, layer, shapeGroup.Name,
+                ContentsFromModels(lottie, layer, shapeGroup.Items),
                 FindTransform(shapeGroup.Items))
         {
         }
 
-        internal ContentGroup(LottieDrawable lottieDrawable, BaseLayer layer, string name, List<IContent> contents,
+        internal ContentGroup(Lottie lottie, BaseLayer layer, string name, List<IContent> contents,
             AnimatableTransform transform)
         {
             Name = name;
@@ -38,7 +38,7 @@ namespace Avalonia.Lottie.Animation.Content
                 _transformAnimation = transform.CreateAnimation();
 
                 _transformAnimation.AddAnimationsToLayer(layer);
-                _transformAnimation.ValueChanged += (sender, args) => { lottieDrawable.InvalidateSelf(); };
+                _transformAnimation.ValueChanged += (sender, args) => { lottie.InvalidateSelf(); };
             }
 
             var greedyContents = new List<IGreedyContent>();
@@ -177,7 +177,7 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        private static List<IContent> ContentsFromModels(LottieDrawable drawable, BaseLayer layer,
+        private static List<IContent> ContentsFromModels(Lottie drawable, BaseLayer layer,
             List<IContentModel> contentModels)
         {
             var contents = new List<IContent>(contentModels.Count);

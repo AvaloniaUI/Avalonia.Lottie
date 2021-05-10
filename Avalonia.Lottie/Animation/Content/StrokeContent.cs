@@ -13,8 +13,8 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly BaseLayer _layer;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
 
-        internal StrokeContent(LottieDrawable lottieDrawable, BaseLayer layer, ShapeStroke stroke)
-            : base(lottieDrawable, layer, ShapeStroke.LineCapTypeToPaintCap(stroke.CapType),
+        internal StrokeContent(Lottie lottie, BaseLayer layer, ShapeStroke stroke)
+            : base(lottie, layer, ShapeStroke.LineCapTypeToPaintCap(stroke.CapType),
                 ShapeStroke.LineJoinTypeToPaintLineJoin(stroke.JoinType), stroke.MiterLimit, stroke.Opacity,
                 stroke.Width, stroke.LineDashPattern, stroke.DashOffset)
         {

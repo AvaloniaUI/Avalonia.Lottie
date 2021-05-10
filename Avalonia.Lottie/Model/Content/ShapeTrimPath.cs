@@ -36,7 +36,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual AnimatableFloatValue Offset => _offset;
 
-        public IContent ToContent(LottieDrawable drawable, BaseLayer layer)
+        public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
             return new TrimPathContent(layer, this);
         }

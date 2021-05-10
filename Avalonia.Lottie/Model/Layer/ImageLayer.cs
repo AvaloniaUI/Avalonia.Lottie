@@ -13,7 +13,7 @@ namespace Avalonia.Lottie.Model.Layer
         private Rect _dst;
         private Rect _src;
 
-        internal ImageLayer(LottieDrawable lottieDrawable, Layer layerModel) : base(lottieDrawable, layerModel)
+        internal ImageLayer(Lottie lottie, Layer layerModel) : base(lottie, layerModel)
         {
         }
 
@@ -26,7 +26,7 @@ namespace Avalonia.Lottie.Model.Layer
             get
             {
                 var refId = LayerModel.RefId;
-                return LottieDrawable.GetImageAsset(refId);
+                return Lottie.GetImageAsset(refId);
             }
         }
 

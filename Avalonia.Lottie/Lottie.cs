@@ -29,7 +29,7 @@ namespace Avalonia.Lottie
     ///         of compositions.
     ///     </para>
     /// </summary>
-    public class LottieDrawable : Control, IAnimatable
+    public class Lottie : Control, IAnimatable
     {
         /// <summary>
         ///     This value used used with the <see cref="RepeatCount" /> property to repeat
@@ -51,12 +51,11 @@ namespace Avalonia.Lottie
         private bool _forceSoftwareRenderer;
         private IImageAssetDelegate _imageAssetDelegate;
         private ImageAssetManager _imageAssetManager;
-        private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
         private bool _performanceTrackingEnabled;
         private float _scale = 1f;
         private TextDelegate _textDelegate;
 
-        public LottieDrawable()
+        public Lottie()
         {
             _animator.Update += (sender, e) =>
             {
@@ -72,7 +71,7 @@ namespace Avalonia.Lottie
         ///     `setImageAssetsFolder("airbnb_loader/");`.
         ///     If you use LottieDrawable directly, you MUST call <seealso cref="RecycleBitmaps()" /> when you
         ///     are done. Calling <seealso cref="RecycleBitmaps()" /> doesn't have to be final and
-        ///     <seealso cref="LottieDrawable" />
+        ///     <seealso cref="Lottie" />
         ///     will recreate the bitmaps if needed but they will leak if you don't recycle them.
         ///     Be wary if you are using many images, however. Lottie is designed to work with vector shapes
         ///     from After Effects. If your images look like they could be represented with vector shapes,
@@ -84,10 +83,7 @@ namespace Avalonia.Lottie
 
         public virtual bool PerformanceTrackingEnabled
         {
-            get
-            {
-                return _composition?.PerformanceTrackingEnabled ?? false;
-            }
+            get { return _composition?.PerformanceTrackingEnabled ?? false; }
             set
             {
                 _performanceTrackingEnabled = value;
@@ -113,8 +109,7 @@ namespace Avalonia.Lottie
 
                 _animator.MinFrame = value;
             }
-
-         }
+        }
 
         /// <summary>
         ///     Sets the minimum progress that the animation will start from when playing or looping.
@@ -139,8 +134,7 @@ namespace Avalonia.Lottie
         ///     Gets or sets the maximum frame that the animation will end at when playing or looping.
         /// </summary>
         internal float MaxFrame
-        {          
- 
+        {
             set
             {
                 if (_composition == null)
@@ -159,7 +153,8 @@ namespace Avalonia.Lottie
         ///     Sets the maximum progress that the animation will end at when playing or looping.
         /// </summary>
         internal float MaxProgress
-        {            get => 0;
+        {
+            get => 0;
 
             set
             {
@@ -283,37 +278,6 @@ namespace Avalonia.Lottie
             get => _textDelegate;
         }
 
-        /// <summary>
-        ///     Set the scale on the current composition. The only cost of this function is re-rendering the
-        ///     current frame so you may call it frequent to scale something up or down.
-        ///     The smaller the animation is, the better the performance will be. You may find that scaling an
-        ///     animation down then rendering it in a larger ImageView and letting ImageView scale it back up
-        ///     with a scaleType such as centerInside will yield better performance with little perceivable
-        ///     quality loss.
-        ///     You can also use a fixed view width/height in conjunction with the normal ImageView
-        ///     scaleTypes centerCrop and centerInside.
-        /// </summary>
-        internal virtual float Scale
-        {           
- 
-            set
-            {
-                _scale = value;
-                lock (this)
-                {
-                    UpdateBounds();
-                    InvalidateMeasure();
-                    InvalidateSelf();
-                }
-            }
-            get => _scale;
-        }
-
-        //protected override Size MeasureOverride(Size availableSize)
-        //{
-        //    InvalidateSelf();
-        //    return base.MeasureOverride(availableSize);
-        //}
 
         /// <summary>
         ///     Use this if you can't bundle images with your app. This may be useful if you download the
@@ -336,14 +300,9 @@ namespace Avalonia.Lottie
         }
 
         public virtual LottieComposition Composition => _composition;
-
-        public int IntrinsicWidth => _composition == null ? -1 : (int) (_composition.Bounds.Width * _scale);
-
-        public int IntrinsicHeight => _composition == null ? -1 : (int) (_composition.Bounds.Height * _scale);
-
+ 
         private ImageAssetManager ImageAssetManager
         {
-             
             get
             {
                 if (_imageAssetManager != null)
@@ -427,8 +386,8 @@ namespace Avalonia.Lottie
         }
 
         /// <summary>
-        ///     If you have image assets and use <seealso cref="LottieDrawable" /> directly, you must call this yourself.
-        ///     Calling recycleBitmaps() doesn't have to be final and <seealso cref="LottieDrawable" />
+        ///     If you have image assets and use <seealso cref="Lottie" /> directly, you must call this yourself.
+        ///     Calling recycleBitmaps() doesn't have to be final and <seealso cref="Lottie" />
         ///     will recreate the bitmaps if needed but they will leak if you don't recycle them.
         /// </summary>
         public virtual void RecycleBitmaps()
@@ -457,7 +416,6 @@ namespace Avalonia.Lottie
                 BuildCompositionLayer();
                 _animator.Composition = composition;
                 Progress = _animator.AnimatedFraction;
-                Scale = _scale;
                 UpdateBounds();
 
                 // We copy the tasks to a new ArrayList so that if this method is called from multiple threads, 
@@ -500,22 +458,11 @@ namespace Avalonia.Lottie
 
         public void InvalidateSelf()
         {
-            //if (Dispatcher.CheckAccess())
-            //    base.InvalidateVisual();
-            //else
-            //    Dispatcher.Invoke(InvalidateVisual);
+            if (Dispatcher.UIThread.CheckAccess())
+                InvalidateVisual();
+            else
+                Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
         }
-
-        public void SetAlpha(byte alpha)
-        {
-            _alpha = alpha;
-        }
-
-        public int GetAlpha()
-        {
-            return _alpha;
-        }
- 
         
         /// <summary>
         /// Measures the control.
@@ -524,32 +471,15 @@ namespace Avalonia.Lottie
         /// <returns>The desired size of the control.</returns>
         protected override Size MeasureOverride(Size availableSize)
         {
-             var result = new Size();
-
-            if (_composition != null)
-            {
-                result = Stretch.CalculateSize(availableSize, _composition.Bounds.Size, StretchDirection);
-            }
-
-            return result;
+            return _composition is null ? Size.Empty : Stretch.CalculateSize(availableSize, _composition.Bounds.Size, StretchDirection);
         }
-
+        
         /// <inheritdoc/>
         protected override Size ArrangeOverride(Size finalSize)
         {
- 
-            if (_composition != null)
-            {
-                var sourceSize = _composition.Bounds.Size;
-                var result = Stretch.CalculateSize(finalSize, sourceSize);
-                return result;
-            }
-            else
-            {
-                return new Size();
-            }
+            return _composition is null ? Size.Empty : Stretch.CalculateSize(finalSize, _composition.Bounds.Size);
         }
-
+        
         /// <summary>
         /// Defines the <see cref="Stretch"/> property.
         /// </summary>
@@ -564,6 +494,7 @@ namespace Avalonia.Lottie
             get { return GetValue(StretchProperty); }
             set { SetValue(StretchProperty, value); }
         }
+
         /// <summary>
         /// Gets or sets a value controlling in what direction the image will be stretched.
         /// </summary>
@@ -597,29 +528,25 @@ namespace Avalonia.Lottie
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
                     LottieLog.BeginSection("Drawable.Draw");
-  
+
                     if (_compositionLayer != null && Bounds.Width > 0 && Bounds.Height > 0)
                     {
-                        _matrix.Reset();
-                         
                         Rect viewPort = new Rect(Bounds.Size);
                         Size sourceSize = _composition.Bounds.Size;
-                       
-                        Vector scale = Stretch.CalculateScaling (Bounds.Size, sourceSize, StretchDirection);
+
+                        Vector scale = Stretch.CalculateScaling(Bounds.Size, sourceSize, StretchDirection);
                         Size scaledSize = sourceSize * scale;
-                        Rect destRect = viewPort
-                            .CenterRect(new Rect(scaledSize))
-                            .Intersect(viewPort);
-                        Rect sourceRect = new Rect(sourceSize)
-                            .CenterRect(new Rect(destRect.Size / scale));
-                        
-                        _compositionLayer.Draw(_bitmapCanvas, _matrix, _alpha);
+
+                        var k = Matrix3X3.CreateIdentity();
+
+                        ctx.PushClip(new Rect(scaledSize));
+
+                        _compositionLayer.Draw(_bitmapCanvas, MatrixExt.PreScale(k, (float) scale.X, (float) scale.Y),
+                            _alpha);
                     }
-                    
-                    
-                    
+
+
                     LottieLog.EndSection("Drawable.Draw");
- 
                 }
 
 
@@ -627,6 +554,19 @@ namespace Avalonia.Lottie
             }
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+        }
+
+        private Matrix3X3 ToMatrix3X3(Matrix ctxCurrentTransform)
+        {
+            return new Matrix3X3()
+            {
+                M11 = (float) ctxCurrentTransform.M11,
+                M12 = (float) ctxCurrentTransform.M12,
+                M21 = (float) ctxCurrentTransform.M21,
+                M22 = (float) ctxCurrentTransform.M22,
+                M31 = (float) ctxCurrentTransform.M31,
+                M32 = (float) ctxCurrentTransform.M32,
+            };
         }
 
         /// <summary>
@@ -751,8 +691,6 @@ namespace Avalonia.Lottie
         {
             if (_composition == null) return;
 
-            Width = _composition.Bounds.Width * _scale;
-            Height = _composition.Bounds.Height * _scale;
             _bitmapCanvas?.Dispose();
             _bitmapCanvas = new BitmapCanvas((float) Width, (float) Height);
         }
