@@ -8,11 +8,19 @@
         WindowState="Normal" WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI, SF Pro Display, Noto Sans, Cantarel"
         Title="Avalonia.Lottie.Sample">
+ 
+    <Grid RowDefinitions="*, Auto" >
+        <Panel Background="Red">
+            <Lottie Name="Lottie" ></Lottie>
 
-    <Panel Background="#272931">
-        <Lottie
-          RepeatMode="Reverse"
-          RepeatCount="-1"
-          Source="avares://Avalonia.Lottie.Sample/Assets/uk.json" />
-    </Panel>
+        </Panel>
+        <Grid Grid.Row="1"  ColumnDefinitions="*,*">
+            <Panel   >
+           <ComboBox Name="AssetSelector" ></ComboBox>
+            </Panel>
+            <Panel Grid.Column="1">
+           
+            </Panel>
+        </Grid>
+    </Grid>
 </Window>

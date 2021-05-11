@@ -548,6 +548,7 @@ namespace Avalonia.Lottie
                 using (_bitmapCanvas.CreateSession(size.Width, size.Height, renderCtx.PlatformImpl))
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
+                   
                     LottieLog.BeginSection("Drawable.Draw");
 
                     if (_compositionLayer is null && Bounds.Width > 0 && Bounds.Height > 0)
@@ -567,6 +568,7 @@ namespace Avalonia.Lottie
                     }
 
                     LottieLog.EndSection("Drawable.Draw");
+                    
                 }
             }
 
