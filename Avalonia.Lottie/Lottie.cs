@@ -552,9 +552,11 @@ namespace Avalonia.Lottie
 
                 if (_animator.IsRunning) _animator.DoFrame();
 
+                var size = Bounds.Size;
+
                 using (var ctxi = _backingBitmap.CreateDrawingContext(null))
                 using (var ctx = new DrawingContext(ctxi, false))
-                using (_bitmapCanvas.CreateSession(Width, Height,
+                using (_bitmapCanvas.CreateSession(size.Width, size.Height,
                     ctx.PlatformImpl))
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
@@ -562,10 +564,9 @@ namespace Avalonia.Lottie
 
                     if (_compositionLayer != null && Bounds.Width > 0 && Bounds.Height > 0)
                     {
-                        Rect viewPort = new Rect(Bounds.Size);
                         Size sourceSize = _composition.Bounds.Size;
 
-                        Vector scale = Stretch.CalculateScaling(Bounds.Size, sourceSize, StretchDirection);
+                        Vector scale = Stretch.CalculateScaling(size, sourceSize, StretchDirection);
                         Size scaledSize = sourceSize * scale;
 
                         var k = Matrix3X3.CreateIdentity();
@@ -581,7 +582,7 @@ namespace Avalonia.Lottie
                 }
 
 
-                renderCtx.DrawImage(_backingBitmap, _composition.Bounds, _composition.Bounds);
+                renderCtx.DrawImage(_backingBitmap, new Rect(new Point(), size));
             }
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
