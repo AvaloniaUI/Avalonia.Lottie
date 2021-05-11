@@ -13,10 +13,7 @@ using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Metadata;
-using static Avalonia.Media.MediaExtensions;
 
 namespace Avalonia.Lottie
 {
@@ -559,16 +556,12 @@ namespace Avalonia.Lottie
                         Size sourceSize = _composition.Bounds.Size;
 
                         Vector scale = Stretch.CalculateScaling(size, sourceSize, StretchDirection);
-                        Size scaledSize = sourceSize * scale;
 
                         var k = Matrix3X3.CreateIdentity();
-
-                        //ctx.PushClip(new Rect(scaledSize));
 
                         _compositionLayer.Draw(_bitmapCanvas, MatrixExt.PreScale(k, (float) scale.X, (float) scale.Y),
                             _alpha);
                     }
-
 
                     LottieLog.EndSection("Drawable.Draw");
                 }
