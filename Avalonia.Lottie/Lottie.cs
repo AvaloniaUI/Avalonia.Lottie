@@ -58,7 +58,11 @@ namespace Avalonia.Lottie
             {
                 if (_compositionLayer != null) _compositionLayer.Progress = _animator.AnimatedValueAbsolute;
             };
-        }
+            
+            AffectsMeasure<Lottie>(SourceProperty);
+            AffectsArrange<Lottie>(SourceProperty);
+            AffectsRender<Lottie>(SourceProperty);
+         }
 
         /// <summary>
         ///     If you use image assets, you must explicitly specify the folder in assets/ in which they are
@@ -551,7 +555,7 @@ namespace Avalonia.Lottie
                    
                     LottieLog.BeginSection("Drawable.Draw");
 
-                    if (_compositionLayer is null && Bounds.Width > 0 && Bounds.Height > 0)
+                    if (_compositionLayer is not null && Bounds.Width > 0 && Bounds.Height > 0)
                     {
                         var sourceSize = _composition.Bounds.Size;
 
