@@ -11,7 +11,8 @@
 
     <Panel Background="#272931">
         <Lottie
-          RepeatMode="Reverse" RepeatCount="-1"
-            Source="avares://Avalonia.Lottie.Sample/Assets/uk.json" />
+          RepeatMode="Reverse"
+          RepeatCount="-1"
+          Source="avares://Avalonia.Lottie.Sample/Assets/uk.json" />
     </Panel>
 </Window>

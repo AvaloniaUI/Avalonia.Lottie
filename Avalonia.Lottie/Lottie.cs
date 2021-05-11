@@ -545,21 +545,24 @@ namespace Avalonia.Lottie
 
                 var size = Bounds.Size;
 
-                using (_bitmapCanvas.CreateSession(size.Width, size.Height,
-                    renderCtx.PlatformImpl))
+                using (_bitmapCanvas.CreateSession(size.Width, size.Height, renderCtx.PlatformImpl))
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
                     LottieLog.BeginSection("Drawable.Draw");
 
-                    if (_compositionLayer != null && Bounds.Width > 0 && Bounds.Height > 0)
+                    if (_compositionLayer is null && Bounds.Width > 0 && Bounds.Height > 0)
                     {
-                        Size sourceSize = _composition.Bounds.Size;
+                        var sourceSize = _composition.Bounds.Size;
 
-                        Vector scale = Stretch.CalculateScaling(size, sourceSize, StretchDirection);
+                        var scale = Stretch.CalculateScaling(size, sourceSize, StretchDirection);
 
-                        var k = Matrix3X3.CreateIdentity();
+                        var currentTransform = ToMatrix3X3(renderCtx.CurrentTransform);
 
-                        _compositionLayer.Draw(_bitmapCanvas, MatrixExt.PreScale(k, (float) scale.X, (float) scale.Y),
+                        currentTransform = MatrixExt.PreScale(currentTransform, (float) scale.X, (float) scale.Y);
+
+                        _compositionLayer.Draw(
+                            _bitmapCanvas, 
+                            currentTransform,
                             _alpha);
                     }
 
@@ -572,7 +575,7 @@ namespace Avalonia.Lottie
 
         private Matrix3X3 ToMatrix3X3(Matrix ctxCurrentTransform)
         {
-            return new Matrix3X3()
+            return new()
             {
                 M11 = (float) ctxCurrentTransform.M11,
                 M12 = (float) ctxCurrentTransform.M12,
