@@ -42,7 +42,6 @@ namespace Avalonia.Lottie
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
         private byte _alpha = 255;
-        private RenderTargetBitmap _backingBitmap;
         private BitmapCanvas _bitmapCanvas;
         private LottieComposition _composition;
         private CompositionLayer _compositionLayer;
@@ -425,11 +424,6 @@ namespace Avalonia.Lottie
 
                 _lazyCompositionTasks.Clear();
                 composition.PerformanceTrackingEnabled = _performanceTrackingEnabled;
-
-                _backingBitmap =
-                    new RenderTargetBitmap(
-                        new PixelSize((int) _composition.Bounds.Width, (int) _composition.Bounds.Height),
-                        new Vector(96, 96));
             }
 
             return true;
@@ -548,14 +542,12 @@ namespace Avalonia.Lottie
         {
             lock (this)
             {
-                if (_bitmapCanvas is null || _backingBitmap is null) return;
+                if (_bitmapCanvas is null) return;
 
                 if (_animator.IsRunning) _animator.DoFrame();
 
                 var size = Bounds.Size;
 
-                using (var ctxi = _backingBitmap.CreateDrawingContext(null))
-                using (var ctx = new DrawingContext(ctxi, false))
                 using (_bitmapCanvas.CreateSession(size.Width, size.Height,
                     renderCtx.PlatformImpl))
                 {
@@ -571,7 +563,7 @@ namespace Avalonia.Lottie
 
                         var k = Matrix3X3.CreateIdentity();
 
-                        ctx.PushClip(new Rect(scaledSize));
+                        //ctx.PushClip(new Rect(scaledSize));
 
                         _compositionLayer.Draw(_bitmapCanvas, MatrixExt.PreScale(k, (float) scale.X, (float) scale.Y),
                             _alpha);
