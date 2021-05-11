@@ -557,7 +557,7 @@ namespace Avalonia.Lottie
                 using (var ctxi = _backingBitmap.CreateDrawingContext(null))
                 using (var ctx = new DrawingContext(ctxi, false))
                 using (_bitmapCanvas.CreateSession(size.Width, size.Height,
-                    ctx.PlatformImpl))
+                    renderCtx.PlatformImpl))
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
                     LottieLog.BeginSection("Drawable.Draw");
@@ -580,9 +580,6 @@ namespace Avalonia.Lottie
 
                     LottieLog.EndSection("Drawable.Draw");
                 }
-
-
-                renderCtx.DrawImage(_backingBitmap, new Rect(new Point(), size));
             }
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
