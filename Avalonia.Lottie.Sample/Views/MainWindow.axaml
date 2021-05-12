@@ -5,19 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Avalonia.Lottie.Sample.Views.MainWindow"
-        Title="Avalonia.Lottie.Sample">
-    <Window.Resources>
-        <LottieCompositionSourceTypeConverter x:Key="L" />
-    </Window.Resources>
-
+        Title="Avalonia.Lottie.Sample"> 
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
-
     <Grid RowDefinitions="*, Auto">
-
         <Lottie RepeatCount="-1"
-            Source="{Binding SelectedAsset}" />
+                Source="{Binding SelectedAsset}" />
         <ComboBox Grid.Row="1"
                   SelectedIndex="1"
                   SelectedItem="{Binding SelectedAsset}"
