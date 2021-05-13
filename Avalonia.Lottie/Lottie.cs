@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Manager;
 using Avalonia.Lottie.Model;
@@ -27,6 +28,7 @@ namespace Avalonia.Lottie
     ///         of compositions.
     ///     </para>
     /// </summary>
+    [PseudoClasses(":animation-started", ":animation-ended")]
     public class Lottie : Control, IAnimatable
     {
         /// <summary>
@@ -54,11 +56,24 @@ namespace Avalonia.Lottie
 
         public Lottie()
         {
-            _animator.Update += (sender, e) =>
+            _animator.Update += delegate
             {
-                if (_compositionLayer != null) _compositionLayer.Progress = _animator.AnimatedValueAbsolute;
+                if (_compositionLayer is not null) 
+                    _compositionLayer.Progress = _animator.AnimatedValueAbsolute;
             };
 
+            _animator.AnimationStart += delegate
+            {
+                PseudoClasses.Set(":animation-ended", false);
+                PseudoClasses.Set(":animation-started", true);
+            };
+
+            _animator.AnimationEnd += delegate
+            {
+                PseudoClasses.Set(":animation-ended", true);
+                PseudoClasses.Set(":animation-started", false);
+            }; 
+            
             AffectsMeasure<Lottie>(SourceProperty);
             AffectsArrange<Lottie>(SourceProperty);
             AffectsRender<Lottie>(SourceProperty);
@@ -541,9 +556,14 @@ namespace Avalonia.Lottie
                     ClearComposition();
                 }
             }
+            else if (change.Property == IsEnabledProperty)
+            {
+                _isEnabled = change.NewValue.GetValueOrDefault<bool>();
+            }
         }
 
         private RenderTargetBitmap _renderTargetBitmap;
+        private bool _isEnabled = true;
 
         void CreateNewRTB(Size newSize)
         {
@@ -565,7 +585,7 @@ namespace Avalonia.Lottie
             if (_bitmapCanvas is null || _compositionLayer is null || size.Width <= 0 || size.Height <= 0)
                 return;
 
-            if (_animator.IsRunning)
+            if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
             
             var compositionSize = _composition.Bounds.Size;
