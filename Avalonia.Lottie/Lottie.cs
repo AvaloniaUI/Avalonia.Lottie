@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Lottie.Animation.Content;
@@ -13,6 +14,7 @@ using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using Avalonia.Metadata;
 
@@ -58,7 +60,7 @@ namespace Avalonia.Lottie
         {
             _animator.Update += delegate
             {
-                if (_compositionLayer is not null) 
+                if (_compositionLayer is not null)
                     _compositionLayer.Progress = _animator.AnimatedValueAbsolute;
             };
 
@@ -72,8 +74,8 @@ namespace Avalonia.Lottie
             {
                 PseudoClasses.Set(":animation-ended", true);
                 PseudoClasses.Set(":animation-started", false);
-            }; 
-            
+            };
+
             AffectsMeasure<Lottie>(SourceProperty);
             AffectsArrange<Lottie>(SourceProperty);
             AffectsRender<Lottie>(SourceProperty);
@@ -476,24 +478,6 @@ namespace Avalonia.Lottie
                 Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
         }
 
-        /// <summary>
-        /// Measures the control.
-        /// </summary>
-        /// <param name="availableSize">The available size.</param>
-        /// <returns>The desired size of the control.</returns>
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            return _composition is null
-                ? Size.Empty
-                : Stretch.CalculateSize(availableSize, _composition.Bounds.Size, StretchDirection);
-        }
-
-        /// <inheritdoc/>
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            return _composition is null ? Size.Empty : Stretch.CalculateSize(finalSize, _composition.Bounds.Size);
-        }
-
         public static readonly StyledProperty<LottieCompositionSource> SourceProperty =
             AvaloniaProperty.Register<Lottie, LottieCompositionSource>(nameof(Source));
 
@@ -519,24 +503,6 @@ namespace Avalonia.Lottie
             set { SetValue(StretchProperty, value); }
         }
 
-        /// <summary>
-        /// Gets or sets a value controlling in what direction the image will be stretched.
-        /// </summary>
-        public StretchDirection StretchDirection
-        {
-            get { return GetValue(StretchDirectionProperty); }
-            set { SetValue(StretchDirectionProperty, value); }
-        }
-
-        /// <summary>
-        /// Defines the <see cref="StretchDirection"/> property.
-        /// </summary>
-        public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
-            AvaloniaProperty.Register<Image, StretchDirection>(
-                nameof(StretchDirection),
-                StretchDirection.Both);
-
-
         protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
             base.OnPropertyChanged(change);
@@ -552,7 +518,6 @@ namespace Avalonia.Lottie
                 }
                 else
                 {
-                    
                     ClearComposition();
                 }
             }
@@ -578,26 +543,66 @@ namespace Avalonia.Lottie
             _renderTargetBitmap?.Dispose();
             _renderTargetBitmap = null;
         }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            var boundsSize = new Rect(availableSize);
+
+            if (_compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
+                return availableSize;
+
+            var compositionSize = _composition.Bounds;
+
+            return Stretch switch
+            {
+                Stretch.Uniform => compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
+                    boundsSize.Height / compositionSize.Height),
+                Stretch.UniformToFill => compositionSize.Size * Math.Max(boundsSize.Width / compositionSize.Width,
+                    boundsSize.Height / compositionSize.Height),
+                _ => compositionSize.Size
+            };
+        }
+        
+        protected override void ArrangeCore(Rect finalRect)
+        {
+            var boundsSize = finalRect;
+
+            if (_compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
+                return;
+
+            var compositionSize = _composition.Bounds;
+
+            var centSize = Stretch switch
+            {
+                Stretch.Uniform => compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
+                    boundsSize.Height / compositionSize.Height),
+                Stretch.UniformToFill => compositionSize.Size * Math.Max(boundsSize.Width / compositionSize.Width,
+                    boundsSize.Height / compositionSize.Height),
+                _ => compositionSize.Size
+            };
+
+            base.ArrangeCore(boundsSize.CenterRect(new Rect(0, 0, centSize.Width, centSize.Height)));
+        }
+
         public override void Render(DrawingContext renderCtx)
         {
-            var size = Bounds.Size;
+            LottieLog.BeginSection("Drawable.Draw");
 
-            if (_bitmapCanvas is null || _compositionLayer is null || size.Width <= 0 || size.Height <= 0)
+            var boundsSize = Bounds;
+
+            if (_bitmapCanvas is null || _compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
                 return;
 
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
+
+            var compositionSize = _composition.Bounds;
+
+            var scale = compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
+                boundsSize.Height / compositionSize.Height);
+ 
+            var scaledSize =  scale;
             
-            var compositionSize = _composition.Bounds.Size;
-
-            var scale = Stretch.CalculateScaling(size, compositionSize, StretchDirection);
-
-            var currentTransform = ToMatrix3X3(renderCtx.CurrentTransform);
-
-            currentTransform = MatrixExt.PreScale(currentTransform, (float) scale.X, (float) scale.Y);
-
-            var scaledSize = compositionSize * scale;
-
             if (_renderTargetBitmap is not null)
             {
                 if (_renderTargetBitmap.Size != scaledSize)
@@ -609,30 +614,34 @@ namespace Avalonia.Lottie
             {
                 CreateNewRTB(scaledSize);
             }
-
+            var rtbSize = new Rect(new Point(0, 0), _renderTargetBitmap.Size);
+            
             using (var ctxi = _renderTargetBitmap.CreateDrawingContext(null))
-            {
-                using (_bitmapCanvas.CreateSession(size.Width, size.Height, ctxi))
+            { 
+                var scaleParam =    rtbSize.Size / _composition.Bounds.Size ;
+
+                var matrix = Matrix3X3.CreateIdentity();
+                matrix = MatrixExt.PreScale(matrix, (float)scaleParam.X, (float)scaleParam.Y);
+
+                using (_bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, ctxi))
                 {
                     _bitmapCanvas.Clear(Colors.Transparent);
-
-                    LottieLog.BeginSection("Drawable.Draw");
-
+                    
                     {
                         _compositionLayer.Draw(
                             _bitmapCanvas,
-                            currentTransform,
+                            matrix,
                             _alpha);
                     }
-
-                    LottieLog.EndSection("Drawable.Draw");
+                
                 }
             }
 
-            var srcdstRect = new Rect(new Point(0, 0), _renderTargetBitmap.Size);
-            renderCtx.DrawImage(_renderTargetBitmap, srcdstRect, srcdstRect);
+            renderCtx.DrawImage(_renderTargetBitmap, rtbSize, rtbSize);
 
-            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
+            
+            LottieLog.EndSection("Drawable.Draw");
         }
 
         private Matrix3X3 ToMatrix3X3(Matrix ctxCurrentTransform)
