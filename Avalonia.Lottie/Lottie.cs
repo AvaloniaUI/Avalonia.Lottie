@@ -570,7 +570,7 @@ namespace Avalonia.Lottie
                 _ => compositionSize.Size
             };
         }
-        
+
         protected override void ArrangeCore(Rect finalRect)
         {
             var boundsSize = finalRect;
@@ -596,9 +596,9 @@ namespace Avalonia.Lottie
         {
             LottieLog.BeginSection("Drawable.Draw");
 
-            var boundsSize = Bounds;
+            var containerRect = Bounds;
 
-            if (_bitmapCanvas is null || _compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
+            if (_bitmapCanvas is null || _compositionLayer is null || containerRect.Width <= 0 || containerRect.Height <= 0)
                 return;
 
             if (_animator.IsRunning && _isEnabled)
@@ -606,65 +606,42 @@ namespace Avalonia.Lottie
 
             var compositionSize = _composition.Bounds;
 
-            var scale = compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
-                boundsSize.Height / compositionSize.Height);
- 
-            var scaledSize =  scale;
-            
+            var scale = compositionSize.Size * Math.Min(containerRect.Width / compositionSize.Width,
+                containerRect.Height / compositionSize.Height);
+
             if (_renderTargetBitmap is not null)
             {
-                if (_renderTargetBitmap.Size != scaledSize)
+                if (_renderTargetBitmap.Size != scale)
                 {
-                    CreateNewRTB(scaledSize);
+                    CreateNewRTB(scale);
                 }
             }
             else
             {
-                CreateNewRTB(scaledSize);
+                CreateNewRTB(scale);
             }
+
             var rtbSize = new Rect(new Point(0, 0), _renderTargetBitmap.Size);
+
+            using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
-            using (var ctxi = _renderTargetBitmap.CreateDrawingContext(null))
-            { 
-                var scaleParam =    rtbSize.Size / _composition.Bounds.Size ;
+            var (x, y) = rtbSize.Size / _composition.Bounds.Size;
 
-                var matrix = Matrix3X3.CreateIdentity();
-                matrix = MatrixExt.PreScale(matrix, (float)scaleParam.X, (float)scaleParam.Y);
+            var matrix = MatrixExt.PreScale(Matrix3X3.CreateIdentity(), (float) x, (float) y);
 
-                using (_bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, ctxi))
-                {
-                    _bitmapCanvas.Clear(Colors.Transparent);
-                    
-                    {
-                        _compositionLayer.Draw(
-                            _bitmapCanvas,
-                            matrix,
-                            _alpha);
-                    }
-                
-                }
-            }
+            using var session = _bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, rtbDrawingContext);
+          
+            _bitmapCanvas.Clear(Colors.Transparent);
+
+            _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
             renderCtx.DrawImage(_renderTargetBitmap, rtbSize, rtbSize);
 
-            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
-            
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+
             LottieLog.EndSection("Drawable.Draw");
         }
-
-        private Matrix3X3 ToMatrix3X3(Matrix ctxCurrentTransform)
-        {
-            return new()
-            {
-                M11 = (float) ctxCurrentTransform.M11,
-                M12 = (float) ctxCurrentTransform.M12,
-                M21 = (float) ctxCurrentTransform.M21,
-                M22 = (float) ctxCurrentTransform.M22,
-                M31 = (float) ctxCurrentTransform.M31,
-                M32 = (float) ctxCurrentTransform.M32,
-            };
-        }
-
+　
         /// <summary>
         ///     Plays the animation from the beginning. If speed is &lt; 0, it will start at the end
         ///     and play towards the beginning

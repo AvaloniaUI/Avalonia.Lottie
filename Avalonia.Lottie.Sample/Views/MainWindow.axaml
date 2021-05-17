@@ -11,7 +11,7 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
     <Grid RowDefinitions="*, Auto">
-        <Lottie RepeatCount="-1" Stretch="UniformToFill"
+        <Lottie RepeatCount="-1" Stretch="Uniform" 
                 Source="{Binding SelectedAsset}" />
         <ComboBox Grid.Row="1"
                   SelectedIndex="1"
