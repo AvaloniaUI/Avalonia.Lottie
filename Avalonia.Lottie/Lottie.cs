@@ -343,7 +343,10 @@ namespace Avalonia.Lottie
 
         public void Start()
         {
-            PlayAnimation();
+            if (IsEnabled)
+            {
+                PlayAnimation();
+            }
         }
 
         public void Stop()
@@ -552,13 +555,17 @@ namespace Avalonia.Lottie
                 }
                 else
                 {
-                    
                     ClearComposition();
                 }
             }
             else if (change.Property == IsEnabledProperty)
             {
                 _isEnabled = change.NewValue.GetValueOrDefault<bool>();
+
+                if (change.NewValue.GetValueOrDefault<bool>() && Source != null)
+                {
+                    Start();
+                }
             }
         }
 
