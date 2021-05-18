@@ -605,7 +605,7 @@ namespace Avalonia.Lottie
 
             renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(), sourceRect.Size), destRect);
 
-            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
             LottieLog.EndSection("Drawable.Draw");
         }
