@@ -9,7 +9,7 @@ namespace Avalonia.Lottie.Parser
         internal static RectangleShape Parse(JsonReader reader, LottieComposition composition)
         {
             string name = null;
-            IAnimatableValue<Vector2?, Vector2?> position = null;
+            IAnimatableValue<Vector?, Vector?> position = null;
             AnimatablePointValue size = null;
             AnimatableFloatValue roundedness = null;
 

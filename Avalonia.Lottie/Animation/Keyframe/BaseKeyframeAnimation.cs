@@ -6,7 +6,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
 {
     public interface IBaseKeyframeAnimation
     {
-        float Progress { get; set; }
+        double  Progress { get; set; }
         event EventHandler ValueChanged;
         void OnValueChanged();
     }
@@ -27,7 +27,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         private Keyframe<TK> _cachedKeyframe;
         private bool _isDiscrete;
-        private float _progress;
+        private double  _progress;
         protected ILottieValueCallback<TA> ValueCallback;
 
         internal BaseKeyframeAnimation(List<Keyframe<TK>> keyframes)
@@ -60,7 +60,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         ///     Returns the progress into the current keyframe between 0 and 1. This does not take into account
         ///     any interpolation that the keyframe may have.
         /// </summary>
-        protected float LinearCurrentKeyframeProgress
+        protected double  LinearCurrentKeyframeProgress
         {
             get
             {
@@ -78,7 +78,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         /// <see cref="LinearCurrentKeyframeProgress" />
         /// and interpolates it with 
         /// the current keyframe's interpolator.
-        private float InterpolatedCurrentKeyframeProgress
+        private double  InterpolatedCurrentKeyframeProgress
         {
             get
             {
@@ -89,7 +89,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             }
         }
 
-        private float StartDelayProgress
+        private double  StartDelayProgress
         {
             get
             {
@@ -102,7 +102,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             }
         }
 
-        protected virtual float EndProgress
+        protected virtual double  EndProgress
         {
             get
             {
@@ -117,11 +117,11 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         public virtual event EventHandler ValueChanged;
 
-        public virtual float Progress
+        public virtual double  Progress
         {
             set
             {
-                if (value < 0 || float.IsNaN(value))
+                if (value < 0 || double .IsNaN(value))
                     value = 0;
                 if (value > 1)
                     value = 1;
@@ -161,6 +161,6 @@ namespace Avalonia.Lottie.Animation.Keyframe
         ///     keyframeProgress will be [0, 1] unless the interpolator has overshoot in which case, this
         ///     should be able to handle values outside of that range.
         /// </summary>
-        public abstract TA GetValue(Keyframe<TK> keyframe, float keyframeProgress);
+        public abstract TA GetValue(Keyframe<TK> keyframe, double  keyframeProgress);
     }
 }

@@ -2,7 +2,7 @@
 {
     public class ScaleXy
     {
-        internal ScaleXy(float sx, float sy)
+        internal ScaleXy(double sx, double  sy)
         {
             ScaleX = sx;
             ScaleY = sy;
@@ -12,9 +12,9 @@
         {
         }
 
-        internal virtual float ScaleX { get; }
+        internal virtual double  ScaleX { get; }
 
-        internal virtual float ScaleY { get; }
+        internal virtual double  ScaleY { get; }
 
         public override string ToString()
         {

@@ -9,13 +9,13 @@ namespace Avalonia.Lottie.Value
         T GetValue(LottieFrameInfo<T> frameInfo);
 
         T GetValueInternal(
-            float startFrame,
-            float endFrame,
+            double  startFrame,
+            double  endFrame,
             T startValue,
             T endValue,
-            float linearKeyframeProgress,
-            float interpolatedKeyframeProgress,
-            float overallProgress
+            double  linearKeyframeProgress,
+            double  interpolatedKeyframeProgress,
+            double  overallProgress
         );
     }
 }

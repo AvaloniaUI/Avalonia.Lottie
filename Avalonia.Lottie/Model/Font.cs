@@ -2,9 +2,9 @@
 {
     public class Font
     {
-        internal readonly float Ascent;
+        internal readonly double  Ascent;
 
-        public Font(string family, string name, string style, float ascent)
+        public Font(string family, string name, string style, double  ascent)
         {
             Family = family;
             Name = name;

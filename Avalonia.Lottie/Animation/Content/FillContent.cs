@@ -53,7 +53,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public virtual string Name { get; }
 
-        public virtual void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public virtual void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("FillContent.Draw");
             _paint.Color = _colorAnimation.Value ?? Colors.White;
@@ -70,14 +70,14 @@ namespace Avalonia.Lottie.Animation.Content
             LottieLog.EndSection("FillContent.Draw");
         }
 
-        public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public virtual void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             _path.Reset();
             for (var i = 0; i < _paths.Count; i++) _path.AddPath(_paths[i].Path, parentMatrix);
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, (float) outBounds.Left - 1, (float) outBounds.Top - 1,
-                (float) outBounds.Right + 1, (float) outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds,  outBounds.Left - 1,  outBounds.Top - 1,
+                 outBounds.Right + 1,  outBounds.Bottom + 1);
         }
 
         public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)

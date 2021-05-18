@@ -9,7 +9,7 @@ namespace Avalonia.Lottie.Parser
         internal static CircleShape Parse(JsonReader reader, LottieComposition composition, int d)
         {
             string name = null;
-            IAnimatableValue<Vector2?, Vector2?> position = null;
+            IAnimatableValue<Vector?, Vector?> position = null;
             AnimatablePointValue size = null;
             var reversed = d == 3;
 

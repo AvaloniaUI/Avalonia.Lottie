@@ -14,8 +14,8 @@ namespace Avalonia.Lottie.Value
         {
         }
 
-        public LottieRelativeFloatValueCallback(float staticValue)
-            : base(staticValue)
+        public LottieRelativeFloatValueCallback(double staticValue)
+            : base((float?) staticValue)
         {
         }
 
@@ -27,10 +27,10 @@ namespace Avalonia.Lottie.Value
                 frameInfo.InterpolatedKeyframeProgress
             );
             var offset = GetOffset(frameInfo);
-            return originalValue + offset;
+            return (float?) (originalValue + offset);
         }
 
-        public float GetOffset(LottieFrameInfo<float?> frameInfo)
+        public double  GetOffset(LottieFrameInfo<float?> frameInfo)
         {
             if (Value == null)
                 throw new ArgumentException("You must provide a static value in the constructor " +

@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Model.Layer
         private readonly Paint _paint = new();
         private readonly Path _path = new();
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
-        private Vector2[] _points = new Vector2[4];
+        private Vector[] _points = new Vector[4];
 
         internal SolidLayer(Lottie lottie, Layer layerModel) : base(lottie, layerModel)
         {
@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Model.Layer
             _paint.Color = layerModel.SolidColor;
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             int backgroundAlpha = LayerModel.SolidColor.A;
             if (backgroundAlpha == 0) return;
@@ -31,10 +31,10 @@ namespace Avalonia.Lottie.Model.Layer
             if (_colorFilterAnimation != null) _paint.ColorFilter = _colorFilterAnimation.Value;
             if (alpha > 0)
             {
-                _points[0] = new Vector2(0, 0);
-                _points[1] = new Vector2(LayerModel.SolidWidth, 0);
-                _points[2] = new Vector2(LayerModel.SolidWidth, LayerModel.SolidHeight);
-                _points[3] = new Vector2(0, LayerModel.SolidHeight);
+                _points[0] = new Vector(0, 0);
+                _points[1] = new Vector(LayerModel.SolidWidth, 0);
+                _points[2] = new Vector(LayerModel.SolidWidth, LayerModel.SolidHeight);
+                _points[3] = new Vector(0, LayerModel.SolidHeight);
 
                 // We can't map Rect here because if there is rotation on the transform then we aren't 
                 // actually drawing a rect. 
@@ -50,7 +50,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref Rect, 0, 0, LayerModel.SolidWidth, LayerModel.SolidHeight);

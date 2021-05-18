@@ -3,7 +3,7 @@ using Avalonia.Lottie.Animation.Keyframe;
 
 namespace Avalonia.Lottie.Model.Animatable
 {
-    internal class AnimatableSplitDimensionPathValue : IAnimatableValue<Vector2?, Vector2?>
+    internal class AnimatableSplitDimensionPathValue : IAnimatableValue<Vector?, Vector?>
     {
         private readonly AnimatableFloatValue _animatableXDimension;
         private readonly AnimatableFloatValue _animatableYDimension;
@@ -15,7 +15,7 @@ namespace Avalonia.Lottie.Model.Animatable
             _animatableYDimension = animatableYDimension;
         }
 
-        public IBaseKeyframeAnimation<Vector2?, Vector2?> CreateAnimation()
+        public IBaseKeyframeAnimation<Vector?, Vector?> CreateAnimation()
         {
             return new SplitDimensionPathKeyframeAnimation(_animatableXDimension.CreateAnimation(),
                 _animatableYDimension.CreateAnimation());

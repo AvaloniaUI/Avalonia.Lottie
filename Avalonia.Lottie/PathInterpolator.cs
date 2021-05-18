@@ -4,20 +4,20 @@ namespace Avalonia.Lottie
 {
     public class PathInterpolator : IInterpolator
     {
-        private static readonly float Precision = 0.002f;
+        private static readonly double  Precision = 0.002f;
 
-        private float[] _mX; // x coordinates in the line
+        private double [] _mX; // x coordinates in the line
 
-        private float[] _mY; // y coordinates in the line
+        private double [] _mY; // y coordinates in the line
 
-        public PathInterpolator(float controlX1, float controlY1, float controlX2, float controlY2)
+        public PathInterpolator(double controlX1, double  controlY1, double  controlX2, double  controlY2)
         {
             InitCubic(controlX1, controlY1, controlX2, controlY2);
         }
 
-        public float GetInterpolation(float t)
+        public double  GetInterpolation(double t)
         {
-            if (t <= 0 || float.IsNaN(t)) return 0;
+            if (t <= 0 || double .IsNaN(t)) return 0;
             if (t >= 1) return 1;
             // Do a binary search for the corRect x to interpolate between.
             var startIndex = 0;
@@ -43,7 +43,7 @@ namespace Avalonia.Lottie
             return startY + fraction * (endY - startY);
         }
 
-        private void InitCubic(float x1, float y1, float x2, float y2)
+        private void InitCubic(double x1, double  y1, double  x2, double  y2)
         {
             var path = new Path();
             path.MoveTo(0, 0);
@@ -63,10 +63,10 @@ namespace Avalonia.Lottie
                 //throw new ArgumentException("The Path must start at (0,0) and end at (1,1)");
             }
 
-            _mX = new float[numPoints];
-            _mY = new float[numPoints];
-            float prevX = 0;
-            float prevFraction = 0;
+            _mX = new double [numPoints];
+            _mY = new double [numPoints];
+            double  prevX = 0;
+            double  prevFraction = 0;
             var componentIndex = 0;
             for (var i = 0; i < numPoints; i++)
             {

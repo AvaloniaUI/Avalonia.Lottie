@@ -69,7 +69,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override float Progress
+        public override double  Progress
         {
             set
             {
@@ -89,7 +89,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("CompositionLayer.Draw");
             canvas.Save();
@@ -111,7 +111,7 @@ namespace Avalonia.Lottie.Model.Layer
             LottieLog.EndSection("CompositionLayer.Draw");
         }
 
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref Rect, 0, 0, 0, 0);
@@ -122,9 +122,9 @@ namespace Avalonia.Lottie.Model.Layer
                 if (outBounds.IsEmpty)
                     RectExt.Set(ref outBounds, Rect);
                 else
-                    RectExt.Set(ref outBounds, (float) Math.Min(outBounds.Left, Rect.Left),
-                        (float) Math.Min(outBounds.Top, Rect.Top), (float) Math.Max(outBounds.Right, Rect.Right),
-                        (float) Math.Max(outBounds.Bottom, Rect.Bottom));
+                    RectExt.Set(ref outBounds,  Math.Min(outBounds.Left, Rect.Left),
+                         Math.Min(outBounds.Top, Rect.Top),  Math.Max(outBounds.Right, Rect.Right),
+                         Math.Max(outBounds.Bottom, Rect.Bottom));
             }
         }
 

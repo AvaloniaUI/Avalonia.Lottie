@@ -3,11 +3,11 @@ using Avalonia.Lottie.Value;
 
 namespace Avalonia.Lottie.Animation.Keyframe
 {
-    public class PathKeyframe : Keyframe<Vector2?>
+    public class PathKeyframe : Keyframe<Vector?>
     {
-        private readonly Keyframe<Vector2?> _pointKeyFrame;
+        private readonly Keyframe<Vector?> _pointKeyFrame;
 
-        public PathKeyframe(LottieComposition composition, Keyframe<Vector2?> keyframe)
+        public PathKeyframe(LottieComposition composition, Keyframe<Vector?> keyframe)
             : base(composition, keyframe.StartValue, keyframe.EndValue, keyframe.Interpolator, keyframe.StartFrame,
                 keyframe.EndFrame)
         {

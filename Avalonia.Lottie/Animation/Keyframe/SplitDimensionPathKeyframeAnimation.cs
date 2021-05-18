@@ -4,15 +4,15 @@ using Avalonia.Lottie.Value;
 
 namespace Avalonia.Lottie.Animation.Keyframe
 {
-    internal class SplitDimensionPathKeyframeAnimation : BaseKeyframeAnimation<Vector2?, Vector2?>
+    internal class SplitDimensionPathKeyframeAnimation : BaseKeyframeAnimation<Vector?, Vector?>
     {
         private readonly IBaseKeyframeAnimation<float?, float?> _xAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _yAnimation;
-        private Vector2 _point;
+        private Vector _point;
 
         internal SplitDimensionPathKeyframeAnimation(IBaseKeyframeAnimation<float?, float?> xAnimation,
             IBaseKeyframeAnimation<float?, float?> yAnimation)
-            : base(new List<Keyframe<Vector2?>>())
+            : base(new List<Keyframe<Vector?>>())
         {
             _xAnimation = xAnimation;
             _yAnimation = yAnimation;
@@ -20,21 +20,20 @@ namespace Avalonia.Lottie.Animation.Keyframe
             Progress = Progress;
         }
 
-        public override float Progress
+        public override double  Progress
         {
             set
             {
                 _xAnimation.Progress = value;
                 _yAnimation.Progress = value;
-                _point.X = _xAnimation.Value ?? 0;
-                _point.Y = _yAnimation.Value ?? 0;
-                OnValueChanged();
+                _point = new Vector(_xAnimation.Value ?? 0, _yAnimation.Value ?? 0);
+                 OnValueChanged();
             }
         }
 
-        public override Vector2? Value => GetValue(null, 0);
+        public override Vector? Value => GetValue(null, 0);
 
-        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, float keyframeProgress)
+        public override Vector? GetValue(Keyframe<Vector?> keyframe, double  keyframeProgress)
         {
             return _point;
         }

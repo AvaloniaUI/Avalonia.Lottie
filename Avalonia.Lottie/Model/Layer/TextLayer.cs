@@ -80,7 +80,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             canvas.Save();
             if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
@@ -117,9 +117,9 @@ namespace Avalonia.Lottie.Model.Layer
             canvas.Restore();
         }
 
-        private void DrawTextGlyphs(DocumentData documentData, Matrix3X3 parentMatrix, Font font, BitmapCanvas canvas)
+        private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, BitmapCanvas canvas)
         {
-            var fontScale = (float) documentData.Size / 100;
+            var fontScale =  documentData.Size / 100;
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var text = documentData.Text;
 
@@ -131,7 +131,7 @@ namespace Avalonia.Lottie.Model.Layer
                     // Something is wrong. Potentially, they didn't export the text as a glyph. 
                     continue;
                 DrawCharacterAsGlyph(character, parentMatrix, fontScale, documentData, canvas);
-                var tx = (float) character.Width * fontScale * Utils.Utils.DpScale() * parentScale;
+                var tx =  character.Width * fontScale * Utils.Utils.DpScale() * parentScale;
                 // Add tracking 
                 var tracking = documentData.Tracking / 10f;
                 if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
@@ -140,7 +140,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix3X3 parentMatrix, BitmapCanvas canvas)
+        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix parentMatrix, BitmapCanvas canvas)
         {
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var typeface = _lottie.GetTypeface(font.Family, font.Style);
@@ -149,7 +149,7 @@ namespace Avalonia.Lottie.Model.Layer
             var textDelegate = _lottie.TextDelegate;
             if (textDelegate != null) text = textDelegate.GetTextInternal(text);
             _fillPaint.Typeface = typeface;
-            _fillPaint.TextSize = (float) documentData.Size * Utils.Utils.DpScale();
+            _fillPaint.TextSize =  documentData.Size * Utils.Utils.DpScale();
             _strokePaint.Typeface = _fillPaint.Typeface;
             _strokePaint.TextSize = _fillPaint.TextSize;
             for (var i = 0; i < text.Length; i++)
@@ -160,12 +160,12 @@ namespace Avalonia.Lottie.Model.Layer
                 // Add tracking
                 var tracking = documentData.Tracking / 10f;
                 if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
-                var tx = (float) (size?.Width ?? 0) + tracking * parentScale;
+                var tx =  (size?.Width ?? 0) + tracking * parentScale;
                 canvas.Translate(tx, 0);
             }
         }
 
-        private void DrawCharacterAsGlyph(FontCharacter character, Matrix3X3 parentMatrix, float fontScale,
+        private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double  fontScale,
             DocumentData documentData, BitmapCanvas canvas)
         {
             var contentGroups = GetContentsForCharacter(character);
@@ -173,8 +173,8 @@ namespace Avalonia.Lottie.Model.Layer
             {
                 var path = contentGroups[j].Path;
                 //path.ComputeBounds(out _rectF);
-                Matrix.Set(parentMatrix);
-                Matrix = MatrixExt.PreTranslate(Matrix, 0, (float) -documentData.BaselineShift * Utils.Utils.DpScale());
+                Matrix = (parentMatrix);
+                Matrix = MatrixExt.PreTranslate(Matrix, 0,  -documentData.BaselineShift * Utils.Utils.DpScale());
                 Matrix = MatrixExt.PreScale(Matrix, fontScale, fontScale);
                 path.Transform(Matrix);
                 if (documentData.StrokeOverFill)

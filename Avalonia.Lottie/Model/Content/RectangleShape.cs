@@ -7,10 +7,10 @@ namespace Avalonia.Lottie.Model.Content
 {
     public class RectangleShape : IContentModel
     {
-        private readonly IAnimatableValue<Vector2?, Vector2?> _position;
+        private readonly IAnimatableValue<Vector?, Vector?> _position;
         private readonly AnimatablePointValue _size;
 
-        public RectangleShape(string name, IAnimatableValue<Vector2?, Vector2?> position, AnimatablePointValue size,
+        public RectangleShape(string name, IAnimatableValue<Vector?, Vector?> position, AnimatablePointValue size,
             AnimatableFloatValue cornerRadius)
         {
             Name = name;
@@ -25,7 +25,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual AnimatablePointValue Size => _size;
 
-        internal virtual IAnimatableValue<Vector2?, Vector2?> Position => _position;
+        internal virtual IAnimatableValue<Vector?, Vector?> Position => _position;
 
         public IContent ToContent(Lottie drawable, BaseLayer layer)
         {

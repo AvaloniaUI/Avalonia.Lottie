@@ -9,7 +9,7 @@ namespace Avalonia.Lottie.Parser
             string family = null;
             string name = null;
             string style = null;
-            float ascent = 0;
+            double  ascent = 0;
 
             reader.BeginObject();
             while (reader.HasNext())

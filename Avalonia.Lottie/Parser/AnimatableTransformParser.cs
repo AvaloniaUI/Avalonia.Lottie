@@ -11,7 +11,7 @@ namespace Avalonia.Lottie.Parser
         public static AnimatableTransform Parse(JsonReader reader, LottieComposition composition)
         {
             AnimatablePathValue anchorPoint = null;
-            IAnimatableValue<Vector2?, Vector2?> position = null;
+            IAnimatableValue<Vector?, Vector?> position = null;
             AnimatableScaleValue scale = null;
             AnimatableFloatValue rotation = null;
             AnimatableIntegerValue opacity = null;

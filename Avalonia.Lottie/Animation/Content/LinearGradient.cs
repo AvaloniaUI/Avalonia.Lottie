@@ -9,13 +9,13 @@ namespace Avalonia.Lottie.Animation.Content
     internal class LinearGradient : Gradient, IDisposable
     {
         private readonly List<ImmutableGradientStop> _canvasGradientStopCollection;
-        private readonly float _x0;
-        private readonly float _x1;
-        private readonly float _y0;
-        private readonly float _y1;
+        private readonly double  _x0;
+        private readonly double  _x1;
+        private readonly double  _y0;
+        private readonly double  _y1;
         private ImmutableLinearGradientBrush _canvasLinearGradientBrush;
 
-        public LinearGradient(float x0, float y0, float x1, float y1, Color[] colors, float[] positions)
+        public LinearGradient(double x0, double  y0, double  x1, double  y1, Color[] colors, double [] positions)
         {
             _x0 = x0;
             _y0 = y0;
@@ -35,8 +35,8 @@ namespace Avalonia.Lottie.Animation.Content
         {
             if (_canvasLinearGradientBrush == null)
             {
-                var startPoint = new Vector2(_x0, _y0);
-                var endPoint = new Vector2(_x1, _y1);
+                var startPoint = new Vector((float)_x0,(float) _y0);
+                var endPoint = new Vector((float)_x1,(float) _y1);
 
                 startPoint = LocalMatrix.Transform(startPoint);
                 endPoint = LocalMatrix.Transform(endPoint);

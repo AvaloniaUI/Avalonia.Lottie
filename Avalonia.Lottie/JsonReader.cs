@@ -42,13 +42,13 @@ namespace Avalonia.Lottie
             return value;
         }
 
-        public float NextDouble()
+        public double  NextDouble()
         {
-            float value;
+            double  value;
             if (ValueType == typeof(long))
                 value = (long) Value;
             else
-                value = (float) (double) Value;
+                value =  (double) Value;
             Read();
             return value;
         }

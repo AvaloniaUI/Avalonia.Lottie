@@ -79,7 +79,7 @@ namespace Avalonia.Lottie
             BatchedDebugWriteLine($"Begin Section: {section}");
         }
 
-        internal static float EndSection(string section)
+        internal static double  EndSection(string section)
         {
 #if DEBUG
             if (_depthPastMaxDepth > 0)

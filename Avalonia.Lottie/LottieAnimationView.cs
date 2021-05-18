@@ -247,7 +247,7 @@
 //             DependencyPropertyChangedEventArgs e)
 //         {
 //             if (dependencyObject is LottieAnimationView lottieAnimationView)
-//                 lottieAnimationView._lottieDrawable.Scale = (float)Convert.ToDouble(e.NewValue);
+//                 lottieAnimationView._lottieDrawable.Scale = Convert.ToDouble(e.NewValue);
 //         }
 //
 //         public LottieAnimationView()
@@ -658,7 +658,7 @@
 //         /// <summary>
 //         /// Gets or sets the minimum frame that the animation will start from when playing or looping.
 //         /// </summary>
-//         public float MinFrame
+//         public double  MinFrame
 //         {
 //             set => _lottieDrawable.MinFrame = value;
 //             get => _lottieDrawable.MinFrame;
@@ -667,7 +667,7 @@
 //         /// <summary>
 //         /// Sets the minimum progress that the animation will start from when playing or looping.
 //         /// </summary>
-//         public float MinProgress
+//         public double  MinProgress
 //         {
 //             set => _lottieDrawable.MinProgress = value;
 //         }
@@ -675,7 +675,7 @@
 //         /// <summary>
 //         /// Gets or sets the maximum frame that the animation will end at when playing or looping.
 //         /// </summary>
-//         public float MaxFrame
+//         public double  MaxFrame
 //         {
 //             set => _lottieDrawable.MaxFrame = value;
 //             get => _lottieDrawable.MaxFrame;
@@ -684,7 +684,7 @@
 //         /// <summary>
 //         /// Sets the maximum progress that the animation will end at when playing or looping.
 //         /// </summary>
-//         public float MaxProgress
+//         public double  MaxProgress
 //         {
 //             set => _lottieDrawable.MaxProgress = value;
 //         }
@@ -695,7 +695,7 @@
 //         /// </summary>
 //         /// <param name="minFrame"></param>
 //         /// <param name="maxFrame"></param>
-//         public void SetMinAndMaxFrame(float minFrame, float maxFrame)
+//         public void SetMinAndMaxFrame(double minFrame, double  maxFrame)
 //         {
 //             _lottieDrawable.SetMinAndMaxFrame(minFrame, maxFrame);
 //         }
@@ -706,7 +706,7 @@
 //         /// </summary>
 //         /// <param name="minProgress"></param>
 //         /// <param name="maxProgress"></param>
-//         public void SetMinAndMaxProgress(float minProgress, float maxProgress)
+//         public void SetMinAndMaxProgress(double minProgress, double  maxProgress)
 //         {
 //             if (minProgress < 0)
 //                 minProgress = 0;
@@ -749,7 +749,7 @@
 //         private static void SpeedProperyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
 //         {
 //             if (dependencyObject is LottieAnimationView lottieAnimationView)
-//                 lottieAnimationView._lottieDrawable.Speed = (float)Convert.ToDouble(e.NewValue);
+//                 lottieAnimationView._lottieDrawable.Speed = Convert.ToDouble(e.NewValue);
 //         }
 //
 //         public event EventHandler<ValueAnimator.ValueAnimatorUpdateEventArgs> AnimatorUpdate
@@ -835,7 +835,7 @@
 //         private static void FrameRatePropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
 //         {
 //             if (dependencyObject is LottieAnimationView lottieAnimationView)
-//                 lottieAnimationView._lottieDrawable.FrameRate = (float)Convert.ToDouble(e.NewValue);
+//                 lottieAnimationView._lottieDrawable.FrameRate = Convert.ToDouble(e.NewValue);
 //         }
 //
 //         public virtual bool IsAnimating => _lottieDrawable.IsAnimating;
@@ -878,7 +878,7 @@
 //             EnableOrDisableHardwareLayer();
 //         }
 //
-//         public float Frame
+//         public double  Frame
 //         {
 //             /** 
 //             * Sets the progress to the specified frame. 
@@ -892,7 +892,7 @@
 //             get => _lottieDrawable.Frame;
 //         }
 //
-//         public virtual float Progress
+//         public virtual double  Progress
 //         {
 //             get => _lottieDrawable.Progress;
 //             set => _lottieDrawable.Progress = value;

@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
         }
 
-        public override DocumentData GetValue(Keyframe<DocumentData> keyframe, float keyframeProgress)
+        public override DocumentData GetValue(Keyframe<DocumentData> keyframe, double  keyframeProgress)
         {
             return keyframe.StartValue;
         }

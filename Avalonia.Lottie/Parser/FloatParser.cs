@@ -4,9 +4,9 @@
     {
         public static readonly FloatParser Instance = new();
 
-        public float? Parse(JsonReader reader, float scale)
+        public float? Parse(JsonReader reader, double  scale)
         {
-            return JsonUtils.ValueFromObject(reader) * scale;
+            return (float?)JsonUtils.ValueFromObject(reader) * (float?)scale;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Avalonia.Lottie
 {
     public class PerformanceTracker
     {
-        private readonly IComparer<Tuple<string, float?>> _floatComparator = new ComparatorAnonymousInnerClass();
+        private readonly IComparer<Tuple<string, double ?>> _floatComparator = new ComparatorAnonymousInnerClass();
         private readonly Dictionary<string, MeanCalculator> _layerRenderTimes = new();
 
         private bool _enabled;
@@ -18,14 +18,14 @@ namespace Avalonia.Lottie
             set => _enabled = value;
         }
 
-        public virtual List<Tuple<string, float?>> SortedRenderTimes
+        public virtual List<Tuple<string, double ?>> SortedRenderTimes
         {
             get
             {
-                if (!_enabled) return new List<Tuple<string, float?>>();
-                var sortedRenderTimes = new List<Tuple<string, float?>>(_layerRenderTimes.Count);
+                if (!_enabled) return new List<Tuple<string, double ?>>();
+                var sortedRenderTimes = new List<Tuple<string, double ?>>(_layerRenderTimes.Count);
                 foreach (var e in _layerRenderTimes.SetOfKeyValuePairs())
-                    sortedRenderTimes.Add(new Tuple<string, float?>(e.Key, e.Value.Mean));
+                    sortedRenderTimes.Add(new Tuple<string, double ?>(e.Key, e.Value.Mean));
                 sortedRenderTimes.Sort(_floatComparator);
                 return sortedRenderTimes;
             }
@@ -33,7 +33,7 @@ namespace Avalonia.Lottie
 
         public event EventHandler<FrameRenderedEventArgs> FrameRendered;
 
-        public virtual void RecordRenderTime(string layerName, float millis)
+        public virtual void RecordRenderTime(string layerName, double  millis)
         {
             if (!_enabled) return;
             if (!_layerRenderTimes.TryGetValue(layerName, out var meanCalculator))
@@ -70,17 +70,17 @@ namespace Avalonia.Lottie
 
         public class FrameRenderedEventArgs : EventArgs
         {
-            public FrameRenderedEventArgs(float renderTimeMs)
+            public FrameRenderedEventArgs(double renderTimeMs)
             {
                 RenderTimeMs = renderTimeMs;
             }
 
-            public float RenderTimeMs { get; }
+            public double  RenderTimeMs { get; }
         }
 
-        private class ComparatorAnonymousInnerClass : IComparer<Tuple<string, float?>>
+        private class ComparatorAnonymousInnerClass : IComparer<Tuple<string, double ?>>
         {
-            public int Compare(Tuple<string, float?> o1, Tuple<string, float?> o2)
+            public int Compare(Tuple<string, double ?> o1, Tuple<string, double ?> o2)
             {
                 var r1 = o1.Item2;
                 var r2 = o2.Item2;

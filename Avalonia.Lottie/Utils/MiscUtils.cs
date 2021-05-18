@@ -24,29 +24,23 @@ namespace Avalonia.Lottie.Utils
                     outPath.LineTo(vertex.X, vertex.Y);
                 else
                     outPath.CubicTo(cp1.X, cp1.Y, cp2.X, cp2.Y, vertex.X, vertex.Y);
-                currentPoint.X = vertex.X;
-                currentPoint.Y = vertex.Y;
+                currentPoint  = vertex;
             }
 
             if (shapeData.Closed) outPath.Close();
         }
 
-        internal static float Lerp(float a, float b, float percentage)
+        internal static double  Lerp(double a, double  b, double  percentage)
         {
             return a + percentage * (b - a);
         }
-
-        internal static double Lerp(double a, double b, double percentage)
-        {
-            return a + percentage * (b - a);
-        }
-
-        internal static int Lerp(int a, int b, float percentage)
+ 
+        internal static int Lerp(int a, int b, double  percentage)
         {
             return (int) (a + percentage * (b - a));
         }
 
-        internal static int FloorMod(float x, float y)
+        internal static int FloorMod(double x, double  y)
         {
             return FloorMod((int) x, (int) y);
         }
@@ -63,19 +57,14 @@ namespace Avalonia.Lottie.Utils
             var mod = x % y;
             if (!sameSign && mod != 0) r--;
             return r;
-        }
-
-        internal static float Clamp(float number, float min, float max)
-        {
-            return Math.Max(min, Math.Min(max, number));
-        }
-
+        } 
+        
         internal static double Clamp(double number, double min, double max)
         {
             return Math.Max(min, Math.Min(max, number));
         }
 
-        public static bool Contains(float number, float rangeMin, float rangeMax)
+        public static bool Contains(double number, double  rangeMin, double  rangeMax)
         {
             return number >= rangeMin && number <= rangeMax;
         }

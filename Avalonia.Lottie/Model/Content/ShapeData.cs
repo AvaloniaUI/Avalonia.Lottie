@@ -9,9 +9,9 @@ namespace Avalonia.Lottie.Model.Content
     {
         private readonly List<CubicCurveData> _curves = new();
         private bool _closed;
-        private Vector2 _initialPoint;
+        private Vector _initialPoint;
 
-        public ShapeData(Vector2 initialPoint, bool closed, List<CubicCurveData> curves)
+        public ShapeData(Vector initialPoint, bool closed, List<CubicCurveData> curves)
         {
             _initialPoint = initialPoint;
             _closed = closed;
@@ -22,22 +22,19 @@ namespace Avalonia.Lottie.Model.Content
         {
         }
 
-        internal virtual Vector2 InitialPoint => _initialPoint;
+        internal virtual Vector InitialPoint => _initialPoint;
 
         internal virtual bool Closed => _closed;
 
         internal virtual List<CubicCurveData> Curves => _curves;
 
-        private void SetInitialPoint(float x, float y)
+        private void SetInitialPoint(double x, double  y)
         {
-            if (_initialPoint == null) _initialPoint = new Vector2();
-            _initialPoint.X = x;
-            _initialPoint.Y = y;
-        }
+            _initialPoint  = new Vector(x, y);
+         }
 
-        internal virtual void InterpolateBetween(ShapeData shapeData1, ShapeData shapeData2, float percentage)
-        {
-            if (_initialPoint == null) _initialPoint = new Vector2();
+        internal virtual void InterpolateBetween(ShapeData shapeData1, ShapeData shapeData2, double  percentage)
+        { 
             _closed = shapeData1.Closed || shapeData2.Closed;
 
             if (shapeData1.Curves.Count != shapeData2.Curves.Count)

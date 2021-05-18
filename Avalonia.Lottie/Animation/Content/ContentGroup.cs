@@ -16,7 +16,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly Path _path = new();
         private readonly TransformKeyframeAnimation _transformAnimation;
 
-        private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
+        private Matrix _matrix =Matrix.Identity;
         private List<IPathContent> _pathContents;
         private Rect _rect;
 
@@ -67,12 +67,12 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        internal virtual Matrix3X3 TransformationMatrix
+        internal virtual Matrix TransformationMatrix
         {
             get
             {
                 if (_transformAnimation != null) return _transformAnimation.Matrix;
-                _matrix.Reset();
+                _matrix = Matrix.Identity;
                 return _matrix;
             }
         }
@@ -93,9 +93,9 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public virtual void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public virtual void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
-            _matrix.Set(parentMatrix);
+            _matrix=(parentMatrix);
             byte alpha;
             if (_transformAnimation != null)
             {
@@ -114,9 +114,9 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public virtual void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
-            _matrix.Set(parentMatrix);
+            _matrix=(parentMatrix);
             if (_transformAnimation != null) _matrix = MatrixExt.PreConcat(_matrix, _transformAnimation.Matrix);
             RectExt.Set(ref _rect, 0, 0, 0, 0);
             for (var i = _contents.Count - 1; i >= 0; i--)
@@ -127,10 +127,10 @@ namespace Avalonia.Lottie.Animation.Content
                         RectExt.Set(ref outBounds, _rect);
                     else
                         RectExt.Set(ref outBounds,
-                            (float) Math.Min(outBounds.Left, _rect.Left),
-                            (float) Math.Min(outBounds.Top, _rect.Top),
-                            (float) Math.Max(outBounds.Right, _rect.Right),
-                            (float) Math.Max(outBounds.Bottom, _rect.Bottom));
+                             Math.Min(outBounds.Left, _rect.Left),
+                             Math.Min(outBounds.Top, _rect.Top),
+                             Math.Max(outBounds.Right, _rect.Right),
+                             Math.Max(outBounds.Bottom, _rect.Bottom));
                 }
         }
 
@@ -167,8 +167,8 @@ namespace Avalonia.Lottie.Animation.Content
             get
             {
                 // TODO: cache this somehow.
-                _matrix.Reset();
-                if (_transformAnimation != null) _matrix.Set(_transformAnimation.Matrix);
+                _matrix = Matrix.Identity;
+                if (_transformAnimation != null) _matrix=(_transformAnimation.Matrix);
                 _path.Reset();
                 for (var i = _contents.Count - 1; i >= 0; i--)
                     if (_contents[i] is IPathContent pathContent)

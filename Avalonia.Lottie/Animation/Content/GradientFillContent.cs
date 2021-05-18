@@ -29,7 +29,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly int _cacheSteps;
         private readonly IBaseKeyframeAnimation<GradientColor, GradientColor> _colorAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _endPointAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _endPointAnimation;
 
         private readonly BaseLayer _layer;
         private readonly Dictionary<long, LinearGradient> _linearGradientCache = new();
@@ -42,8 +42,8 @@ namespace Avalonia.Lottie.Animation.Content
         //private Rect _boundsRect;
         private readonly List<IPathContent> _paths = new();
         private readonly Dictionary<long, RadialGradient> _radialGradientCache = new();
-        private readonly Matrix3X3 _shaderMatrix = Matrix3X3.CreateIdentity();
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _startPointAnimation;
+        private   Matrix _shaderMatrix =Matrix.Identity;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _startPointAnimation;
         private readonly GradientType _type;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _highlightAngleAnimation;
@@ -157,7 +157,7 @@ namespace Avalonia.Lottie.Animation.Content
                     _paths.Add(pathContent);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("GradientFillContent.Draw");
             _path.Reset();
@@ -170,7 +170,7 @@ namespace Avalonia.Lottie.Animation.Content
                 shader = LinearGradient;
             else
                 shader = RadialGradient;
-            _shaderMatrix.Set(parentMatrix);
+            _shaderMatrix=(parentMatrix);
             shader.LocalMatrix = _shaderMatrix;
             _paint.Shader = shader;
 
@@ -183,15 +183,15 @@ namespace Avalonia.Lottie.Animation.Content
             LottieLog.EndSection("GradientFillContent.Draw");
         }
 
-        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             _path.Reset();
             for (var i = 0; i < _paths.Count; i++) _path.AddPath(_paths[i].Path, parentMatrix);
 
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, (float) outBounds.Left - 1, (float) outBounds.Top - 1,
-                (float) outBounds.Right + 1, (float) outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds,  outBounds.Left - 1,  outBounds.Top - 1,
+                 outBounds.Right + 1,  outBounds.Bottom + 1);
         }
 
         public string Name { get; }

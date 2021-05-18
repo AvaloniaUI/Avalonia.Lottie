@@ -12,16 +12,16 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly ShapeDataParser Instance = new();
 
-        public ShapeData Parse(JsonReader reader, float scale)
+        public ShapeData Parse(JsonReader reader, double  scale)
         {
             // Sometimes the points data is in a array of length 1. Sometimes the data is at the top 
             // level. 
             if (reader.Peek() == JsonToken.StartArray) reader.BeginArray();
 
             var closed = false;
-            List<Vector2> pointsArray = null;
-            List<Vector2> inTangents = null;
-            List<Vector2> outTangents = null;
+            List<Vector> pointsArray = null;
+            List<Vector> inTangents = null;
+            List<Vector> outTangents = null;
             reader.BeginObject();
 
             while (reader.HasNext())
@@ -48,7 +48,7 @@ namespace Avalonia.Lottie.Parser
             if (pointsArray == null || inTangents == null || outTangents == null)
                 throw new ArgumentException("Shape data was missing information.");
 
-            if (!pointsArray.Any()) return new ShapeData(new Vector2(), false, new List<CubicCurveData>());
+            if (!pointsArray.Any()) return new ShapeData(new Vector(), false, new List<CubicCurveData>());
 
             var length = pointsArray.Count;
             var vertex = pointsArray[0];

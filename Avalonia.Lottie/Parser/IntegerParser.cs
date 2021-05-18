@@ -6,7 +6,7 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly IntegerParser Instance = new();
 
-        public int? Parse(JsonReader reader, float scale)
+        public int? Parse(JsonReader reader, double  scale)
         {
             return (int) Math.Round(JsonUtils.ValueFromObject(reader) * scale);
         }

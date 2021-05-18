@@ -22,14 +22,14 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class EllipseContent : IPathContent, IKeyPathElementContent
     {
-        private const float EllipseControlPointPercentage = 0.55228f;
+        private const double  EllipseControlPointPercentage = 0.55228f;
         private readonly CircleShape _circleShape;
 
         private readonly Lottie _lottie;
 
         private readonly Path _path = new();
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _sizeAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _positionAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _sizeAnimation;
         private bool _isPathValid;
 
         private TrimPathContent _trimPath;
@@ -57,9 +57,9 @@ namespace Avalonia.Lottie.Animation.Content
         public void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
             if (property == LottieProperty.EllipseSize)
-                _sizeAnimation.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _sizeAnimation.SetValueCallback((ILottieValueCallback<Vector?>) callback);
             else if (property == LottieProperty.Position)
-                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector?>) callback);
         }
 
         public void SetContents(List<IContent> contentsBefore, List<IContent> contentsAfter)

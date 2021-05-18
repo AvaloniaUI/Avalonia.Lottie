@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
         }
 
-        public override float? GetValue(Keyframe<float?> keyframe, float keyframeProgress)
+        public override float? GetValue(Keyframe<float?> keyframe, double  keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
                 throw new InvalidOperationException("Missing values for keyframe.");
@@ -19,7 +19,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
                 return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value,
                     keyframe.StartValue, keyframe.EndValue, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
 
-            return MathExt.Lerp(keyframe.StartValue.Value, keyframe.EndValue.Value, keyframeProgress);
+            return (float?) MathExt.Lerp(keyframe.StartValue.Value, keyframe.EndValue.Value, keyframeProgress);
         }
     }
 }

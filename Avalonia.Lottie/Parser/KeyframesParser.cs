@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Parser
 {
     internal static class KeyframesParser
     {
-        internal static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition, float scale,
+        internal static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition, double  scale,
             IValueParser<T> valueParser)
         {
             var keyframes = new List<Keyframe<T>>();

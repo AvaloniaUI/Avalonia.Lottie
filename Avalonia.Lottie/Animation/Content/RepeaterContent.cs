@@ -19,7 +19,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly Path _path = new();
         private readonly TransformKeyframeAnimation _transform;
         private ContentGroup _contentGroup;
-        private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
+        private Matrix _matrix =Matrix.Identity;
 
         internal RepeaterContent(Lottie lottie, BaseLayer layer, Repeater repeater)
         {
@@ -46,7 +46,7 @@ namespace Avalonia.Lottie.Animation.Content
             _contentGroup.SetContents(contentsBefore, contentsAfter);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte alpha)
+        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte alpha)
         {
             var copies = _copies.Value.Value;
             var offset = _offset.Value.Value;
@@ -54,14 +54,14 @@ namespace Avalonia.Lottie.Animation.Content
             var endOpacity = _transform.EndOpacity.Value.Value / 100f;
             for (var i = (int) copies - 1; i >= 0; i--)
             {
-                _matrix.Set(parentMatrix);
+                _matrix = (parentMatrix);
                 _matrix = MatrixExt.PreConcat(_matrix, _transform.GetMatrixForRepeater(i + offset));
                 var newAlpha = alpha * MiscUtils.Lerp(startOpacity, endOpacity, i / copies);
                 _contentGroup.Draw(canvas, _matrix, (byte) newAlpha);
             }
         }
 
-        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             _contentGroup.GetBounds(ref outBounds, parentMatrix);
         }
@@ -128,7 +128,7 @@ namespace Avalonia.Lottie.Animation.Content
                 var offset = _offset.Value.Value;
                 for (var i = (int) copies - 1; i >= 0; i--)
                 {
-                    _matrix.Set(_transform.GetMatrixForRepeater(i + offset));
+                    _matrix = (_transform.GetMatrixForRepeater(i + offset));
                     _path.AddPath(contentPath, _matrix);
                 }
 

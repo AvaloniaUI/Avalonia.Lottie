@@ -9,16 +9,16 @@ namespace Avalonia.Lottie.Animation.Keyframe
 {
     public class TransformKeyframeAnimation
     {
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _anchorPoint;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _anchorPoint;
         private readonly IBaseKeyframeAnimation<float?, float?> _endOpacity;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacity;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _position;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _position;
         private readonly IBaseKeyframeAnimation<float?, float?> _rotation;
         private readonly IBaseKeyframeAnimation<ScaleXy, ScaleXy> _scale;
 
         // Used for repeaters 
         private readonly IBaseKeyframeAnimation<float?, float?> _startOpacity;
-        private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
+        private Matrix _matrix =Matrix.Identity;
 
         internal TransformKeyframeAnimation(AnimatableTransform animatableTransform)
         {
@@ -31,7 +31,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             _endOpacity = animatableTransform.EndOpacity?.CreateAnimation();
         }
 
-        public float Progress
+        public double  Progress
         {
             set
             {
@@ -51,11 +51,12 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         internal virtual IBaseKeyframeAnimation<float?, float?> EndOpacity => _endOpacity;
 
-        internal virtual Matrix3X3 Matrix
+        internal virtual Matrix Matrix
         {
             get
             {
-                _matrix.Reset();
+                _matrix = Matrix.Identity;
+                
                 var position = _position.Value;
                 if (position != null && (position.Value.X != 0 || position.Value.Y != 0))
                     _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X, position.Value.Y);
@@ -112,18 +113,18 @@ namespace Avalonia.Lottie.Animation.Keyframe
         /**
          * TODO: see if we can use this for the main get_Matrix method.
          */
-        internal Matrix3X3 GetMatrixForRepeater(float amount)
+        internal Matrix GetMatrixForRepeater(double amount)
         {
             var position = _position.Value;
             var anchorPoint = _anchorPoint.Value;
             var scale = _scale.Value;
             var rotation = _rotation.Value.Value;
 
-            _matrix.Reset();
+            _matrix = Matrix;
             _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X * amount, position.Value.Y * amount);
             _matrix = MatrixExt.PreScale(_matrix,
-                (float) Math.Pow(scale.ScaleX, amount),
-                (float) Math.Pow(scale.ScaleY, amount));
+                 Math.Pow(scale.ScaleX, amount),
+                 Math.Pow(scale.ScaleY, amount));
             _matrix = MatrixExt.PreRotate(_matrix, rotation * amount, anchorPoint.Value.X, anchorPoint.Value.Y);
 
             return _matrix;
@@ -135,9 +136,9 @@ namespace Avalonia.Lottie.Animation.Keyframe
         public bool ApplyValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
             if (property == LottieProperty.TransformAnchorPoint)
-                _anchorPoint.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _anchorPoint.SetValueCallback((ILottieValueCallback<Vector?>) callback);
             else if (property == LottieProperty.TransformPosition)
-                _position.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _position.SetValueCallback((ILottieValueCallback<Vector?>) callback);
             else if (property == LottieProperty.TransformScale)
                 _scale.SetValueCallback((ILottieValueCallback<ScaleXy>) callback);
             else if (property == LottieProperty.TransformRotation)

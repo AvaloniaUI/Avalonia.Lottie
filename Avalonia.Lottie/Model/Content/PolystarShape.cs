@@ -16,7 +16,7 @@ namespace Avalonia.Lottie.Model.Content
         private readonly Type _type;
 
         public PolystarShape(string name, Type type, AnimatableFloatValue points,
-            IAnimatableValue<Vector2?, Vector2?> position, AnimatableFloatValue rotation,
+            IAnimatableValue<Vector?, Vector?> position, AnimatableFloatValue rotation,
             AnimatableFloatValue innerRadius, AnimatableFloatValue outerRadius, AnimatableFloatValue innerRoundedness,
             AnimatableFloatValue outerRoundedness)
         {
@@ -35,7 +35,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual AnimatableFloatValue Points { get; }
 
-        internal virtual IAnimatableValue<Vector2?, Vector2?> Position { get; }
+        internal virtual IAnimatableValue<Vector?, Vector?> Position { get; }
 
         internal virtual AnimatableFloatValue Rotation { get; }
 

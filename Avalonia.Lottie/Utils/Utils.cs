@@ -7,15 +7,16 @@ using Avalonia.Media;
 
 namespace Avalonia.Lottie.Utils
 {
+    
     public static class Utils
     {
         public const int SecondInNanos = 1000000000;
         private static  Path _tempPath = new();
         private static  Path _tempPath2 = new();
-        private static Vector2[] _points = new Vector2[2];
-        private static readonly float Sqrt2 = (float) Math.Sqrt(2);
-        private static float _dpScale = -1;
-        private static float _dpi = -1;
+        private static Vector[] _points = new Vector[2];
+        private static readonly double  Sqrt2 =  Math.Sqrt(2);
+        private static double  _dpScale = -1;
+        private static double  _dpi = -1;
 
         static Utils()
         {
@@ -23,12 +24,13 @@ namespace Avalonia.Lottie.Utils
             Dpi();
         }
 
-        internal static Path CreatePath(Vector2 startPoint, Vector2 endPoint, Vector2? cp1, Vector2? cp2)
+
+        internal static Path CreatePath(Vector startPoint, Vector endPoint, Vector? cp1, Vector? cp2)
         {
             var path = new Path();
             path.MoveTo(startPoint.X, startPoint.Y);
 
-            if (cp1.HasValue && cp2.HasValue && (cp1.Value.LengthSquared() != 0 || cp2.Value.LengthSquared() != 0))
+            if (cp1.HasValue && cp2.HasValue && (cp1.Value.SquaredLength != 0 || cp2.Value.SquaredLength != 0))
                 path.CubicTo(startPoint.X + cp1.Value.X, startPoint.Y + cp1.Value.Y, endPoint.X + cp2.Value.X,
                     endPoint.Y + cp2.Value.Y, endPoint.X, endPoint.Y);
             else
@@ -53,19 +55,18 @@ namespace Avalonia.Lottie.Utils
                 }
         }
 
-        internal static float GetScale(Matrix3X3 matrix)
+        internal static double  GetScale(Matrix matrix)
         {
-            _points[0].X = 0;
-            _points[0].Y = 0;
-            _points[1].X = Sqrt2;
-            _points[1].Y = Sqrt2;
-            // Use sqrt(2) so that the hypotenuse is of length 1.
+            _points[0] = Vector.Zero;
+            _points[1] = new Vector(Sqrt2, Sqrt2);
+            
+             // Use sqrt(2) so that the hypotenuse is of length 1.
             matrix.MapPoints(ref _points);
             var dx = _points[1].X - _points[0].X;
             var dy = _points[1].Y - _points[0].Y;
 
             // TODO: figure out why the result needs to be divided by 2.
-            return (float) MathExt.Hypot(dx, dy) / 2f;
+            return  MathExt.Hypot(dx, dy) / 2f;
         }
 
         internal static void ApplyTrimPathIfNeeded(Path path, TrimPathContent trimPath)
@@ -75,7 +76,13 @@ namespace Avalonia.Lottie.Utils
                 trimPath.Offset.Value.Value / 360f);
         }
 
-        internal static void ApplyTrimPathIfNeeded(Path path, float startValue, float endValue, float offsetValue)
+        public static double Distance(Vector v1, Vector v2)
+        {
+            var dV = v2 - v1;
+            return dV.Length;
+        }
+
+        internal static void ApplyTrimPathIfNeeded(Path path, double  startValue, double  endValue, double  offsetValue)
         {
             LottieLog.BeginSection("applyTrimPathIfNeeded");
             using (var pathMeasure = new PathMeasure(path))
@@ -178,7 +185,7 @@ namespace Avalonia.Lottie.Utils
             return patch >= minPatch;
         }
 
-        internal static int HashFor(float a, float b, float c, float d)
+        internal static int HashFor(double a, double  b, double  c, double  d)
         {
             var result = 17;
             if (a != 0) result = (int) (31 * result * a);
@@ -188,13 +195,13 @@ namespace Avalonia.Lottie.Utils
             return result;
         }
 
-        public static float DpScale()
+        public static double  DpScale()
         {
             if (_dpScale == -1) _dpScale = (int) DisplayInformation.GetForCurrentView().ResolutionScale / 100f;
             return _dpScale;
         }
 
-        public static float Dpi()
+        public static double  Dpi()
         {
             if (_dpi == -1) _dpi = (int) DisplayInformation.GetForCurrentView().LogicalDpi;
             return _dpi;
@@ -209,7 +216,7 @@ namespace Avalonia.Lottie.Utils
         public double ScreenHeightInRawPixels { get; set; }
 
         //TODO Return correct dpi
-        public float LogicalDpi { get; set; }
+        public double  LogicalDpi { get; set; }
 
         internal static DisplayInformation GetForCurrentView()
         {

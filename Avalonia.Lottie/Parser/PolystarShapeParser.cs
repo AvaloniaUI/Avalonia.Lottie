@@ -11,7 +11,7 @@ namespace Avalonia.Lottie.Parser
             string name = null;
             var type = PolystarShape.Type.Polygon;
             AnimatableFloatValue points = null;
-            IAnimatableValue<Vector2?, Vector2?> position = null;
+            IAnimatableValue<Vector?, Vector?> position = null;
             AnimatableFloatValue rotation = null;
             AnimatableFloatValue outerRadius = null;
             AnimatableFloatValue outerRoundedness = null;

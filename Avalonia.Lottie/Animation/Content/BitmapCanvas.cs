@@ -27,13 +27,13 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly Stack<ClipSave> _clipSaves = new();
         private readonly Stack<int> _flagSaves = new();
-        private readonly Stack<Matrix3X3> _matrixSaves = new();
+        private readonly Stack<Matrix> _matrixSaves = new();
 
         private readonly Dictionary<int, RenderTargetHolder> _renderTargets = new();
 
         private readonly Stack<RenderTargetSave> _renderTargetSaves = new();
         private Rect _currentClip;
-        private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
+        private Matrix _matrix =Matrix.Identity;
 
         public BitmapCanvas(double width, double height)
         {
@@ -199,17 +199,7 @@ namespace Avalonia.Lottie.Animation.Content
                 
             });
         }
-
-        private Matrix GetCurrentTransform()
-        {
-            return new(_matrix.M11,
-                    _matrix.M21,
-                    _matrix.M12,
-                    _matrix.M22,
-                    _matrix.M13,
-                    _matrix.M23)
-                ;
-        }
+ 
 
         public bool ClipRect(Rect rect)
         {
@@ -222,7 +212,7 @@ namespace Avalonia.Lottie.Animation.Content
             _currentClip = rect;
         }
 
-        public void Concat(Matrix3X3 parentMatrix)
+        public void Concat(Matrix parentMatrix)
         {
             _matrix = MatrixExt.PreConcat(_matrix, parentMatrix);
         }
@@ -283,8 +273,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void SaveMatrix()
         {
-            var copy = new Matrix3X3();
-            copy.Set(_matrix);
+            var copy = new Matrix();
+            copy=(_matrix);
             _matrixSaves.Push(copy);
         }
 
@@ -365,7 +355,7 @@ namespace Avalonia.Lottie.Animation.Content
                 CurrentDrawingContext.PopBitmapBlendMode();
                  
                 // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
-                //     new RawVector2(0, 0),
+                //     new RawAvalonia.Vector(0, 0),
                 //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
                 //     //renderTargetSave.PaintAlpha / 255f,
                 //     InterpolationMode.Linear,
@@ -450,17 +440,12 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Translate(double dx, double dy)
         {
-            _matrix = MatrixExt.PreTranslate(_matrix, (float) dx, (float) dy);
+            _matrix = MatrixExt.PreTranslate(_matrix,  dx,  dy);
         }
-
-        public void Scale(double sx, double sy, double px, double py)
+ 
+        public void SetMatrix(Matrix matrix)
         {
-            _matrix = MatrixExt.PreScale(_matrix, (float) sx, (float) sy, (float) px, (float) py);
-        }
-
-        public void SetMatrix(Matrix3X3 matrix)
-        {
-            _matrix.Set(matrix);
+            _matrix=(matrix);
         }
 
         public Rect DrawText(char character, Paint paint)

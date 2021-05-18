@@ -9,33 +9,32 @@ namespace Avalonia.Lottie.Value
     ///     rather than an absolute value.
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class LottieRelativePointValueCallback : LottieValueCallback<Vector2?>
+    public class LottieRelativePointValueCallback : LottieValueCallback<Vector?>
     {
         public LottieRelativePointValueCallback()
         {
         }
 
-        public LottieRelativePointValueCallback(Vector2 staticValue)
+        public LottieRelativePointValueCallback(Vector staticValue)
             : base(staticValue)
         {
         }
 
-        public override Vector2? GetValue(LottieFrameInfo<Vector2?> frameInfo)
+        public override Vector? GetValue(LottieFrameInfo<Vector?> frameInfo)
         {
-            var point = new Vector2(
-                MiscUtils.Lerp(
+            var point = new Vector(
+                 MiscUtils.Lerp(
                     frameInfo.StartValue.Value.X,
                     frameInfo.EndValue.Value.X,
                     frameInfo.InterpolatedKeyframeProgress),
-                MiscUtils.Lerp(
+                  MiscUtils.Lerp(
                     frameInfo.StartValue.Value.Y,
                     frameInfo.EndValue.Value.Y,
                     frameInfo.InterpolatedKeyframeProgress)
             );
 
             var offset = GetOffset(frameInfo);
-            point.X += offset.X;
-            point.Y += offset.Y;
+            point += offset; 
             return point;
         }
 
@@ -44,7 +43,7 @@ namespace Avalonia.Lottie.Value
         /// </summary>
         /// <param name="frameInfo"></param>
         /// <returns></returns>
-        public Vector2 GetOffset(LottieFrameInfo<Vector2?> frameInfo)
+        public Vector GetOffset(LottieFrameInfo<Vector?> frameInfo)
         {
             if (Value == null)
                 throw new ArgumentException("You must provide a static value in the constructor " +

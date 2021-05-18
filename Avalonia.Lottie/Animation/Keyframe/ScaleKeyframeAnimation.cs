@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
         }
 
-        public override ScaleXy GetValue(Keyframe<ScaleXy> keyframe, float keyframeProgress)
+        public override ScaleXy GetValue(Keyframe<ScaleXy> keyframe, double  keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
                 throw new InvalidOperationException("Missing values for keyframe.");
