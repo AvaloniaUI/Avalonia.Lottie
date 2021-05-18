@@ -569,7 +569,7 @@ namespace Avalonia.Lottie
                 _animator.DoFrame();
             
             var scaledSize = PixelSize.FromSize(_composition.Bounds.Size, VisualRoot.RenderScaling);
-            var matrix =  Matrix3X3.CreateIdentity();
+            var matrix =  Matrix.Identity;
 
             switch (Stretch)
             {
