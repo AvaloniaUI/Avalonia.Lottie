@@ -576,22 +576,52 @@ namespace Avalonia.Lottie
                 case Stretch.None:
                     matrix *= MatrixExt.PreScale(matrix, VisualRoot.RenderScaling, VisualRoot.RenderScaling);
                     break;
-                
-                case Stretch.Fill:
-                    var scaledComposition = scaledSize;
-                    
-                    scaledSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
 
-                    var scaleHeight = (double)scaledSize.Height / (double)scaledComposition.Height;
-                    var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
-                    
-                    matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
+                case Stretch.Fill:
+                    {       
+                        var scaledComposition = scaledSize;
+
+                        scaledSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
+
+                        var scaleHeight = (double) scaledSize.Height / (double) scaledComposition.Height;
+                        var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
+
+                        matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
+                    }
                     break;
-                    
+
                 case Stretch.Uniform:
-                    
+                    {
+                        var scaledComposition = scaledSize;
+
+                        var boundsPixelSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
+                        
+                        if (boundsPixelSize.Height > boundsPixelSize.Width)
+                        {
+                            var scaleFactor = boundsPixelSize.Height / (double)scaledComposition.Height;
+
+                            scaledSize =
+                                PixelSize.FromSize(
+                                    new Size(scaledComposition.Width, scaledComposition.Height),
+                                    scaleFactor);
+                        }
+                        else
+                        {
+                            var scaleFactor = boundsPixelSize.Width / (double)scaledComposition.Width;
+
+                            scaledSize =
+                                PixelSize.FromSize(
+                                    new Size(scaledComposition.Width, scaledComposition.Height),
+                                    scaleFactor);
+                        }
+                        
+                        var scaleHeight = (double) scaledSize.Height / (double) scaledComposition.Height;
+                        var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
+
+                        matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
+                    }
                     break;
-                
+
                 case Stretch.UniformToFill:
                     break;
             }
@@ -608,8 +638,6 @@ namespace Avalonia.Lottie
 
             using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
-            
-
             using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
           
             _bitmapCanvas.Clear(Colors.Red);
