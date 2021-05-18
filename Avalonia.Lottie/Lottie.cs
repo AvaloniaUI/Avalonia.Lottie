@@ -557,8 +557,6 @@ namespace Avalonia.Lottie
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
-            
-            renderCtx.FillRectangle(Brushes.Green, Bounds);
 
             var containerRect = Bounds;
 
@@ -568,8 +566,7 @@ namespace Avalonia.Lottie
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
             
-            
-            var matrix =  Matrix3X3.CreateIdentity();
+            var matrix =  Matrix.Identity;
             
             var viewPort = new Rect(Bounds.Size);
             
@@ -586,7 +583,7 @@ namespace Avalonia.Lottie
                 
             var scaledPixelSize = PixelSize.FromSize(sourceRect.Size, 1);
             
-            matrix = MatrixExt.PreScale(matrix, scaledPixelSize.Width / sourceSize.Width, scaledPixelSize.Height / sourceSize.Height);
+            matrix *= Matrix.CreateScale(scaledPixelSize.Width / sourceSize.Width, scaledPixelSize.Height / sourceSize.Height);
             
             if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledPixelSize))
             {
