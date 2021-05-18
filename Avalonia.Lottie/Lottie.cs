@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Lottie.Animation.Content;
@@ -14,9 +13,10 @@ using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using Avalonia.Metadata;
+
+#nullable enable
 
 namespace Avalonia.Lottie
 {
@@ -43,7 +43,7 @@ namespace Avalonia.Lottie
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
         private byte _alpha = 255;
-        private BitmapCanvas _bitmapCanvas;
+        private BitmapCanvas? _bitmapCanvas;
         private LottieComposition _composition;
         private CompositionLayer _compositionLayer;
         private bool _enableMergePaths;
@@ -53,11 +53,13 @@ namespace Avalonia.Lottie
         private IImageAssetDelegate _imageAssetDelegate;
         private ImageAssetManager _imageAssetManager;
         private bool _performanceTrackingEnabled;
-        private float _scale = 1f;
+        private double _scale = 1f;
         private TextDelegate _textDelegate;
 
         public Lottie()
         {
+            ClipToBounds = true;
+            
             _animator.Update += delegate
             {
                 if (_compositionLayer is not null)
@@ -114,7 +116,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Gets or sets the minimum frame that the animation will start from when playing or looping.
         /// </summary>
-        internal float MinFrame
+        internal double  MinFrame
         {
             get => 0;
             set
@@ -132,7 +134,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Sets the minimum progress that the animation will start from when playing or looping.
         /// </summary>
-        internal float MinProgress
+        internal double  MinProgress
         {
             get => 0;
 
@@ -151,7 +153,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Gets or sets the maximum frame that the animation will end at when playing or looping.
         /// </summary>
-        internal float MaxFrame
+        internal double  MaxFrame
         {
             set
             {
@@ -170,7 +172,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Sets the maximum progress that the animation will end at when playing or looping.
         /// </summary>
-        internal float MaxProgress
+        internal double  MaxProgress
         {
             get => 0;
 
@@ -195,13 +197,13 @@ namespace Avalonia.Lottie
         ///     Sets the playback speed. If speed &lt; 0, the animation will play backwards.
         ///     Returns the current playback speed. This will be &lt; 0 if the animation is playing backwards.
         /// </summary>
-        public virtual float Speed
+        public virtual double  Speed
         {
             set => _animator.Speed = value;
             get => _animator.Speed;
         }
 
-        internal float Frame
+        internal double  Frame
         {
             /**
             * Sets the progress to the specified frame.
@@ -224,7 +226,7 @@ namespace Avalonia.Lottie
             get => _animator.Frame;
         }
 
-        public virtual float Progress
+        public virtual double  Progress
         {
             get => _animator.AnimatedValueAbsolute;
             set
@@ -268,7 +270,7 @@ namespace Avalonia.Lottie
             get => _animator.RepeatCount;
         }
 
-        public float FrameRate
+        public double  FrameRate
         {
             get => _animator.FrameRate;
             set => _animator.FrameRate = value;
@@ -458,7 +460,7 @@ namespace Avalonia.Lottie
 
         public void ClearComposition()
         {
-            ClearRTB();
+            ClearRtb();
             RecycleBitmaps();
             if (_animator.IsRunning) _animator.Cancel();
 
@@ -535,66 +537,28 @@ namespace Avalonia.Lottie
             }
         }
 
-        private RenderTargetBitmap _renderTargetBitmap;
+        private RenderTargetBitmap? _renderTargetBitmap;
         private bool _isEnabled = true;
 
-        void CreateNewRTB(Size newSize)
+        private RenderTargetBitmap CreateNewRtb(PixelSize newSize)
         {
-            ClearRTB();
-            _renderTargetBitmap =
-                new RenderTargetBitmap(new PixelSize((int) newSize.Width, (int) newSize.Height),
-                    new Vector(96, 96));
+            ClearRtb();
+            return new RenderTargetBitmap(newSize,new Vector(96, 96));
         }
 
-        void ClearRTB()
+        private void ClearRtb()
         {
             _renderTargetBitmap?.Dispose();
             _renderTargetBitmap = null;
         }
 
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            var boundsSize = new Rect(availableSize);
-
-            if (_compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
-                return availableSize;
-
-            var compositionSize = _composition.Bounds;
-
-            return Stretch switch
-            {
-                Stretch.Uniform => compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                Stretch.UniformToFill => compositionSize.Size * Math.Max(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                _ => compositionSize.Size
-            };
-        }
-
-        protected override void ArrangeCore(Rect finalRect)
-        {
-            var boundsSize = finalRect;
-
-            if (_compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
-                return;
-
-            var compositionSize = _composition.Bounds;
-
-            var centSize = Stretch switch
-            {
-                Stretch.Uniform => compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                Stretch.UniformToFill => compositionSize.Size * Math.Max(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                _ => compositionSize.Size
-            };
-
-            base.ArrangeCore(boundsSize.CenterRect(new Rect(0, 0, centSize.Width, centSize.Height)));
-        }
+        
 
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
+            
+            renderCtx.FillRectangle(Brushes.Green, Bounds);
 
             var containerRect = Bounds;
 
@@ -603,39 +567,55 @@ namespace Avalonia.Lottie
 
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
+            
+            var scaledSize = PixelSize.FromSize(_composition.Bounds.Size, VisualRoot.RenderScaling);
+            var matrix =  Matrix3X3.CreateIdentity();
 
-            var compositionSize = _composition.Bounds;
-
-            var scale = compositionSize.Size * Math.Min(containerRect.Width / compositionSize.Width,
-                containerRect.Height / compositionSize.Height);
-
-            if (_renderTargetBitmap is not null)
+            switch (Stretch)
             {
-                if (_renderTargetBitmap.Size != scale)
-                {
-                    CreateNewRTB(scale);
-                }
-            }
-            else
-            {
-                CreateNewRTB(scale);
+                case Stretch.None:
+                    matrix *= MatrixExt.PreScale(matrix, VisualRoot.RenderScaling, VisualRoot.RenderScaling);
+                    break;
+                
+                case Stretch.Fill:
+                    var scaledComposition = scaledSize;
+                    
+                    scaledSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
+
+                    var scaleHeight = (double)scaledSize.Height / (double)scaledComposition.Height;
+                    var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
+                    
+                    matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
+                    break;
+                    
+                case Stretch.Uniform:
+                    break;
+                
+                case Stretch.UniformToFill:
+                    break;
             }
 
-            var rtbSize = new Rect(new Point(0, 0), _renderTargetBitmap.Size);
+            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledSize))
+            {
+                _renderTargetBitmap = CreateNewRtb(scaledSize);
+            }
+
+            if (_renderTargetBitmap is null)
+            {
+                return;
+            }
 
             using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
-            var (x, y) = rtbSize.Size / _composition.Bounds.Size;
+            
 
-            var matrix = MatrixExt.PreScale(Matrix3X3.CreateIdentity(), (float) x, (float) y);
-
-            using var session = _bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, rtbDrawingContext);
+            using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
           
-            _bitmapCanvas.Clear(Colors.Transparent);
+            _bitmapCanvas.Clear(Colors.Red);
 
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, rtbSize, rtbSize);
+            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(0, 0),  _renderTargetBitmap.Size), new Rect(new Point(0, 0),  _renderTargetBitmap.Size));
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
 
@@ -684,7 +664,7 @@ namespace Avalonia.Lottie
         /// </summary>
         /// <param name="minFrame"></param>
         /// <param name="maxFrame"></param>
-        public void SetMinAndMaxFrame(float minFrame, float maxFrame)
+        public void SetMinAndMaxFrame(double minFrame, double  maxFrame)
         {
             if (_composition == null)
             {
@@ -701,7 +681,7 @@ namespace Avalonia.Lottie
         /// </summary>
         /// <param name="minProgress"></param>
         /// <param name="maxProgress"></param>
-        public void SetMinAndMaxProgress(float minProgress, float maxProgress)
+        public void SetMinAndMaxProgress(double minProgress, double  maxProgress)
         {
             if (minProgress < 0)
                 minProgress = 0;
@@ -765,7 +745,7 @@ namespace Avalonia.Lottie
             if (_composition == null) return;
 
             _bitmapCanvas?.Dispose();
-            _bitmapCanvas = new BitmapCanvas((float) Width, (float) Height);
+            _bitmapCanvas = new BitmapCanvas( Width,  Height);
         }
 
         public virtual void CancelAnimation()
@@ -903,10 +883,10 @@ namespace Avalonia.Lottie
          * If there are masks or mattes, we can't scale the animation larger than the canvas or else 
          * the off screen rendering for masks and mattes after saveLayer calls will get clipped.
          */
-        private float GetMaxScale(BitmapCanvas canvas)
+        private double  GetMaxScale(BitmapCanvas canvas)
         {
-            var maxScaleX = (float) canvas.Width / (float) _composition.Bounds.Width;
-            var maxScaleY = (float) canvas.Height / (float) _composition.Bounds.Height;
+            var maxScaleX =  canvas.Width /  _composition.Bounds.Width;
+            var maxScaleY =  canvas.Height /  _composition.Bounds.Height;
             return Math.Min(maxScaleX, maxScaleY);
         }
 
