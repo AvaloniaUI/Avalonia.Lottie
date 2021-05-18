@@ -589,6 +589,7 @@ namespace Avalonia.Lottie
                     break;
                     
                 case Stretch.Uniform:
+                    
                     break;
                 
                 case Stretch.UniformToFill:
@@ -615,7 +616,7 @@ namespace Avalonia.Lottie
 
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(0, 0),  _renderTargetBitmap.Size), new Rect(new Point(0, 0),  _renderTargetBitmap.Size));
+            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(0, 0),  Bounds.Size), Bounds);
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
 
