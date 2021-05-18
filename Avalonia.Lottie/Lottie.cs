@@ -557,8 +557,6 @@ namespace Avalonia.Lottie
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
-            
-            renderCtx.FillRectangle(Brushes.Green, Bounds);
 
             var containerRect = Bounds;
 
@@ -568,37 +566,28 @@ namespace Avalonia.Lottie
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
             
-            var scaledSize = PixelSize.FromSize(_composition.Bounds.Size, VisualRoot.RenderScaling);
             var matrix =  Matrix.Identity;
+            
+            var viewPort = new Rect(Bounds.Size);
+            
+            var sourceSize = _composition.Bounds.Size;
 
-            switch (Stretch)
-            {
-                case Stretch.None:
-                    matrix *= MatrixExt.PreScale(matrix, VisualRoot.RenderScaling, VisualRoot.RenderScaling);
-                    break;
+            var scale = Stretch.CalculateScaling(Bounds.Size, sourceSize);
+            var scaledSize = sourceSize * scale;
+            
+            var destRect = viewPort
+                .CenterRect(new Rect(scaledSize))
+                .Intersect(viewPort);
+            
+            var sourceRect = destRect * VisualRoot.RenderScaling;
                 
-                case Stretch.Fill:
-                    var scaledComposition = scaledSize;
-                    
-                    scaledSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
-
-                    var scaleHeight = (double)scaledSize.Height / (double)scaledComposition.Height;
-                    var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
-                    
-                    matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
-                    break;
-                    
-                case Stretch.Uniform:
-                    
-                    break;
-                
-                case Stretch.UniformToFill:
-                    break;
-            }
-
-            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledSize))
+            var scaledPixelSize = PixelSize.FromSize(sourceRect.Size, 1);
+            
+            matrix *= Matrix.CreateScale(scaledPixelSize.Width / sourceSize.Width, scaledPixelSize.Height / sourceSize.Height);
+            
+            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledPixelSize))
             {
-                _renderTargetBitmap = CreateNewRtb(scaledSize);
+                _renderTargetBitmap = CreateNewRtb(scaledPixelSize);
             }
 
             if (_renderTargetBitmap is null)
@@ -608,17 +597,15 @@ namespace Avalonia.Lottie
 
             using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
-            
-
             using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
-          
-            _bitmapCanvas.Clear(Colors.Red);
 
+            _bitmapCanvas.Clear(Colors.Transparent);
+            
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(0, 0),  Bounds.Size), Bounds);
+            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(), sourceRect.Size), destRect);
 
-            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
             LottieLog.EndSection("Drawable.Draw");
         }
