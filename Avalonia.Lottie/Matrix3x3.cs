@@ -72,7 +72,7 @@ namespace Avalonia.Lottie
             };
         }
 
-        public Vector2 Transform(Vector2 v)
+        public Vector Transform(Vector v)
         {
             return new(
                 (float) (v.X * M11 + v.Y * M12 + M13),

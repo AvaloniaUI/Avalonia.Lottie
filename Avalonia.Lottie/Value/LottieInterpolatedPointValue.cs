@@ -13,24 +13,24 @@ using Avalonia.Lottie.Utils;
 namespace Avalonia.Lottie.Value
 {
     // ReSharper disable once UnusedMember.Global
-    public class LottieInterpolatedPointValue : LottieInterpolatedValue<Vector2>
+    public class LottieInterpolatedPointValue : LottieInterpolatedValue<Vector>
     {
-        private Vector2 _point;
+        private Vector _point;
 
-        public LottieInterpolatedPointValue(Vector2 startValue, Vector2 endValue)
+        public LottieInterpolatedPointValue(Vector startValue, Vector endValue)
             : base(startValue, endValue)
         {
         }
 
-        public LottieInterpolatedPointValue(Vector2 startValue, Vector2 endValue, IInterpolator interpolator)
+        public LottieInterpolatedPointValue(Vector startValue, Vector endValue, IInterpolator interpolator)
             : base(startValue, endValue, interpolator)
         {
         }
 
-        protected override Vector2 InterpolateValue(Vector2 startValue, Vector2 endValue, double  progress)
-        {
-            _point.X = (float) MiscUtils.Lerp(startValue.X, endValue.X, progress);
-            _point.Y = (float) MiscUtils.Lerp(startValue.Y, endValue.Y, progress);
+        protected override Vector InterpolateValue(Vector startValue, Vector endValue, double  progress)
+        { 
+            _point =  new Vector(MiscUtils.Lerp(startValue.X, endValue.X, progress),
+              MiscUtils.Lerp(startValue.Y, endValue.Y, progress));
             return _point;
         }
     }

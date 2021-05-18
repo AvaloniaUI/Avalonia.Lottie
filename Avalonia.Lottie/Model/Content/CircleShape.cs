@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Model.Content
 {
     public class CircleShape : IContentModel
     {
-        public CircleShape(string name, IAnimatableValue<Vector2?, Vector2?> position, AnimatablePointValue size,
+        public CircleShape(string name, IAnimatableValue<Vector?, Vector?> position, AnimatablePointValue size,
             bool isReversed)
         {
             Name = name;
@@ -18,7 +18,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal string Name { get; }
 
-        public IAnimatableValue<Vector2?, Vector2?> Position { get; }
+        public IAnimatableValue<Vector?, Vector?> Position { get; }
 
         public AnimatablePointValue Size { get; }
 

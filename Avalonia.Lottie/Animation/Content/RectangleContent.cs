@@ -27,8 +27,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly Lottie _lottie;
         private readonly Path _path = new();
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _sizeAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _positionAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _sizeAnimation;
         private bool _isPathValid;
         private Rect _rect;
 
@@ -82,9 +82,9 @@ namespace Avalonia.Lottie.Animation.Content
                 _path.Reset();
 
                 var size = _sizeAnimation.Value;
-                var halfWidth = size.Value.X / 2f;
-                var halfHeight = size.Value.Y / 2f;
-                var radius = _cornerRadiusAnimation?.Value ?? 0f;
+                var halfWidth = size.Value.X / 2d;
+                var halfHeight = size.Value.Y / 2d;
+                var radius = _cornerRadiusAnimation?.Value ?? 0d;
                 var maxRadius = Math.Min(halfWidth, halfHeight);
                 if (radius > maxRadius) radius = maxRadius;
 

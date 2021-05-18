@@ -48,8 +48,8 @@ namespace Avalonia.Lottie.Animation.Content
         {
             if (_canvasRadialGradientBrush is not null) return _canvasRadialGradientBrush;
 
-            var startPoint = new Vector2((float) _x0, (float) _y0);
-            var endPoint = new Vector2((float) _x1, (float) _y1);
+            var startPoint = new Vector((float) _x0, (float) _y0);
+            var endPoint = new Vector((float) _x1, (float) _y1);
 
             startPoint = LocalMatrix.Transform(startPoint);
             endPoint = LocalMatrix.Transform(endPoint);

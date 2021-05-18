@@ -12,7 +12,7 @@ namespace Avalonia.Lottie.Utils
         public const int SecondInNanos = 1000000000;
         private static  Path _tempPath = new();
         private static  Path _tempPath2 = new();
-        private static Vector2[] _points = new Vector2[2];
+        private static Vector[] _points = new Vector[2];
         private static readonly double  Sqrt2 =  Math.Sqrt(2);
         private static double  _dpScale = -1;
         private static double  _dpi = -1;
@@ -23,12 +23,12 @@ namespace Avalonia.Lottie.Utils
             Dpi();
         }
 
-        internal static Path CreatePath(Vector2 startPoint, Vector2 endPoint, Vector2? cp1, Vector2? cp2)
+        internal static Path CreatePath(Vector startPoint, Vector endPoint, Vector? cp1, Vector? cp2)
         {
             var path = new Path();
             path.MoveTo(startPoint.X, startPoint.Y);
 
-            if (cp1.HasValue && cp2.HasValue && (cp1.Value.LengthSquared() != 0 || cp2.Value.LengthSquared() != 0))
+            if (cp1.HasValue && cp2.HasValue && (cp1.Value.SquaredLength != 0 || cp2.Value.SquaredLength != 0))
                 path.CubicTo(startPoint.X + cp1.Value.X, startPoint.Y + cp1.Value.Y, endPoint.X + cp2.Value.X,
                     endPoint.Y + cp2.Value.Y, endPoint.X, endPoint.Y);
             else
@@ -55,11 +55,10 @@ namespace Avalonia.Lottie.Utils
 
         internal static double  GetScale(Matrix3X3 matrix)
         {
-            _points[0].X = 0;
-            _points[0].Y = 0;
-            _points[1].X = (float) Sqrt2;
-            _points[1].Y = (float) Sqrt2;
-            // Use sqrt(2) so that the hypotenuse is of length 1.
+            _points[0] = Vector.Zero;
+            _points[1] = new Vector(Sqrt2, Sqrt2);
+            
+             // Use sqrt(2) so that the hypotenuse is of length 1.
             matrix.MapPoints(ref _points);
             var dx = _points[1].X - _points[0].X;
             var dy = _points[1].Y - _points[0].Y;
@@ -73,6 +72,12 @@ namespace Avalonia.Lottie.Utils
             if (trimPath == null) return;
             ApplyTrimPathIfNeeded(path, trimPath.Start.Value.Value / 100f, trimPath.End.Value.Value / 100f,
                 trimPath.Offset.Value.Value / 360f);
+        }
+
+        public static double Distance(Vector v1, Vector v2)
+        {
+            var dV = v2 - v1;
+            return dV.Length;
         }
 
         internal static void ApplyTrimPathIfNeeded(Path path, double  startValue, double  endValue, double  offsetValue)

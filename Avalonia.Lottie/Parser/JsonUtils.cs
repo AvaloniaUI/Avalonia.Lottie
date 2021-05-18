@@ -24,9 +24,9 @@ namespace Avalonia.Lottie.Parser
             return new Color(255, r, g, b);
         }
 
-        internal static List<Vector2> JsonToPoints(JsonReader reader, double  scale)
+        internal static List<Vector> JsonToPoints(JsonReader reader, double  scale)
         {
-            var points = new List<Vector2>();
+            var points = new List<Vector>();
 
             reader.BeginArray();
             while (reader.Peek() == JsonToken.StartArray)
@@ -40,7 +40,7 @@ namespace Avalonia.Lottie.Parser
             return points;
         }
 
-        internal static Vector2 JsonToPoint(JsonReader reader, double  scale)
+        internal static Vector JsonToPoint(JsonReader reader, double  scale)
         {
             switch (reader.Peek())
             {
@@ -53,15 +53,15 @@ namespace Avalonia.Lottie.Parser
             }
         }
 
-        private static Vector2 JsonNumbersToPoint(JsonReader reader, double  scale)
+        private static Vector JsonNumbersToPoint(JsonReader reader, double  scale)
         {
             var x = reader.NextDouble();
             var y = reader.NextDouble();
             while (reader.HasNext()) reader.SkipValue();
-            return new Vector2((float)x * (float)scale, (float)y * (float)scale);
+            return new Vector((float)x * (float)scale, (float)y * (float)scale);
         }
 
-        private static Vector2 JsonArrayToPoint(JsonReader reader, double  scale)
+        private static Vector JsonArrayToPoint(JsonReader reader, double  scale)
         {
             double  x;
             double  y;
@@ -70,10 +70,10 @@ namespace Avalonia.Lottie.Parser
             y = reader.NextDouble();
             while (reader.Peek() != JsonToken.EndArray) reader.SkipValue();
             reader.EndArray();
-            return new Vector2((float)x * (float)scale, (float)y * (float)scale);
+            return new Vector((float)x * (float)scale, (float)y * (float)scale);
         }
 
-        private static Vector2 JsonObjectToPoint(JsonReader reader, double  scale)
+        private static Vector JsonObjectToPoint(JsonReader reader, double  scale)
         {
             var x = 0d;
             var y = 0d;
@@ -93,7 +93,7 @@ namespace Avalonia.Lottie.Parser
                 }
 
             reader.EndObject();
-            return new Vector2((float)x * (float)scale, (float)y * (float)scale);
+            return new Vector((float)x * (float)scale, (float)y * (float)scale);
         }
 
         internal static double  ValueFromObject(JsonReader reader)

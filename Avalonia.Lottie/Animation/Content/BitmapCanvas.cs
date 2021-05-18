@@ -365,7 +365,7 @@ namespace Avalonia.Lottie.Animation.Content
                 CurrentDrawingContext.PopBitmapBlendMode();
                  
                 // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
-                //     new RawVector2(0, 0),
+                //     new RawAvalonia.Vector(0, 0),
                 //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
                 //     //renderTargetSave.PaintAlpha / 255f,
                 //     InterpolationMode.Linear,

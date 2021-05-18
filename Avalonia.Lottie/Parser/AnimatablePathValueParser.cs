@@ -10,17 +10,17 @@ namespace Avalonia.Lottie.Parser
     {
         public static AnimatablePathValue Parse(JsonReader reader, LottieComposition composition)
         {
-            var keyframes = new List<Keyframe<Vector2?>>();
+            var keyframes = new List<Keyframe<Vector?>>();
             if (reader.Peek() == JsonToken.StartArray)
             {
                 reader.BeginArray();
                 while (reader.HasNext()) keyframes.Add(PathKeyframeParser.Parse(reader, composition));
                 reader.EndArray();
-                KeyframesParser.SetEndFrames<Keyframe<Vector2?>, Vector2?>(keyframes);
+                KeyframesParser.SetEndFrames<Keyframe<Vector?>, Vector?>(keyframes);
             }
             else
             {
-                keyframes.Add(new Keyframe<Vector2?>(JsonUtils.JsonToPoint(reader, Utils.Utils.DpScale())));
+                keyframes.Add(new Keyframe<Vector?>(JsonUtils.JsonToPoint(reader, Utils.Utils.DpScale())));
             }
 
             return new AnimatablePathValue(keyframes);
@@ -32,7 +32,7 @@ namespace Avalonia.Lottie.Parser
         /// <param name="reader"></param>
         /// <param name="composition"></param>
         /// <returns></returns>
-        internal static IAnimatableValue<Vector2?, Vector2?> ParseSplitPath(JsonReader reader,
+        internal static IAnimatableValue<Vector?, Vector?> ParseSplitPath(JsonReader reader,
             LottieComposition composition)
         {
             AnimatablePathValue pathAnimation = null;

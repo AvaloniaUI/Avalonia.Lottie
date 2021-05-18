@@ -24,8 +24,7 @@ namespace Avalonia.Lottie.Utils
                     outPath.LineTo(vertex.X, vertex.Y);
                 else
                     outPath.CubicTo(cp1.X, cp1.Y, cp2.X, cp2.Y, vertex.X, vertex.Y);
-                currentPoint.X = vertex.X;
-                currentPoint.Y = vertex.Y;
+                currentPoint  = vertex;
             }
 
             if (shapeData.Closed) outPath.Close();

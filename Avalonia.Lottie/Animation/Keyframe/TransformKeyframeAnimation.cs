@@ -9,10 +9,10 @@ namespace Avalonia.Lottie.Animation.Keyframe
 {
     public class TransformKeyframeAnimation
     {
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _anchorPoint;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _anchorPoint;
         private readonly IBaseKeyframeAnimation<float?, float?> _endOpacity;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacity;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _position;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _position;
         private readonly IBaseKeyframeAnimation<float?, float?> _rotation;
         private readonly IBaseKeyframeAnimation<ScaleXy, ScaleXy> _scale;
 
@@ -135,9 +135,9 @@ namespace Avalonia.Lottie.Animation.Keyframe
         public bool ApplyValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
             if (property == LottieProperty.TransformAnchorPoint)
-                _anchorPoint.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _anchorPoint.SetValueCallback((ILottieValueCallback<Vector?>) callback);
             else if (property == LottieProperty.TransformPosition)
-                _position.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _position.SetValueCallback((ILottieValueCallback<Vector?>) callback);
             else if (property == LottieProperty.TransformScale)
                 _scale.SetValueCallback((ILottieValueCallback<ScaleXy>) callback);
             else if (property == LottieProperty.TransformRotation)

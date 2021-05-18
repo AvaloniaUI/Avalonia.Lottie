@@ -39,7 +39,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly IBaseKeyframeAnimation<float?, float?> _outerRoundednessAnimation;
         private readonly Path _path = new();
         private readonly IBaseKeyframeAnimation<float?, float?> _pointsAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _positionAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _positionAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _rotationAnimation;
         private readonly PolystarShape.Type _type;
         private bool _isPathValid;
@@ -103,7 +103,7 @@ namespace Avalonia.Lottie.Animation.Content
             else if (property == LottieProperty.PolystarRotation)
                 _rotationAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
             else if (property == LottieProperty.Position)
-                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector2?>) callback);
+                _positionAnimation.SetValueCallback((ILottieValueCallback<Vector?>) callback);
             else if (property == LottieProperty.PolystarInnerRadius && _innerRadiusAnimation != null)
                 _innerRadiusAnimation.SetValueCallback((ILottieValueCallback<float?>) callback);
             else if (property == LottieProperty.PolystarOuterRadius)

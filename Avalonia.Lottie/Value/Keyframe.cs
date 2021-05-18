@@ -42,8 +42,8 @@ namespace Avalonia.Lottie.Value
 
         // Used by PathKeyframe but it has to be parsed by KeyFrame because we use a JsonReader to 
         // deserialzie the data so we have to parse everything in order 
-        public Vector2? PathCp1 { get; set; }
-        public Vector2? PathCp2 { get; set; }
+        public Vector? PathCp1 { get; set; }
+        public Vector? PathCp2 { get; set; }
 
         public virtual double  StartProgress
         {

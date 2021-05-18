@@ -5,13 +5,13 @@ using Avalonia.Lottie.Value;
 
 namespace Avalonia.Lottie.Model.Animatable
 {
-    public class AnimatablePointValue : BaseAnimatableValue<Vector2?, Vector2?>
+    public class AnimatablePointValue : BaseAnimatableValue<Vector?, Vector?>
     {
-        public AnimatablePointValue(List<Keyframe<Vector2?>> keyframes) : base(keyframes)
+        public AnimatablePointValue(List<Keyframe<Vector?>> keyframes) : base(keyframes)
         {
         }
 
-        public override IBaseKeyframeAnimation<Vector2?, Vector2?> CreateAnimation()
+        public override IBaseKeyframeAnimation<Vector?, Vector?> CreateAnimation()
         {
             return new PointKeyframeAnimation(Keyframes);
         }

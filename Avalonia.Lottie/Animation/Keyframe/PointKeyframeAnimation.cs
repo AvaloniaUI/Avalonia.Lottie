@@ -5,15 +5,15 @@ using Avalonia.Lottie.Value;
 
 namespace Avalonia.Lottie.Animation.Keyframe
 {
-    internal class PointKeyframeAnimation : KeyframeAnimation<Vector2?>
+    internal class PointKeyframeAnimation : KeyframeAnimation<Vector?>
     {
-        private Vector2 _point;
+        private Vector _point;
 
-        internal PointKeyframeAnimation(List<Keyframe<Vector2?>> keyframes) : base(keyframes)
+        internal PointKeyframeAnimation(List<Keyframe<Vector?>> keyframes) : base(keyframes)
         {
         }
 
-        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, double  keyframeProgress)
+        public override Vector? GetValue(Keyframe<Vector?> keyframe, double  keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
                 throw new InvalidOperationException("Missing values for keyframe.");
@@ -24,10 +24,10 @@ namespace Avalonia.Lottie.Animation.Keyframe
             if (ValueCallback != null)
                 return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value, startPoint,
                     endPoint, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
-
-            _point.X = (float) (startPoint.Value.X + keyframeProgress * (endPoint.Value.X - startPoint.Value.X));
-            _point.Y = (float) (startPoint.Value.Y + keyframeProgress * (endPoint.Value.Y - startPoint.Value.Y));
-
+            
+            _point = new Vector(startPoint.Value.X + keyframeProgress * (endPoint.Value.X - startPoint.Value.X),
+                startPoint.Value.Y + keyframeProgress * (endPoint.Value.Y - startPoint.Value.Y));
+             
             return _point;
         }
     }

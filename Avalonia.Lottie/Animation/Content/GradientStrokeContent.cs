@@ -25,11 +25,11 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly int _cacheSteps;
         private readonly IBaseKeyframeAnimation<GradientColor, GradientColor> _colorAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _endPointAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _endPointAnimation;
 
         private readonly Dictionary<long, LinearGradient> _linearGradientCache = new();
         private readonly Dictionary<long, RadialGradient> _radialGradientCache = new();
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _startPointAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _startPointAnimation;
 
         private readonly GradientType _type;
         private Rect _boundsRect;

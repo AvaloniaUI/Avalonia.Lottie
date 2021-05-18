@@ -31,13 +31,13 @@ namespace Avalonia.Lottie
 
         public double  Length { get; private set; }
 
-        public Vector2 GetPosTan(double distance)
+        public Vector GetPosTan(double distance)
         {
             if (_geometry.PlatformImpl.TryGetPointAndTangentAtDistance(distance, out var vect2, out _))
             {
-                return new Vector2((float)  vect2.X,  (float) vect2.Y);
+                return new Vector((float)  vect2.X,  (float) vect2.Y);
             }
-            return Vector2.Zero;
+            return Vector.Zero;
         }
 
         public bool GetSegment(double startD, double  stopD, ref Path dst, bool startWithMoveTo)

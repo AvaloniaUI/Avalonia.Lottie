@@ -85,10 +85,10 @@ namespace Avalonia.Lottie
 
         public static void MapRect(this Matrix3X3 matrix, ref Rect rect)
         {
-            var p1 = new Vector2((float) rect.Left, (float) rect.Top);
-            var p2 = new Vector2((float) rect.Right, (float) rect.Top);
-            var p3 = new Vector2((float) rect.Left, (float) rect.Bottom);
-            var p4 = new Vector2((float) rect.Right, (float) rect.Bottom);
+            var p1 = new Vector((float) rect.Left, (float) rect.Top);
+            var p2 = new Vector((float) rect.Right, (float) rect.Top);
+            var p3 = new Vector((float) rect.Left, (float) rect.Bottom);
+            var p4 = new Vector((float) rect.Right, (float) rect.Bottom);
 
             p1 = matrix.Transform(p1);
             p2 = matrix.Transform(p2);
@@ -103,7 +103,7 @@ namespace Avalonia.Lottie
             RectExt.Set(ref rect, new Rect(xMin, yMax, xMax, yMin));
         }
 
-        public static void MapPoints(this Matrix3X3 matrix, ref Vector2[] points)
+        public static void MapPoints(this Matrix3X3 matrix, ref Vector[] points)
         {
             for (var i = 0; i < points.Length; i++) points[i] = matrix.Transform(points[i]);
         }

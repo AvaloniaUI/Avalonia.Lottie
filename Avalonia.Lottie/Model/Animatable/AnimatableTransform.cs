@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Model.Animatable
         {
         }
 
-        public AnimatableTransform(AnimatablePathValue anchorPoint, IAnimatableValue<Vector2?, Vector2?> position,
+        public AnimatableTransform(AnimatablePathValue anchorPoint, IAnimatableValue<Vector?, Vector?> position,
             AnimatableScaleValue scale, AnimatableFloatValue rotation, AnimatableIntegerValue opacity,
             AnimatableFloatValue startOpacity, AnimatableFloatValue endOpacity)
         {
@@ -36,7 +36,7 @@ namespace Avalonia.Lottie.Model.Animatable
 
         internal virtual AnimatablePathValue AnchorPoint { get; }
 
-        internal virtual IAnimatableValue<Vector2?, Vector2?> Position { get; }
+        internal virtual IAnimatableValue<Vector?, Vector?> Position { get; }
 
         internal virtual AnimatableScaleValue Scale { get; }
 

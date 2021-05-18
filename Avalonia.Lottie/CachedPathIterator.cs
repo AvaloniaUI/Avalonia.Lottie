@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Avalonia.Lottie.Utils;
 
 namespace Avalonia.Lottie
 {
@@ -62,8 +63,8 @@ namespace Avalonia.Lottie
                             lastX = _coordinates[i][2], lastY = _coordinates[i][3]);
                         break;
                     case PathIterator.ContourType.Close:
-                        _segmentsLength[i] = Vector2.Distance(new Vector2((float)lastX,(float) lastY),
-                            new Vector2((float)(lastX = _coordinates[0][0]), (float)(lastY = _coordinates[0][1])));
+                        _segmentsLength[i] = Utils.Utils.Distance(new Vector((float)lastX,(float) lastY),
+                            new Vector((float)(lastX = _coordinates[0][0]), (float)(lastY = _coordinates[0][1])));
                         _coordinates[i] = new double [2];
                         // We convert a CloseContour segment to a LineContour so we do not have to worry
                         // about this special case in the rest of the code.
@@ -77,8 +78,8 @@ namespace Avalonia.Lottie
                         lastY = _coordinates[i][1];
                         break;
                     case PathIterator.ContourType.Line:
-                        _segmentsLength[i] = Vector2.Distance(new Vector2((float)lastX,(float) lastY),
-                            new Vector2((float)_coordinates[i][0], (float)_coordinates[i][1]));
+                        _segmentsLength[i] = Utils.Utils.Distance(new Vector((float)lastX,(float) lastY),
+                            new Vector((float)_coordinates[i][0], (float)_coordinates[i][1]));
                         lastX = _coordinates[i][0];
                         lastY = _coordinates[i][1];
                         break;

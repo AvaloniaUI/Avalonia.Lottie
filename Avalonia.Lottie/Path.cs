@@ -103,9 +103,9 @@ namespace Avalonia.Lottie
         public void CubicTo(double x1, double  y1, double  x2, double  y2, double  x3, double  y3)
         {
             var bezier = new BezierContour(
-                new Vector2((float)x1, (float)y1),
-                new Vector2((float)x2, (float)y2),
-                new Vector2((float)x3, (float)y3)
+                new Vector((float)x1, (float)y1),
+                new Vector((float)x2, (float)y2),
+                new Vector((float)x3, (float)y3)
             );
             Contours.Add(bezier);
         }
@@ -138,7 +138,7 @@ namespace Avalonia.Lottie
 
         public void ArcTo(double x, double  y, Rect rect, double  startAngle, double  sweepAngle)
         {
-            var newArc = new ArcContour(new Vector2((float)x, (float)y), rect, startAngle, sweepAngle);
+            var newArc = new ArcContour(new Vector((float)x, (float)y), rect, startAngle, sweepAngle);
             Contours.Add(newArc);
         }
 
@@ -147,7 +147,7 @@ namespace Avalonia.Lottie
             var pathIteratorFactory = new CachedPathIteratorFactory(new FullPathIterator(this));
             var pathIterator = pathIteratorFactory.Iterator();
             var points = new double [8];
-            var segmentPoints = new List<Vector2>();
+            var segmentPoints = new List<Vector>();
             var lengths = new List<float>();
             var errorSquared = precision * precision;
             while (!pathIterator.Done)
@@ -217,11 +217,11 @@ namespace Avalonia.Lottie
             return oneMinusT * (oneMinusT * p0 + t * p1) + t * (oneMinusT * p1 + t * p2);
         }
 
-        private static Vector2 QuadraticBezierCalculation(double t, double [] points)
+        private static Vector QuadraticBezierCalculation(double t, double [] points)
         {
             var x = QuadraticCoordinateCalculation(t, points[0], points[2], points[4]);
             var y = QuadraticCoordinateCalculation(t, points[1], points[3], points[5]);
-            return new Vector2((float)x, (float)y);
+            return new Vector((float)x, (float)y);
         }
 
         private static double  CubicCoordinateCalculation(double t, double  p0, double  p1, double  p2, double  p3)
@@ -235,27 +235,27 @@ namespace Avalonia.Lottie
                                        + 3 * oneMinusT * tSquared * p2 + tCubed * p3;
         }
 
-        private static Vector2 CubicBezierCalculation(double t, double [] points)
+        private static Vector CubicBezierCalculation(double t, double [] points)
         {
             var x = CubicCoordinateCalculation(t, points[0], points[2], points[4], points[6]);
             var y = CubicCoordinateCalculation(t, points[1], points[3], points[5], points[7]);
-            return new Vector2((float)x, (float)y);
+            return new Vector((float)x, (float)y);
         }
 
-        private static void AddMove(List<Vector2> segmentPoints, List<float> lengths, double [] point)
+        private static void AddMove(List<Vector> segmentPoints, List<float> lengths, double [] point)
         {
             double  length = 0;
             if (lengths.Any()) length = lengths.Last();
 
-            segmentPoints.Add(new Vector2((float)point[0], (float)point[1]));
+            segmentPoints.Add(new Vector((float)point[0], (float)point[1]));
             lengths.Add((float)length);
         }
 
-        private static void AddLine(List<Vector2> segmentPoints, List<float> lengths, double [] toPoint)
+        private static void AddLine(List<Vector> segmentPoints, List<float> lengths, double [] toPoint)
         {
             if (!segmentPoints.Any())
             {
-                segmentPoints.Add(Vector2.Zero);
+                segmentPoints.Add(Vector.Zero);
                 lengths.Add(0);
             }
             else if (segmentPoints.Last().X == toPoint[0] && segmentPoints.Last().Y == toPoint[1])
@@ -263,13 +263,13 @@ namespace Avalonia.Lottie
                 return; // Empty line
             }
 
-            var vector2 = new Vector2((float)toPoint[0], (float)toPoint[1]);
-            var length = lengths.Last() + (vector2 - segmentPoints.Last()).Length();
+            var vector2 = new Vector((float)toPoint[0], (float)toPoint[1]);
+            var length = lengths.Last() + (vector2 - segmentPoints.Last()).Length;
             segmentPoints.Add(vector2);
-            lengths.Add(length);
+            lengths.Add((float)length);
         }
 
-        private static void AddBezier(double[] points, BezierCalculation bezierFunction, List<Vector2> segmentPoints,
+        private static void AddBezier(double[] points, BezierCalculation bezierFunction, List<Vector> segmentPoints,
             List<float> lengths, double  errorSquared, bool doubleCheckDivision)
         {
             points[7] = points[5];
@@ -281,7 +281,7 @@ namespace Avalonia.Lottie
             points[1] = 0;
             points[0] = 0;
 
-            var tToPoint = new List<KeyValuePair<float, Vector2>>
+            var tToPoint = new List<KeyValuePair<float, Vector>>
             {
                 new(0, bezierFunction(0, points)),
                 new(1, bezierFunction(1, points))
@@ -305,7 +305,7 @@ namespace Avalonia.Lottie
                             doubleCheckDivision = false;
                     }
 
-                    if (needsSubdivision) tToPoint.Insert(i + 1, new KeyValuePair<float, Vector2>((float)midT, midPoint));
+                    if (needsSubdivision) tToPoint.Insert(i + 1, new KeyValuePair<float, Vector>((float)midT, midPoint));
                 } while (needsSubdivision);
             }
 
@@ -313,8 +313,8 @@ namespace Avalonia.Lottie
             foreach (var iter in tToPoint) AddLine(segmentPoints, lengths, new [] {(double)iter.Value.X, (double)iter.Value.Y});
         }
 
-        private static bool SubdividePoints(double[] points, BezierCalculation bezierFunction, double  t0, Vector2 p0,
-            double  t1, Vector2 p1, out double  midT, out Vector2 midPoint, double  errorSquared)
+        private static bool SubdividePoints(double[] points, BezierCalculation bezierFunction, double  t0, Vector p0,
+            double  t1, Vector p1, out double  midT, out Vector midPoint, double  errorSquared)
         {
             midT = (t1 + t0) / 2;
             var midX = (p1.X + p0.X) / 2;
@@ -343,11 +343,11 @@ namespace Avalonia.Lottie
             private readonly double  _sweepAngle;
             private double  _a;
             private double  _b;
-            private Vector2 _endPoint;
+            private Vector _endPoint;
             private readonly Rect _rect;
-            private Vector2 _startPoint;
+            private Vector _startPoint;
 
-            public ArcContour(Vector2 startPoint, Rect rect, double  startAngle, double  sweepAngle)
+            public ArcContour(Vector startPoint, Rect rect, double  startAngle, double  sweepAngle)
             {
                 _startPoint = startPoint;
                 _rect = rect;
@@ -364,18 +364,18 @@ namespace Avalonia.Lottie
                 _startPoint = matrix.Transform(_startPoint);
                 _endPoint = matrix.Transform(_endPoint);
 
-                var p1 = new Vector2((float) _rect.Left, (float) _rect.Top);
-                var p2 = new Vector2((float) _rect.Right, (float) _rect.Top);
-                var p3 = new Vector2((float) _rect.Left, (float) _rect.Bottom);
-                var p4 = new Vector2((float) _rect.Right, (float) _rect.Bottom);
+                var p1 = new Vector( _rect.Left,   _rect.Top);
+                var p2 = new Vector(  _rect.Right,  _rect.Top);
+                var p3 = new Vector( _rect.Left,  _rect.Bottom);
+                var p4 = new Vector(  _rect.Right,  _rect.Bottom);
 
                 p1 = matrix.Transform(p1);
                 p2 = matrix.Transform(p2);
                 p3 = matrix.Transform(p3);
                 p4 = matrix.Transform(p4);
 
-                _a = (p2 - p1).Length() / 2;
-                _b = (p4 - p3).Length() / 2;
+                _a = (p2 - p1).Length / 2;
+                _b = (p4 - p3).Length / 2;
             }
 
             public IContour Copy()
@@ -407,13 +407,13 @@ namespace Avalonia.Lottie
 
             public void Offset(double dx, double  dy)
             {
-                _startPoint.X +=(float) dx;
-                _startPoint.Y += (float) dy;
-                _endPoint.X += (float) dx;
-                _endPoint.Y +=(float)  dy;
+
+                var dV = new Vector(dx, dy);
+                _startPoint += dV;
+                _endPoint += dV;
             }
 
-            private Vector2 GetPointAtAngle(double t)
+            private Vector GetPointAtAngle(double t)
             {
                 var u = Math.Tan(MathExt.ToRadians(t) / 2);
 
@@ -422,17 +422,17 @@ namespace Avalonia.Lottie
                 var x = _a * (1 - u2) / (u2 + 1);
                 var y = 2 * _b * u / (u2 + 1);
 
-                return new Vector2( (float) (_rect.Left + _a + x),  (float) (_rect.Top + _b + y));
+                return new Vector( (float) (_rect.Left + _a + x),  (float) (_rect.Top + _b + y));
             }
         }
 
         internal class BezierContour : IContour
         {
-            private Vector2 _control1;
-            private Vector2 _control2;
-            private Vector2 _vertex;
+            private Vector _control1;
+            private Vector _control2;
+            private Vector _vertex;
 
-            public BezierContour(Vector2 control1, Vector2 control2, Vector2 vertex)
+            public BezierContour(Vector control1, Vector control2, Vector vertex)
             {
                 _control1 = control1;
                 _control2 = control2;
@@ -467,13 +467,11 @@ namespace Avalonia.Lottie
 
             public void Offset(double dx, double  dy)
             {
-                _control1.X += (float) dx;
-                _control1.Y +=(float)  dy;
-                _control2.X +=(float)  dx;
-                _control2.Y +=(float)  dy;
-                _vertex.X += (float) dx;
-                _vertex.Y +=(float)  dy;
-            }
+                var dV = new Vector(dx, dy);
+                _control1 += dV;
+                _control2 += dV;
+                _vertex += dV;
+             }
 
             internal static double BezLength(double c0X, double  c0Y, double  c1X, double  c1Y, double  c2X, double  c2Y,
                 double  c3X, double  c3Y)
@@ -502,7 +500,7 @@ namespace Avalonia.Lottie
                 return length;
             }
 
-            private static Vector2 GetPointAtT(double c0X, double  c0Y, double  c1X, double  c1Y, double  c2X, double  c2Y,
+            private static Vector GetPointAtT(double c0X, double  c0Y, double  c1X, double  c1Y, double  c2X, double  c2Y,
                 double  c3X, double  c3Y, double t)
             {
                 var t1 = 1d - t;
@@ -521,7 +519,7 @@ namespace Avalonia.Lottie
                 var ptX =  (c0X * t13 + t13A * c1X + t13B * c2X + t13C * c3X);
                 var ptY =  (c0Y * t13 + t13A * c1Y + t13B * c2Y + t13C * c3Y);
 
-                return new Vector2((float) ptX,(float)  ptY);
+                return new Vector((float) ptX,(float)  ptY);
             }
         }
 
@@ -535,7 +533,7 @@ namespace Avalonia.Lottie
 
             public void Transform(Matrix3X3 matrix)
             {
-                var p = new Vector2((float) Points[0], (float) Points[1]);
+                var p = new Vector((float) Points[0], (float) Points[1]);
 
                 p = matrix.Transform(p);
 
@@ -601,7 +599,7 @@ namespace Avalonia.Lottie
 
             public void Transform(Matrix3X3 matrix)
             {
-                var p = new Vector2((float) Points[0], (float) Points[1]);
+                var p = new Vector((float) Points[0], (float) Points[1]);
 
                 p = matrix.Transform(p);
 
@@ -639,7 +637,7 @@ namespace Avalonia.Lottie
             }
         }
 
-        private delegate Vector2 BezierCalculation(double t, double [] points);
+        private delegate Vector BezierCalculation(double t, double [] points);
     }
 
     public enum PathFillType

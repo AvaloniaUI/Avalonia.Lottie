@@ -67,8 +67,8 @@ namespace Avalonia.Lottie.Parser
         private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader, double  scale,
             IValueParser<T> valueParser)
         {
-            Vector2? cp1 = null;
-            Vector2? cp2 = null;
+            Vector? cp1 = null;
+            Vector? cp2 = null;
             double  startFrame = 0;
             var startValue = default(T);
             var endValue = default(T);
@@ -76,8 +76,8 @@ namespace Avalonia.Lottie.Parser
             IInterpolator interpolator;
 
             // Only used by PathKeyframe 
-            Vector2? pathCp1 = null;
-            Vector2? pathCp2 = null;
+            Vector? pathCp1 = null;
+            Vector? pathCp2 = null;
 
             reader.BeginObject();
             while (reader.HasNext())
@@ -122,9 +122,9 @@ namespace Avalonia.Lottie.Parser
             }
             else if (cp1 != null && cp2 != null)
             {
-                cp1 = new Vector2((float) MiscUtils.Clamp(cp1.Value.X, -scale, scale),
+                cp1 = new Vector((float) MiscUtils.Clamp(cp1.Value.X, -scale, scale),
                     (float) MiscUtils.Clamp(cp1.Value.Y, -MaxCpValue, MaxCpValue));
-                cp2 = new Vector2((float) MiscUtils.Clamp(cp2.Value.X, -scale, scale),
+                cp2 = new Vector((float) MiscUtils.Clamp(cp2.Value.X, -scale, scale),
                     (float) MiscUtils.Clamp(cp2.Value.Y, -MaxCpValue, MaxCpValue));
 
                 var hash = Utils.Utils.HashFor(cp1.Value.X, cp1.Value.Y, cp2.Value.X, cp2.Value.Y);

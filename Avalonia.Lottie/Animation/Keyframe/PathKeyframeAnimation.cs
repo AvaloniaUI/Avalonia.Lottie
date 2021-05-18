@@ -5,12 +5,12 @@ using Avalonia.Lottie.Value;
 
 namespace Avalonia.Lottie.Animation.Keyframe
 {
-    internal class PathKeyframeAnimation : KeyframeAnimation<Vector2?>, IDisposable
+    internal class PathKeyframeAnimation : KeyframeAnimation<Vector?>, IDisposable
     {
         private PathMeasure _pathMeasure;
         private PathKeyframe _pathMeasureKeyframe;
 
-        internal PathKeyframeAnimation(List<Keyframe<Vector2?>> keyframes)
+        internal PathKeyframeAnimation(List<Keyframe<Vector?>> keyframes)
             : base(keyframes)
         {
         }
@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             GC.SuppressFinalize(this);
         }
 
-        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, double  keyframeProgress)
+        public override Vector? GetValue(Keyframe<Vector?> keyframe, double  keyframeProgress)
         {
             var pathKeyframe = (PathKeyframe) keyframe;
             var path = pathKeyframe.Path;

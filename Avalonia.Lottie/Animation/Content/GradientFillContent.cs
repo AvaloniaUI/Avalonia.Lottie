@@ -29,7 +29,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly int _cacheSteps;
         private readonly IBaseKeyframeAnimation<GradientColor, GradientColor> _colorAnimation;
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _endPointAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _endPointAnimation;
 
         private readonly BaseLayer _layer;
         private readonly Dictionary<long, LinearGradient> _linearGradientCache = new();
@@ -43,7 +43,7 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly List<IPathContent> _paths = new();
         private readonly Dictionary<long, RadialGradient> _radialGradientCache = new();
         private readonly Matrix3X3 _shaderMatrix = Matrix3X3.CreateIdentity();
-        private readonly IBaseKeyframeAnimation<Vector2?, Vector2?> _startPointAnimation;
+        private readonly IBaseKeyframeAnimation<Vector?, Vector?> _startPointAnimation;
         private readonly GradientType _type;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _highlightAngleAnimation;
