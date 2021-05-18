@@ -27,7 +27,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public override string Name { get; }
 
-        public override void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             Paint.Color = _colorAnimation.Value ?? Colors.White;
             if (_colorFilterAnimation != null) Paint.ColorFilter = _colorFilterAnimation.Value;

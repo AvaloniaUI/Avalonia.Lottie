@@ -30,7 +30,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             var bitmap = Bitmap;
             if (bitmap == null) return;
@@ -46,7 +46,7 @@ namespace Avalonia.Lottie.Model.Layer
             canvas.Restore();
         }
 
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             var bitmap = Bitmap;

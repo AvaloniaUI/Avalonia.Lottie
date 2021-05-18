@@ -557,6 +557,8 @@ namespace Avalonia.Lottie
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
+            
+            renderCtx.FillRectangle(Brushes.Green, Bounds);
 
             var containerRect = Bounds;
 

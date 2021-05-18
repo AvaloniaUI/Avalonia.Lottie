@@ -42,7 +42,7 @@ namespace Avalonia.Lottie.Animation.Content
         //private Rect _boundsRect;
         private readonly List<IPathContent> _paths = new();
         private readonly Dictionary<long, RadialGradient> _radialGradientCache = new();
-        private readonly Matrix3X3 _shaderMatrix = Matrix3X3.CreateIdentity();
+        private   Matrix _shaderMatrix =Matrix.Identity;
         private readonly IBaseKeyframeAnimation<Vector?, Vector?> _startPointAnimation;
         private readonly GradientType _type;
         private IBaseKeyframeAnimation<ColorFilter, ColorFilter> _colorFilterAnimation;
@@ -157,7 +157,7 @@ namespace Avalonia.Lottie.Animation.Content
                     _paths.Add(pathContent);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("GradientFillContent.Draw");
             _path.Reset();
@@ -170,7 +170,7 @@ namespace Avalonia.Lottie.Animation.Content
                 shader = LinearGradient;
             else
                 shader = RadialGradient;
-            _shaderMatrix.Set(parentMatrix);
+            _shaderMatrix=(parentMatrix);
             shader.LocalMatrix = _shaderMatrix;
             _paint.Shader = shader;
 
@@ -183,7 +183,7 @@ namespace Avalonia.Lottie.Animation.Content
             LottieLog.EndSection("GradientFillContent.Draw");
         }
 
-        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             _path.Reset();
             for (var i = 0; i < _paths.Count; i++) _path.AddPath(_paths[i].Path, parentMatrix);

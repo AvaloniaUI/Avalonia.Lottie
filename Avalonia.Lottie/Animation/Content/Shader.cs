@@ -2,6 +2,6 @@ namespace Avalonia.Lottie.Animation.Content
 {
     public abstract class Shader
     {
-        public Matrix3X3 LocalMatrix { get; set; } = Matrix3X3.CreateIdentity();
+        public Matrix LocalMatrix { get; set; } =Matrix.Identity;
     }
 }

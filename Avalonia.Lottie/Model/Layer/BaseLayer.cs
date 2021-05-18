@@ -32,10 +32,10 @@ namespace Avalonia.Lottie.Model.Layer
         private List<BaseLayer> _parentLayers;
         private Rect _tempMaskBoundsRect;
         private bool _visible = true;
-        internal Matrix3X3 BoundsMatrix = Matrix3X3.CreateIdentity();
+        internal Matrix BoundsMatrix = Matrix.Identity;
         private bool disposedValue;
         internal Layer LayerModel;
-        internal Matrix3X3 Matrix = Matrix3X3.CreateIdentity();
+        internal Matrix Matrix =Matrix.Identity;
         protected Rect Rect;
 
         internal BaseLayer(Lottie lottie, Layer layerModel)
@@ -121,13 +121,13 @@ namespace Avalonia.Lottie.Model.Layer
             GC.SuppressFinalize(this);
         }
 
-        public virtual void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public virtual void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
-            BoundsMatrix.Set(parentMatrix);
+            BoundsMatrix = (parentMatrix);
             BoundsMatrix = MatrixExt.PreConcat(BoundsMatrix, Transform.Matrix);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection(_drawTraceName);
             if (!_visible)
@@ -138,8 +138,7 @@ namespace Avalonia.Lottie.Model.Layer
 
             BuildParentLayerListIfNeeded();
             LottieLog.BeginSection("Layer.ParentMatrix");
-            Matrix.Reset();
-            Matrix.Set(parentMatrix);
+             Matrix = (parentMatrix);
             for (var i = _parentLayers.Count - 1; i >= 0; i--)
                 Matrix = MatrixExt.PreConcat(Matrix, _parentLayers[i].Transform.Matrix);
             LottieLog.EndSection("Layer.ParentMatrix");
@@ -302,7 +301,7 @@ namespace Avalonia.Lottie.Model.Layer
             LottieLog.EndSection("Layer.ClearLayer");
         }
 
-        private void IntersectBoundsWithMask(ref Rect rect, Matrix3X3 matrix)
+        private void IntersectBoundsWithMask(ref Rect rect, Matrix matrix)
         {
             RectExt.Set(ref _maskBoundsRect, 0, 0, 0, 0);
             if (!HasMasksOnThisLayer()) return;
@@ -348,7 +347,7 @@ namespace Avalonia.Lottie.Model.Layer
                  Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
         }
 
-        private void IntersectBoundsWithMatte(ref Rect rect, Matrix3X3 matrix)
+        private void IntersectBoundsWithMatte(ref Rect rect, Matrix matrix)
         {
             if (!HasMatteOnThisLayer()) return;
             if (LayerModel.GetMatteType() == Layer.MatteType.Invert)
@@ -361,9 +360,9 @@ namespace Avalonia.Lottie.Model.Layer
                  Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
         }
 
-        public abstract void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha);
+        public abstract void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha);
 
-        private int ApplyMasks(BitmapCanvas canvas, Matrix3X3 matrix)
+        private int ApplyMasks(BitmapCanvas canvas, Matrix matrix)
         {
             var num = 0;
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeAdd);
@@ -374,7 +373,7 @@ namespace Avalonia.Lottie.Model.Layer
             return num;
         }
 
-        private int ApplyMasks(BitmapCanvas canvas, Matrix3X3 matrix, Mask.MaskMode maskMode)
+        private int ApplyMasks(BitmapCanvas canvas, Matrix matrix, Mask.MaskMode maskMode)
         {
             Paint paint;
             switch (maskMode)

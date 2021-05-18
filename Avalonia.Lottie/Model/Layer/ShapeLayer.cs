@@ -16,12 +16,12 @@ namespace Avalonia.Lottie.Model.Layer
             _contentGroup.SetContents(new List<IContent>(), new List<IContent>());
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             _contentGroup.Draw(canvas, parentMatrix, parentAlpha);
         }
 
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             _contentGroup.GetBounds(ref outBounds, BoundsMatrix);
