@@ -568,67 +568,29 @@ namespace Avalonia.Lottie
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
             
-            var scaledSize = PixelSize.FromSize(_composition.Bounds.Size, VisualRoot.RenderScaling);
+            
             var matrix =  Matrix3X3.CreateIdentity();
+            
+            var viewPort = new Rect(Bounds.Size);
+            
+            var sourceSize = _composition.Bounds.Size;
 
-            switch (Stretch)
+            var scale = Stretch.CalculateScaling(Bounds.Size, sourceSize);
+            var scaledSize = sourceSize * scale;
+            
+            var destRect = viewPort
+                .CenterRect(new Rect(scaledSize))
+                .Intersect(viewPort);
+            
+            var sourceRect = new Rect(sourceSize)
+                .CenterRect(new Rect(destRect.Size / scale));
+
+            
+            var scaledPixelSize = PixelSize.FromSize(sourceSize, 1);
+            
+            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledPixelSize))
             {
-                case Stretch.None:
-                    matrix *= MatrixExt.PreScale(matrix, VisualRoot.RenderScaling, VisualRoot.RenderScaling);
-                    break;
-
-                case Stretch.Fill:
-                    {       
-                        var scaledComposition = scaledSize;
-
-                        scaledSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
-
-                        var scaleHeight = (double) scaledSize.Height / (double) scaledComposition.Height;
-                        var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
-
-                        matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
-                    }
-                    break;
-
-                case Stretch.Uniform:
-                    {
-                        var scaledComposition = scaledSize;
-
-                        var boundsPixelSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
-                        
-                        if (boundsPixelSize.Height > boundsPixelSize.Width)
-                        {
-                            var scaleFactor = boundsPixelSize.Height / (double)scaledComposition.Height;
-
-                            scaledSize =
-                                PixelSize.FromSize(
-                                    new Size(scaledComposition.Width, scaledComposition.Height),
-                                    scaleFactor);
-                        }
-                        else
-                        {
-                            var scaleFactor = boundsPixelSize.Width / (double)scaledComposition.Width;
-
-                            scaledSize =
-                                PixelSize.FromSize(
-                                    new Size(scaledComposition.Width, scaledComposition.Height),
-                                    scaleFactor);
-                        }
-                        
-                        var scaleHeight = (double) scaledSize.Height / (double) scaledComposition.Height;
-                        var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
-
-                        matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
-                    }
-                    break;
-
-                case Stretch.UniformToFill:
-                    break;
-            }
-
-            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledSize))
-            {
-                _renderTargetBitmap = CreateNewRtb(scaledSize);
+                _renderTargetBitmap = CreateNewRtb(scaledPixelSize);
             }
 
             if (_renderTargetBitmap is null)
@@ -644,7 +606,7 @@ namespace Avalonia.Lottie
 
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(0, 0),  Bounds.Size), Bounds);
+            renderCtx.DrawImage(_renderTargetBitmap, sourceRect, destRect);
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
 
