@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Lottie.Animation.Content;
@@ -14,9 +13,10 @@ using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using Avalonia.Metadata;
+
+#nullable enable
 
 namespace Avalonia.Lottie
 {
@@ -43,7 +43,7 @@ namespace Avalonia.Lottie
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
         private byte _alpha = 255;
-        private BitmapCanvas _bitmapCanvas;
+        private BitmapCanvas? _bitmapCanvas;
         private LottieComposition _composition;
         private CompositionLayer _compositionLayer;
         private bool _enableMergePaths;
@@ -53,11 +53,13 @@ namespace Avalonia.Lottie
         private IImageAssetDelegate _imageAssetDelegate;
         private ImageAssetManager _imageAssetManager;
         private bool _performanceTrackingEnabled;
-        private double  _scale = 1f;
+        private double _scale = 1f;
         private TextDelegate _textDelegate;
 
         public Lottie()
         {
+            ClipToBounds = true;
+            
             _animator.Update += delegate
             {
                 if (_compositionLayer is not null)
@@ -458,7 +460,7 @@ namespace Avalonia.Lottie
 
         public void ClearComposition()
         {
-            ClearRTB();
+            ClearRtb();
             RecycleBitmaps();
             if (_animator.IsRunning) _animator.Cancel();
 
@@ -535,66 +537,28 @@ namespace Avalonia.Lottie
             }
         }
 
-        private RenderTargetBitmap _renderTargetBitmap;
+        private RenderTargetBitmap? _renderTargetBitmap;
         private bool _isEnabled = true;
 
-        void CreateNewRTB(Size newSize)
+        private RenderTargetBitmap CreateNewRtb(PixelSize newSize)
         {
-            ClearRTB();
-            _renderTargetBitmap =
-                new RenderTargetBitmap(new PixelSize((int) newSize.Width, (int) newSize.Height),
-                    new Vector(96, 96));
+            ClearRtb();
+            return new RenderTargetBitmap(newSize,new Vector(96, 96));
         }
 
-        void ClearRTB()
+        private void ClearRtb()
         {
             _renderTargetBitmap?.Dispose();
             _renderTargetBitmap = null;
         }
 
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            var boundsSize = new Rect(availableSize);
-
-            if (_compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
-                return availableSize;
-
-            var compositionSize = _composition.Bounds;
-
-            return Stretch switch
-            {
-                Stretch.Uniform => compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                Stretch.UniformToFill => compositionSize.Size * Math.Max(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                _ => compositionSize.Size
-            };
-        }
-
-        protected override void ArrangeCore(Rect finalRect)
-        {
-            var boundsSize = finalRect;
-
-            if (_compositionLayer is null || boundsSize.Width <= 0 || boundsSize.Height <= 0)
-                return;
-
-            var compositionSize = _composition.Bounds;
-
-            var centSize = Stretch switch
-            {
-                Stretch.Uniform => compositionSize.Size * Math.Min(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                Stretch.UniformToFill => compositionSize.Size * Math.Max(boundsSize.Width / compositionSize.Width,
-                    boundsSize.Height / compositionSize.Height),
-                _ => compositionSize.Size
-            };
-
-            base.ArrangeCore(boundsSize.CenterRect(new Rect(0, 0, centSize.Width, centSize.Height)));
-        }
+        
 
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
+            
+            renderCtx.FillRectangle(Brushes.Green, Bounds);
 
             var containerRect = Bounds;
 
@@ -603,39 +567,56 @@ namespace Avalonia.Lottie
 
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
+            
+            var scaledSize = PixelSize.FromSize(_composition.Bounds.Size, VisualRoot.RenderScaling);
+            var matrix =  Matrix3X3.CreateIdentity();
 
-            var compositionSize = _composition.Bounds;
-
-            var scale = compositionSize.Size * Math.Min(containerRect.Width / compositionSize.Width,
-                containerRect.Height / compositionSize.Height);
-
-            if (_renderTargetBitmap is not null)
+            switch (Stretch)
             {
-                if (_renderTargetBitmap.Size != scale)
-                {
-                    CreateNewRTB(scale);
-                }
-            }
-            else
-            {
-                CreateNewRTB(scale);
+                case Stretch.None:
+                    matrix *= MatrixExt.PreScale(matrix, VisualRoot.RenderScaling, VisualRoot.RenderScaling);
+                    break;
+                
+                case Stretch.Fill:
+                    var scaledComposition = scaledSize;
+                    
+                    scaledSize = PixelSize.FromSize(Bounds.Size, VisualRoot.RenderScaling);
+
+                    var scaleHeight = (double)scaledSize.Height / (double)scaledComposition.Height;
+                    var scaleWidth = (double) scaledSize.Width / (double) scaledComposition.Width;
+                    
+                    matrix *= MatrixExt.PreScale(matrix, scaleWidth, scaleHeight);
+                    break;
+                    
+                case Stretch.Uniform:
+                    
+                    break;
+                
+                case Stretch.UniformToFill:
+                    break;
             }
 
-            var rtbSize = new Rect(new Point(0, 0), _renderTargetBitmap.Size);
+            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledSize))
+            {
+                _renderTargetBitmap = CreateNewRtb(scaledSize);
+            }
+
+            if (_renderTargetBitmap is null)
+            {
+                return;
+            }
 
             using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
-            var (x, y) = rtbSize.Size / _composition.Bounds.Size;
+            
 
-            var matrix = MatrixExt.PreScale(Matrix.Identity,  x,  y);
-
-            using var session = _bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, rtbDrawingContext);
+            using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
           
-            _bitmapCanvas.Clear(Colors.Transparent);
+            _bitmapCanvas.Clear(Colors.Red);
 
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, rtbSize, rtbSize);
+            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(0, 0),  Bounds.Size), Bounds);
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
 
