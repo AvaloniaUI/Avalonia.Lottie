@@ -600,6 +600,8 @@ namespace Avalonia.Lottie
             
             using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
 
+            _bitmapCanvas.Clear(Colors.Transparent);
+            
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
             renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(), sourceRect.Size), destRect);
