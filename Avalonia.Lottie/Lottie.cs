@@ -582,11 +582,11 @@ namespace Avalonia.Lottie
                 .CenterRect(new Rect(scaledSize))
                 .Intersect(viewPort);
             
-            var sourceRect = new Rect(sourceSize)
-                .CenterRect(new Rect(destRect.Size / scale));
-
+            var sourceRect = destRect * VisualRoot.RenderScaling;
+                
+            var scaledPixelSize = PixelSize.FromSize(sourceRect.Size, 1);
             
-            var scaledPixelSize = PixelSize.FromSize(sourceSize, 1);
+            matrix = MatrixExt.PreScale(matrix, scaledPixelSize.Width / sourceSize.Width, scaledPixelSize.Height / sourceSize.Height);
             
             if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledPixelSize))
             {
@@ -606,7 +606,7 @@ namespace Avalonia.Lottie
 
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, sourceRect, destRect);
+            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(), sourceRect.Size), destRect);
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
 
