@@ -557,8 +557,6 @@ namespace Avalonia.Lottie
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
-            
-            renderCtx.FillRectangle(Brushes.Green, Bounds);
 
             var containerRect = Bounds;
 
@@ -601,8 +599,6 @@ namespace Avalonia.Lottie
             using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
             using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
-          
-            _bitmapCanvas.Clear(Colors.Red);
 
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
