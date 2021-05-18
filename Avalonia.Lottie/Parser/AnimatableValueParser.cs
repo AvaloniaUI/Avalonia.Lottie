@@ -75,7 +75,7 @@ namespace Avalonia.Lottie.Parser
         /// <param name="composition"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static List<Keyframe<T>> Parse<T>(JsonReader reader, float scale, LottieComposition composition,
+        private static List<Keyframe<T>> Parse<T>(JsonReader reader, double  scale, LottieComposition composition,
             IValueParser<T> valueParser)
         {
             return KeyframesParser.Parse(reader, composition, scale, valueParser);

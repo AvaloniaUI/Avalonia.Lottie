@@ -28,14 +28,14 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual List<CubicCurveData> Curves => _curves;
 
-        private void SetInitialPoint(float x, float y)
+        private void SetInitialPoint(double x, double  y)
         {
             if (_initialPoint == null) _initialPoint = new Vector2();
-            _initialPoint.X = x;
-            _initialPoint.Y = y;
+            _initialPoint.X =(float)  x;
+            _initialPoint.Y =(float)  y;
         }
 
-        internal virtual void InterpolateBetween(ShapeData shapeData1, ShapeData shapeData2, float percentage)
+        internal virtual void InterpolateBetween(ShapeData shapeData1, ShapeData shapeData2, double  percentage)
         {
             if (_initialPoint == null) _initialPoint = new Vector2();
             _closed = shapeData1.Closed || shapeData2.Closed;

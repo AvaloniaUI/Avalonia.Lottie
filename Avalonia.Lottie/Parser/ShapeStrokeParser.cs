@@ -15,7 +15,7 @@ namespace Avalonia.Lottie.Parser
             var capType = ShapeStroke.LineCapType.Unknown;
             var joinType = ShapeStroke.LineJoinType.Round;
             AnimatableFloatValue offset = null;
-            var miterLimit = 0f;
+            var miterLimit = 0d;
 
             var lineDashPattern = new List<AnimatableFloatValue>();
 

@@ -6,7 +6,7 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly PathParser Instance = new();
 
-        public Vector2? Parse(JsonReader reader, float scale)
+        public Vector2? Parse(JsonReader reader, double  scale)
         {
             return JsonUtils.JsonToPoint(reader, scale);
         }

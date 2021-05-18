@@ -12,7 +12,7 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly ShapeDataParser Instance = new();
 
-        public ShapeData Parse(JsonReader reader, float scale)
+        public ShapeData Parse(JsonReader reader, double  scale)
         {
             // Sometimes the points data is in a array of length 1. Sometimes the data is at the top 
             // level. 

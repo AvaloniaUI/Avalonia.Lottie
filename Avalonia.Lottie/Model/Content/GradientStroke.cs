@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Model.Content
         public GradientStroke(string name, GradientType gradientType, AnimatableGradientColorValue gradientColor,
             AnimatableIntegerValue opacity, AnimatablePointValue startPoint, AnimatablePointValue endPoint,
             AnimatableFloatValue width, ShapeStroke.LineCapType capType, ShapeStroke.LineJoinType joinType,
-            float miterLimit, List<AnimatableFloatValue> lineDashPattern, AnimatableFloatValue dashOffset)
+            double  miterLimit, List<AnimatableFloatValue> lineDashPattern, AnimatableFloatValue dashOffset)
         {
             Name = name;
             GradientType = gradientType;
@@ -44,7 +44,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual ShapeStroke.LineJoinType JoinType { get; }
 
-        internal virtual float MiterLimit { get; }
+        internal virtual double  MiterLimit { get; }
 
         internal virtual List<AnimatableFloatValue> LineDashPattern { get; }
 

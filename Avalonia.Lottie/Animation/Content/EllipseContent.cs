@@ -22,7 +22,7 @@ namespace Avalonia.Lottie.Animation.Content
 {
     internal class EllipseContent : IPathContent, IKeyPathElementContent
     {
-        private const float EllipseControlPointPercentage = 0.55228f;
+        private const double  EllipseControlPointPercentage = 0.55228f;
         private readonly CircleShape _circleShape;
 
         private readonly Lottie _lottie;

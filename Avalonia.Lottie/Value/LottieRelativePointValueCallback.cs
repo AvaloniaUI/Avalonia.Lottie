@@ -23,11 +23,11 @@ namespace Avalonia.Lottie.Value
         public override Vector2? GetValue(LottieFrameInfo<Vector2?> frameInfo)
         {
             var point = new Vector2(
-                MiscUtils.Lerp(
+                (float) MiscUtils.Lerp(
                     frameInfo.StartValue.Value.X,
                     frameInfo.EndValue.Value.X,
                     frameInfo.InterpolatedKeyframeProgress),
-                MiscUtils.Lerp(
+                (float) MiscUtils.Lerp(
                     frameInfo.StartValue.Value.Y,
                     frameInfo.EndValue.Value.Y,
                     frameInfo.InterpolatedKeyframeProgress)

@@ -39,7 +39,7 @@ namespace Avalonia.Lottie.Model.Layer
 
         public Layer(List<IContentModel> shapes, LottieComposition composition, string layerName, long layerId,
             LayerType layerType, long parentId, string refId, List<Mask> masks, AnimatableTransform transform,
-            int solidWidth, int solidHeight, Color solidColor, float timeStretch, float startFrame, int preCompWidth,
+            int solidWidth, int solidHeight, Color solidColor, double  timeStretch, double  startFrame, int preCompWidth,
             int preCompHeight, AnimatableTextFrame text, AnimatableTextProperties textProperties,
             List<Keyframe<float?>> inOutKeyframes, MatteType matteType, AnimatableFloatValue timeRemapping, bool hidden)
         {
@@ -69,11 +69,11 @@ namespace Avalonia.Lottie.Model.Layer
 
         internal virtual LottieComposition Composition => _composition;
 
-        internal virtual float TimeStretch { get; }
+        internal virtual double  TimeStretch { get; }
 
-        internal virtual float StartFrame { get; }
+        internal virtual double  StartFrame { get; }
 
-        internal virtual float StartProgress => StartFrame / _composition.DurationFrames;
+        internal virtual double  StartProgress => StartFrame / _composition.DurationFrames;
 
         internal virtual List<Keyframe<float?>> InOutKeyframes { get; }
 

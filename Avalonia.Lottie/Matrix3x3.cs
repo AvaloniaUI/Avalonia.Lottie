@@ -4,15 +4,15 @@ namespace Avalonia.Lottie
 {
     public class Matrix3X3
     {
-        public float M11;
-        public float M12;
-        public float M13;
-        public float M21;
-        public float M22;
-        public float M23;
-        public float M31;
-        public float M32;
-        public float M33;
+        public double  M11;
+        public double  M12;
+        public double  M13;
+        public double  M21;
+        public double  M22;
+        public double  M23;
+        public double  M31;
+        public double  M32;
+        public double  M33;
 
         public static Matrix3X3 CreateIdentity()
         {
@@ -75,8 +75,8 @@ namespace Avalonia.Lottie
         public Vector2 Transform(Vector2 v)
         {
             return new(
-                v.X * M11 + v.Y * M12 + M13,
-                v.X * M21 + v.Y * M22 + M23);
+                (float) (v.X * M11 + v.Y * M12 + M13),
+                (float) (v.X * M21 + v.Y * M22 + M23));
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public virtual float Progress
+        public virtual double  Progress
         {
             set
             {
@@ -143,7 +143,7 @@ namespace Avalonia.Lottie.Model.Layer
             for (var i = _parentLayers.Count - 1; i >= 0; i--)
                 Matrix = MatrixExt.PreConcat(Matrix, _parentLayers[i].Transform.Matrix);
             LottieLog.EndSection("Layer.ParentMatrix");
-            var alpha = (byte) (parentAlpha / 255f * (float) Transform.Opacity.Value / 100f * 255);
+            var alpha = (byte) (parentAlpha / 255f *  Transform.Opacity.Value / 100f * 255);
             if (!HasMatteOnThisLayer() && !HasMasksOnThisLayer())
             {
                 Matrix = MatrixExt.PreConcat(Matrix, Transform.Matrix);
@@ -289,7 +289,7 @@ namespace Avalonia.Lottie.Model.Layer
             _animations.Add(newAnimation);
         }
 
-        private void RecordRenderTime(float ms)
+        private void RecordRenderTime(double ms)
         {
             Lottie.Composition.PerformanceTracker.RecordRenderTime(LayerModel.Name, ms);
         }
@@ -335,17 +335,17 @@ namespace Avalonia.Lottie.Model.Layer
                             RectExt.Set(ref _maskBoundsRect, _tempMaskBoundsRect);
                         else
                             RectExt.Set(ref _maskBoundsRect,
-                                (float) Math.Min(_maskBoundsRect.Left, _tempMaskBoundsRect.Left),
-                                (float) Math.Min(_maskBoundsRect.Top, _tempMaskBoundsRect.Top),
-                                (float) Math.Max(_maskBoundsRect.Right, _tempMaskBoundsRect.Right),
-                                (float) Math.Max(_maskBoundsRect.Bottom, _tempMaskBoundsRect.Bottom));
+                                 Math.Min(_maskBoundsRect.Left, _tempMaskBoundsRect.Left),
+                                 Math.Min(_maskBoundsRect.Top, _tempMaskBoundsRect.Top),
+                                 Math.Max(_maskBoundsRect.Right, _tempMaskBoundsRect.Right),
+                                 Math.Max(_maskBoundsRect.Bottom, _tempMaskBoundsRect.Bottom));
                         break;
                 }
             }
 
-            RectExt.Set(ref rect, (float) Math.Max(rect.Left, _maskBoundsRect.Left),
-                (float) Math.Max(rect.Top, _maskBoundsRect.Top), (float) Math.Min(rect.Right, _maskBoundsRect.Right),
-                (float) Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
+            RectExt.Set(ref rect,  Math.Max(rect.Left, _maskBoundsRect.Left),
+                 Math.Max(rect.Top, _maskBoundsRect.Top),  Math.Min(rect.Right, _maskBoundsRect.Right),
+                 Math.Min(rect.Bottom, _maskBoundsRect.Bottom));
         }
 
         private void IntersectBoundsWithMatte(ref Rect rect, Matrix3X3 matrix)
@@ -356,9 +356,9 @@ namespace Avalonia.Lottie.Model.Layer
                 // composition bounds.
                 return;
             _matteLayer.GetBounds(ref _matteBoundsRect, matrix);
-            RectExt.Set(ref rect, (float) Math.Max(rect.Left, _matteBoundsRect.Left),
-                (float) Math.Max(rect.Top, _matteBoundsRect.Top), (float) Math.Min(rect.Right, _matteBoundsRect.Right),
-                (float) Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
+            RectExt.Set(ref rect,  Math.Max(rect.Left, _matteBoundsRect.Left),
+                 Math.Max(rect.Top, _matteBoundsRect.Top),  Math.Min(rect.Right, _matteBoundsRect.Right),
+                 Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
         }
 
         public abstract void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha);

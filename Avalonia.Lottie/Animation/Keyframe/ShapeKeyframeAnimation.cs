@@ -14,7 +14,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
         }
 
-        public override Path GetValue(Keyframe<ShapeData> keyframe, float keyframeProgress)
+        public override Path GetValue(Keyframe<ShapeData> keyframe, double  keyframeProgress)
         {
             var startShapeData = keyframe.StartValue;
             var endShapeData = keyframe.EndValue;

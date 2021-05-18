@@ -13,7 +13,7 @@ namespace Avalonia.Lottie
             _interpolator = new AccelerateDecelerateInterpolator();
         }
 
-        public abstract float FrameRate { get; set; }
+        public abstract double  FrameRate { get; set; }
 
         public int RepeatCount { get; set; }
         
@@ -32,7 +32,7 @@ namespace Avalonia.Lottie
             }
         }
 
-        public abstract float AnimatedFraction { get; }
+        public abstract double  AnimatedFraction { get; }
 
         public void Dispose()
         {

@@ -7,28 +7,28 @@
     /// <typeparam name="T"></typeparam>
     public class LottieFrameInfo<T>
     {
-        public float StartFrame { get; private set; }
+        public double  StartFrame { get; private set; }
 
-        public float EndFrame { get; private set; }
+        public double  EndFrame { get; private set; }
 
         public T StartValue { get; private set; }
 
         public T EndValue { get; private set; }
 
-        public float LinearKeyframeProgress { get; private set; }
+        public double  LinearKeyframeProgress { get; private set; }
 
-        public float InterpolatedKeyframeProgress { get; private set; }
+        public double  InterpolatedKeyframeProgress { get; private set; }
 
-        public float OverallProgress { get; private set; }
+        public double  OverallProgress { get; private set; }
 
         internal LottieFrameInfo<T> Set(
-            float startFrame,
-            float endFrame,
+            double  startFrame,
+            double  endFrame,
             T startValue,
             T endValue,
-            float linearKeyframeProgress,
-            float interpolatedKeyframeProgress,
-            float overallProgress
+            double  linearKeyframeProgress,
+            double  interpolatedKeyframeProgress,
+            double  overallProgress
         )
         {
             StartFrame = startFrame;

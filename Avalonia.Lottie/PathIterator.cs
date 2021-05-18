@@ -15,6 +15,6 @@
 
         public abstract bool Next();
 
-        public abstract ContourType CurrentSegment(float[] points);
+        public abstract ContourType CurrentSegment(double[] points);
     }
 }

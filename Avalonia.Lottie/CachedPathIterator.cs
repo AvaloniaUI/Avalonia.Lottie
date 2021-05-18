@@ -10,29 +10,29 @@ namespace Avalonia.Lottie
     /// </summary>
     public class CachedPathIteratorFactory
     {
-        private readonly float[][] _coordinates;
-        private readonly float[] _segmentsLength;
+        private readonly double [][] _coordinates;
+        private readonly double [] _segmentsLength;
         private readonly PathIterator.ContourType[] _types;
 
         public CachedPathIteratorFactory(PathIterator iterator)
         {
             var typesArray = new List<PathIterator.ContourType>();
-            var pointsArray = new List<float[]>();
-            var points = new float[6];
+            var pointsArray = new List<double[]>();
+            var points = new double [6];
             while (!iterator.Done)
             {
                 var type = iterator.CurrentSegment(points);
                 var nPoints = GetNumberOfPoints(type) * 2; // 2 coordinates per point
 
                 typesArray.Add(type);
-                var itemPoints = new float[nPoints];
+                var itemPoints = new double [nPoints];
                 Array.Copy(points, 0, itemPoints, 0, nPoints);
                 pointsArray.Add(itemPoints);
                 iterator.Next();
             }
 
             _types = new PathIterator.ContourType[typesArray.Count];
-            _coordinates = new float[_types.Length][];
+            _coordinates = new double [_types.Length][];
             for (var i = 0; i < typesArray.Count; i++)
             {
                 _types[i] = typesArray[i];
@@ -40,31 +40,31 @@ namespace Avalonia.Lottie
             }
 
             // Do measurement
-            _segmentsLength = new float[_types.Length];
+            _segmentsLength = new double [_types.Length];
 
             // Curves that we can reuse to estimate segments length
-            float lastX = 0;
-            float lastY = 0;
+            double  lastX = 0;
+            double  lastY = 0;
             for (var i = 0; i < _types.Length; i++)
                 switch (_types[i])
                 {
                     case PathIterator.ContourType.Bezier:
-                        _segmentsLength[i] = (float) Path.BezierContour.BezLength(lastX, lastY,
+                        _segmentsLength[i] =  Path.BezierContour.BezLength(lastX, lastY,
                             _coordinates[i][0], _coordinates[i][1],
                             _coordinates[i][2], _coordinates[i][3],
                             lastX = _coordinates[i][4], lastY = _coordinates[i][5]);
                         break;
                     case PathIterator.ContourType.Arc:
-                        _segmentsLength[i] = (float) Path.BezierContour.BezLength(lastX, lastY,
+                        _segmentsLength[i] =  Path.BezierContour.BezLength(lastX, lastY,
                             lastX + 2 * (_coordinates[i][0] - lastX) / 3, lastY + 2 * (_coordinates[i][1] - lastY) / 3,
                             _coordinates[i][2] + 2 * (_coordinates[i][0] - _coordinates[i][2]) / 3,
                             _coordinates[i][3] + 2 * (_coordinates[i][1] - _coordinates[i][3]) / 3,
                             lastX = _coordinates[i][2], lastY = _coordinates[i][3]);
                         break;
                     case PathIterator.ContourType.Close:
-                        _segmentsLength[i] = Vector2.Distance(new Vector2(lastX, lastY),
-                            new Vector2(lastX = _coordinates[0][0], lastY = _coordinates[0][1]));
-                        _coordinates[i] = new float[2];
+                        _segmentsLength[i] = Vector2.Distance(new Vector2((float)lastX,(float) lastY),
+                            new Vector2((float)(lastX = _coordinates[0][0]), (float)(lastY = _coordinates[0][1])));
+                        _coordinates[i] = new double [2];
                         // We convert a CloseContour segment to a LineContour so we do not have to worry
                         // about this special case in the rest of the code.
                         _types[i] = PathIterator.ContourType.Line;
@@ -77,15 +77,15 @@ namespace Avalonia.Lottie
                         lastY = _coordinates[i][1];
                         break;
                     case PathIterator.ContourType.Line:
-                        _segmentsLength[i] = Vector2.Distance(new Vector2(lastX, lastY),
-                            new Vector2(_coordinates[i][0], _coordinates[i][1]));
+                        _segmentsLength[i] = Vector2.Distance(new Vector2((float)lastX,(float) lastY),
+                            new Vector2((float)_coordinates[i][0], (float)_coordinates[i][1]));
                         lastX = _coordinates[i][0];
                         lastY = _coordinates[i][1];
                         break;
                 }
         }
 
-        private static void QuadCurveSegment(float[] coords, float t0, float t1)
+        private static void QuadCurveSegment(double[] coords, double  t0, double  t1)
         {
             // Calculate X and Y at 0.5 (We'll use this to reconstruct the control point later)
             var mt = t0 + (t1 - t0) / 2;
@@ -109,7 +109,7 @@ namespace Avalonia.Lottie
             coords[3] = 2 * my - coords[1] / 2 - coords[5] / 2;
         }
 
-        private static void CubicCurveSegment(float[] coords, float t0, float t1)
+        private static void CubicCurveSegment(double[] coords, double  t0, double  t1)
         {
             // http://stackoverflow.com/questions/11703283/cubic-bezier-curve-segment
             var u0 = 1 - t0;
@@ -147,7 +147,7 @@ namespace Avalonia.Lottie
         /// <param name="type"> the segment type </param>
         /// <param name="coords"> the segment coordinates array </param>
         /// <param name="point"> the return array where the point will be stored </param>
-        private static void GetShapeEndPoint(PathIterator.ContourType type, float[] coords, float[] point)
+        private static void GetShapeEndPoint(PathIterator.ContourType type, double [] coords, double [] point)
         {
             // start index of the end point for the segment type
             var pointIndex = (GetNumberOfPoints(type) - 1) * 2;
@@ -176,8 +176,8 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Returns the estimated position along a path of the given length.
         /// </summary>
-        private void GetPointAtLength(PathIterator.ContourType type, float[] coords, float lastX, float lastY, float t,
-            float[] point)
+        private void GetPointAtLength(PathIterator.ContourType type, double [] coords, double  lastX, double  lastY, double  t,
+            double [] point)
         {
             if (type == PathIterator.ContourType.Line)
             {
@@ -187,7 +187,7 @@ namespace Avalonia.Lottie
                 return;
             }
 
-            var curve = new float[8];
+            var curve = new double [8];
             var lastPointIndex = (GetNumberOfPoints(type) - 1) * 2;
 
             Array.Copy(coords, 0, curve, 2, coords.Length);
@@ -217,16 +217,16 @@ namespace Avalonia.Lottie
             ///     on the segment type.
             /// </summary>
             /// <seealso cref="PathIterator"></seealso>
-            private readonly float[] _currentCoords = new float[6];
+            private readonly double [] _currentCoords = new double [6];
 
             /// <summary>
             ///     Point where the current segment started
             /// </summary>
-            private readonly float[] _mLastPoint = new float[2];
+            private readonly double [] _mLastPoint = new double [2];
 
             private readonly CachedPathIteratorFactory _outerInstance;
 
-            private float _currentSegmentLength;
+            private double  _currentSegmentLength;
 
             /// <summary>
             ///     Current segment type.
@@ -241,8 +241,8 @@ namespace Avalonia.Lottie
             ///     length will be reduced by this amount. This is useful when we are only using portions of
             ///     the segment.
             /// </summary>
-            /// <seealso cref="JumpToSegment(float)"></seealso>
-            private float _mOffsetLength;
+            /// <seealso cref="JumpToSegment"></seealso>
+            private double  _mOffsetLength;
 
             private int _nextIndex;
 
@@ -252,7 +252,7 @@ namespace Avalonia.Lottie
                 Next();
             }
 
-            public virtual float CurrentSegmentLength => _currentSegmentLength;
+            public virtual double  CurrentSegmentLength => _currentSegmentLength;
 
             public override bool Done => _isIteratorDone;
 
@@ -278,7 +278,7 @@ namespace Avalonia.Lottie
                 {
                     // We need to skip part of the start of the current segment (because
                     // mOffsetLength > 0)
-                    var points = new float[8];
+                    var points = new double [8];
 
                     if (_nextIndex < 1)
                         points[0] = points[1] = 0f;
@@ -307,7 +307,7 @@ namespace Avalonia.Lottie
                 return true;
             }
 
-            public override ContourType CurrentSegment(float[] coords)
+            public override ContourType CurrentSegment(double[] coords)
             {
                 Array.Copy(_currentCoords, 0, coords, 0, GetNumberOfPoints(_currentType) * 2);
                 return _currentType;
@@ -316,7 +316,7 @@ namespace Avalonia.Lottie
             /// <summary>
             ///     Returns the point where the current segment ends
             /// </summary>
-            public virtual void GetCurrentSegmentEnd(float[] point)
+            public virtual void GetCurrentSegmentEnd(double[] point)
             {
                 point[0] = _mLastPoint[0];
                 point[1] = _mLastPoint[1];
@@ -325,7 +325,7 @@ namespace Avalonia.Lottie
             /// <summary>
             ///     Restarts the iterator and jumps all the segments of this path up to the length value.
             /// </summary>
-            public virtual void JumpToSegment(float length)
+            public virtual void JumpToSegment(double length)
             {
                 _isIteratorDone = false;
                 if (length <= 0f)
@@ -334,14 +334,14 @@ namespace Avalonia.Lottie
                     return;
                 }
 
-                float accLength = 0;
-                var lastPoint = new float[2];
+                double  accLength = 0;
+                var lastPoint = new double [2];
                 for (_nextIndex = 0; _nextIndex < _outerInstance._types.Length; _nextIndex++)
                 {
                     var segmentLength = _outerInstance._segmentsLength[_nextIndex];
                     if (accLength + segmentLength >= length && _outerInstance._types[_nextIndex] != ContourType.MoveTo)
                     {
-                        var estimatedPoint = new float[2];
+                        var estimatedPoint = new double [2];
                         _outerInstance.GetPointAtLength(_outerInstance._types[_nextIndex],
                             _outerInstance._coordinates[_nextIndex], lastPoint[0], lastPoint[1],
                             (length - accLength) / segmentLength, estimatedPoint);
@@ -372,7 +372,7 @@ namespace Avalonia.Lottie
             ///     coords array.
             /// </summary>
             /// <returns> the segment type </returns>
-            public ContourType CurrentSegment(float[] coords, float length)
+            public ContourType CurrentSegment(double[] coords, double  length)
             {
                 var type = CurrentSegment(coords);
                 // If the length is greater than the current segment length, no need to find
@@ -387,7 +387,7 @@ namespace Avalonia.Lottie
                 {
                     case ContourType.Bezier:
                     case ContourType.Arc:
-                        var curve = new float[8];
+                        var curve = new double [8];
                         curve[0] = _mLastPoint[0];
                         curve[1] = _mLastPoint[1];
                         Array.Copy(coords, 0, curve, 2, coords.Length);
@@ -398,7 +398,7 @@ namespace Avalonia.Lottie
                         Array.Copy(curve, 2, coords, 0, coords.Length);
                         break;
                     default:
-                        var point = new float[2];
+                        var point = new double [2];
                         _outerInstance.GetPointAtLength(type, coords, _mLastPoint[0], _mLastPoint[1], t, point);
                         coords[0] = point[0];
                         coords[1] = point[1];

@@ -27,10 +27,10 @@ namespace Avalonia.Lottie.Value
         {
         }
 
-        protected override Vector2 InterpolateValue(Vector2 startValue, Vector2 endValue, float progress)
+        protected override Vector2 InterpolateValue(Vector2 startValue, Vector2 endValue, double  progress)
         {
-            _point.X = MiscUtils.Lerp(startValue.X, endValue.X, progress);
-            _point.Y = MiscUtils.Lerp(startValue.Y, endValue.Y, progress);
+            _point.X = (float) MiscUtils.Lerp(startValue.X, endValue.X, progress);
+            _point.Y = (float) MiscUtils.Lerp(startValue.Y, endValue.Y, progress);
             return _point;
         }
     }

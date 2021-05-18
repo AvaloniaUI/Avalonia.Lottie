@@ -24,7 +24,7 @@ namespace Avalonia.Lottie.Model.Content
 
         public ShapeStroke(string name, AnimatableFloatValue offset, List<AnimatableFloatValue> lineDashPattern,
             AnimatableColorValue color, AnimatableIntegerValue opacity, AnimatableFloatValue width, LineCapType capType,
-            LineJoinType joinType, float miterLimit)
+            LineJoinType joinType, double  miterLimit)
         {
             Name = name;
             DashOffset = offset;
@@ -53,7 +53,7 @@ namespace Avalonia.Lottie.Model.Content
 
         internal virtual LineJoinType JoinType { get; }
 
-        internal virtual float MiterLimit { get; }
+        internal virtual double  MiterLimit { get; }
 
         public IContent ToContent(Lottie drawable, BaseLayer layer)
         {

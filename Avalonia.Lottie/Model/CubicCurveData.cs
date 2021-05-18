@@ -28,22 +28,22 @@ namespace Avalonia.Lottie.Model
 
         internal virtual Vector2 Vertex => _vertex;
 
-        internal virtual void SetControlPoint1(float x, float y)
+        internal virtual void SetControlPoint1(double x, double  y)
         {
-            _controlPoint1.X = x;
-            _controlPoint1.Y = y;
+            _controlPoint1.X = (float)x;
+            _controlPoint1.Y =(float) y;
         }
 
-        internal virtual void SetControlPoint2(float x, float y)
+        internal virtual void SetControlPoint2(double x, double  y)
         {
-            _controlPoint2.X = x;
-            _controlPoint2.Y = y;
+            _controlPoint2.X = (float)x;
+            _controlPoint2.Y = (float)y;
         }
 
-        internal virtual void SetVertex(float x, float y)
+        internal virtual void SetVertex(double x, double  y)
         {
-            _vertex.X = x;
-            _vertex.Y = y;
+            _vertex.X = (float)x;
+            _vertex.Y = (float)y;
         }
     }
 }

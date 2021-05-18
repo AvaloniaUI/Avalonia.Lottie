@@ -6,9 +6,9 @@
     public class MeanCalculator
     {
         private int _n;
-        private float _sum;
+        private double  _sum;
 
-        public virtual float Mean
+        public virtual double  Mean
         {
             get
             {
@@ -17,7 +17,7 @@
             }
         }
 
-        public virtual void Add(float number)
+        public virtual void Add(double number)
         {
             _sum += number;
             _n++;

@@ -15,7 +15,7 @@ namespace Avalonia.Lottie.Animation.Content
     {
         private readonly List<IBaseKeyframeAnimation<float?, float?>> _dashPatternAnimations;
         private readonly IBaseKeyframeAnimation<float?, float?> _dashPatternOffsetAnimation;
-        private readonly float[] _dashPatternValues;
+        private readonly double[] _dashPatternValues;
         private readonly BaseLayer _layer;
         private readonly Lottie _lottie;
         private readonly IBaseKeyframeAnimation<int?, int?> _opacityAnimation;
@@ -29,7 +29,7 @@ namespace Avalonia.Lottie.Animation.Content
         private Rect _rect;
 
         internal BaseStrokeContent(Lottie lottie, BaseLayer layer, PenLineCap cap, PenLineJoin join,
-            float miterLimit, AnimatableIntegerValue opacity, AnimatableFloatValue width,
+            double  miterLimit, AnimatableIntegerValue opacity, AnimatableFloatValue width,
             List<AnimatableFloatValue> dashPattern, AnimatableFloatValue offset)
         {
             _lottie = lottie;
@@ -48,7 +48,7 @@ namespace Avalonia.Lottie.Animation.Content
             else
                 _dashPatternOffsetAnimation = offset.CreateAnimation();
             _dashPatternAnimations = new List<IBaseKeyframeAnimation<float?, float?>>(dashPattern.Count);
-            _dashPatternValues = new float[dashPattern.Count];
+            _dashPatternValues = new double [dashPattern.Count];
 
             for (var i = 0; i < dashPattern.Count; i++) _dashPatternAnimations.Add(dashPattern[i].CreateAnimation());
 
@@ -153,12 +153,12 @@ namespace Avalonia.Lottie.Animation.Content
             _path.ComputeBounds(ref _rect);
 
             var width = _widthAnimation.Value.Value;
-            RectExt.Set(ref _rect, (float) (_rect.Left - width / 2f), (float) (_rect.Top - width / 2f),
-                (float) _rect.Right + width / 2f, (float) _rect.Bottom + width / 2f);
+            RectExt.Set(ref _rect,  (_rect.Left - width / 2f),  (_rect.Top - width / 2f),
+                 _rect.Right + width / 2f,  _rect.Bottom + width / 2f);
             RectExt.Set(ref outBounds, _rect);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, (float) outBounds.Left - 1, (float) outBounds.Top - 1,
-                (float) outBounds.Right + 1, (float) outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds,  outBounds.Left - 1,  outBounds.Top - 1,
+                 outBounds.Right + 1,  outBounds.Bottom + 1);
             LottieLog.EndSection("StrokeContent.GetBounds");
         }
 
@@ -210,7 +210,7 @@ namespace Avalonia.Lottie.Animation.Content
 
             _path.Reset();
             for (var j = pathGroup.Paths.Count - 1; j >= 0; j--) _path.AddPath(pathGroup.Paths[j].Path, parentMatrix);
-            float totalLength;
+            double  totalLength;
             using (var pm = new PathMeasure(_path))
             {
                 totalLength = pm.Length;
@@ -220,13 +220,13 @@ namespace Avalonia.Lottie.Animation.Content
             var startLength = totalLength * pathGroup.TrimPath.Start.Value.Value / 100f + offsetLength;
             var endLength = totalLength * pathGroup.TrimPath.End.Value.Value / 100f + offsetLength;
 
-            float currentLength = 0;
+            double  currentLength = 0;
             for (var j = pathGroup.Paths.Count - 1; j >= 0; j--)
             {
                 _trimPathPath.Set(pathGroup.Paths[j].Path);
                 _trimPathPath.Transform(parentMatrix);
 
-                float length;
+                double  length;
                 using (var pm = new PathMeasure(_trimPathPath))
                 {
                     length = pm.Length;
@@ -237,7 +237,7 @@ namespace Avalonia.Lottie.Animation.Content
                 {
                     // Draw the segment when the end is greater than the length which wraps around to the
                     // beginning.
-                    float startValue;
+                    double  startValue;
                     if (startLength > totalLength)
                         startValue = (startLength - totalLength) / length;
                     else
@@ -258,12 +258,12 @@ namespace Avalonia.Lottie.Animation.Content
                     }
                     else
                     {
-                        float startValue;
+                        double  startValue;
                         if (startLength < currentLength)
                             startValue = 0;
                         else
                             startValue = (startLength - currentLength) / length;
-                        float endValue;
+                        double  endValue;
                         if (endLength > currentLength + length)
                             endValue = 1f;
                         else

@@ -34,9 +34,9 @@ namespace Avalonia.Lottie
 
         // This is stored as a set to avoid duplicates.
         public virtual Rect Bounds { get; private set; }
-        public float StartFrame { get; private set; }
-        public float EndFrame { get; private set; }
-        public float FrameRate { get; private set; }
+        public double  StartFrame { get; private set; }
+        public double  EndFrame { get; private set; }
+        public double  FrameRate { get; private set; }
 
         public List<string> Warnings => _warnings.ToList();
 
@@ -48,13 +48,13 @@ namespace Avalonia.Lottie
 
         public virtual PerformanceTracker PerformanceTracker => _performanceTracker;
 
-        public virtual float Duration => (long) (DurationFrames / FrameRate * 1000);
+        public virtual double  Duration => (long) (DurationFrames / FrameRate * 1000);
 
         public virtual bool HasImages => _images.Count > 0;
 
         public virtual Dictionary<string, LottieImageAsset> Images => _images;
 
-        internal virtual float DurationFrames => EndFrame - StartFrame;
+        internal virtual double  DurationFrames => EndFrame - StartFrame;
 
         public void Dispose()
         {
@@ -87,7 +87,7 @@ namespace Avalonia.Lottie
             return layer;
         }
 
-        public void Init(Rect bounds, float startFrame, float endFrame, float frameRate, List<Layer> layers,
+        public void Init(Rect bounds, double  startFrame, double  endFrame, double  frameRate, List<Layer> layers,
             Dictionary<long, Layer> layerMap, Dictionary<string, List<Layer>> precomps,
             Dictionary<string, LottieImageAsset> images, Dictionary<int, FontCharacter> characters,
             Dictionary<string, Font> fonts)

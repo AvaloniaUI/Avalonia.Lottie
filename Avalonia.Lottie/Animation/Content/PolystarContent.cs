@@ -28,9 +28,9 @@ namespace Avalonia.Lottie.Animation.Content
         ///     It works best for polygons and stars with 3 points and needs more
         ///     work otherwise.
         /// </summary>
-        private const float PolystarMagicNumber = .47829f;
+        private const double  PolystarMagicNumber = .47829f;
 
-        private const float PolygonMagicNumber = .25f;
+        private const double  PolygonMagicNumber = .25f;
         private readonly IBaseKeyframeAnimation<float?, float?> _innerRadiusAnimation;
         private readonly IBaseKeyframeAnimation<float?, float?> _innerRoundednessAnimation;
 
@@ -174,7 +174,7 @@ namespace Avalonia.Lottie.Animation.Content
             // convert to radians
             currentAngle = MathExt.ToRadians(currentAngle);
             // adjust current angle for partial points
-            var anglePerPoint = (float) (2 * Math.PI / points);
+            var anglePerPoint =  (2 * Math.PI / points);
             var halfAnglePerPoint = anglePerPoint / 2.0f;
             var partialPointAmount = points - (int) points;
             if (partialPointAmount != 0) currentAngle += halfAnglePerPoint * (1f - partialPointAmount);
@@ -188,21 +188,21 @@ namespace Avalonia.Lottie.Animation.Content
             var outerRoundedness = 0f;
             if (_outerRoundednessAnimation != null) outerRoundedness = _outerRoundednessAnimation.Value.Value / 100f;
 
-            float x;
-            float y;
-            float partialPointRadius = 0;
+            double  x;
+            double  y;
+            double  partialPointRadius = 0;
             if (partialPointAmount != 0)
             {
                 partialPointRadius = innerRadius + partialPointAmount * (outerRadius - innerRadius);
-                x = (float) (partialPointRadius * Math.Cos(currentAngle));
-                y = (float) (partialPointRadius * Math.Sin(currentAngle));
+                x =  (partialPointRadius * Math.Cos(currentAngle));
+                y =  (partialPointRadius * Math.Sin(currentAngle));
                 _path.MoveTo(x, y);
                 currentAngle += anglePerPoint * partialPointAmount / 2f;
             }
             else
             {
-                x = (float) (outerRadius * Math.Cos(currentAngle));
-                y = (float) (outerRadius * Math.Sin(currentAngle));
+                x =  (outerRadius * Math.Cos(currentAngle));
+                y =  (outerRadius * Math.Sin(currentAngle));
                 _path.MoveTo(x, y);
                 currentAngle += halfAnglePerPoint;
             }
@@ -215,11 +215,11 @@ namespace Avalonia.Lottie.Animation.Content
                 var radius = longSegment ? outerRadius : innerRadius;
                 var dTheta = halfAnglePerPoint;
                 if (partialPointRadius != 0 && i == numPoints - 2) dTheta = anglePerPoint * partialPointAmount / 2f;
-                if (partialPointRadius != 0 && i == numPoints - 1) radius = partialPointRadius;
+                if (partialPointRadius != 0 && i == numPoints - 1) radius = (float) partialPointRadius;
                 var previousX = x;
                 var previousY = y;
-                x = (float) (radius * Math.Cos(currentAngle));
-                y = (float) (radius * Math.Sin(currentAngle));
+                x =  (radius * Math.Cos(currentAngle));
+                y =  (radius * Math.Sin(currentAngle));
 
                 if (innerRoundedness == 0 && outerRoundedness == 0)
                 {
@@ -227,13 +227,13 @@ namespace Avalonia.Lottie.Animation.Content
                 }
                 else
                 {
-                    var cp1Theta = (float) (Math.Atan2(previousY, previousX) - Math.PI / 2f);
-                    var cp1Dx = (float) Math.Cos(cp1Theta);
-                    var cp1Dy = (float) Math.Sin(cp1Theta);
+                    var cp1Theta =  (Math.Atan2(previousY, previousX) - Math.PI / 2f);
+                    var cp1Dx =  Math.Cos(cp1Theta);
+                    var cp1Dy =  Math.Sin(cp1Theta);
 
-                    var cp2Theta = (float) (Math.Atan2(y, x) - Math.PI / 2f);
-                    var cp2Dx = (float) Math.Cos(cp2Theta);
-                    var cp2Dy = (float) Math.Sin(cp2Theta);
+                    var cp2Theta =  (Math.Atan2(y, x) - Math.PI / 2f);
+                    var cp2Dx =  Math.Cos(cp2Theta);
+                    var cp2Dy =  Math.Sin(cp2Theta);
 
                     var cp1Roundedness = longSegment ? innerRoundedness : outerRoundedness;
                     var cp2Roundedness = longSegment ? outerRoundedness : innerRoundedness;
@@ -273,21 +273,21 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void CreatePolygonPath()
         {
-            var points = (float) Math.Floor(_pointsAnimation.Value.Value);
+            var points =  Math.Floor(_pointsAnimation.Value.Value);
             double currentAngle = _rotationAnimation?.Value ?? 0f;
             // Start at +y instead of +x
             currentAngle -= 90;
             // convert to radians
             currentAngle = MathExt.ToRadians(currentAngle);
             // adjust current angle for partial points
-            var anglePerPoint = (float) (2 * Math.PI / points);
+            var anglePerPoint =  (2 * Math.PI / points);
 
             var roundedness = _outerRoundednessAnimation.Value.Value / 100f;
             var radius = _outerRadiusAnimation.Value.Value;
-            float x;
-            float y;
-            x = (float) (radius * Math.Cos(currentAngle));
-            y = (float) (radius * Math.Sin(currentAngle));
+            double  x;
+            double  y;
+            x =  (radius * Math.Cos(currentAngle));
+            y =  (radius * Math.Sin(currentAngle));
             _path.MoveTo(x, y);
             currentAngle += anglePerPoint;
 
@@ -296,18 +296,18 @@ namespace Avalonia.Lottie.Animation.Content
             {
                 var previousX = x;
                 var previousY = y;
-                x = (float) (radius * Math.Cos(currentAngle));
-                y = (float) (radius * Math.Sin(currentAngle));
+                x =  (radius * Math.Cos(currentAngle));
+                y =  (radius * Math.Sin(currentAngle));
 
                 if (roundedness != 0)
                 {
-                    var cp1Theta = (float) (Math.Atan2(previousY, previousX) - Math.PI / 2f);
-                    var cp1Dx = (float) Math.Cos(cp1Theta);
-                    var cp1Dy = (float) Math.Sin(cp1Theta);
+                    var cp1Theta =  (Math.Atan2(previousY, previousX) - Math.PI / 2f);
+                    var cp1Dx =  Math.Cos(cp1Theta);
+                    var cp1Dy =  Math.Sin(cp1Theta);
 
-                    var cp2Theta = (float) (Math.Atan2(y, x) - Math.PI / 2f);
-                    var cp2Dx = (float) Math.Cos(cp2Theta);
-                    var cp2Dy = (float) Math.Sin(cp2Theta);
+                    var cp2Theta =  (Math.Atan2(y, x) - Math.PI / 2f);
+                    var cp2Dx =  Math.Cos(cp2Theta);
+                    var cp2Dy =  Math.Sin(cp2Theta);
 
                     var cp1X = radius * roundedness * PolygonMagicNumber * cp1Dx;
                     var cp1Y = radius * roundedness * PolygonMagicNumber * cp1Dy;

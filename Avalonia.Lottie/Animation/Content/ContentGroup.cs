@@ -127,10 +127,10 @@ namespace Avalonia.Lottie.Animation.Content
                         RectExt.Set(ref outBounds, _rect);
                     else
                         RectExt.Set(ref outBounds,
-                            (float) Math.Min(outBounds.Left, _rect.Left),
-                            (float) Math.Min(outBounds.Top, _rect.Top),
-                            (float) Math.Max(outBounds.Right, _rect.Right),
-                            (float) Math.Max(outBounds.Bottom, _rect.Bottom));
+                             Math.Min(outBounds.Left, _rect.Left),
+                             Math.Min(outBounds.Top, _rect.Top),
+                             Math.Max(outBounds.Right, _rect.Right),
+                             Math.Max(outBounds.Bottom, _rect.Bottom));
                 }
         }
 

@@ -69,7 +69,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override float Progress
+        public override double  Progress
         {
             set
             {
@@ -122,9 +122,9 @@ namespace Avalonia.Lottie.Model.Layer
                 if (outBounds.IsEmpty)
                     RectExt.Set(ref outBounds, Rect);
                 else
-                    RectExt.Set(ref outBounds, (float) Math.Min(outBounds.Left, Rect.Left),
-                        (float) Math.Min(outBounds.Top, Rect.Top), (float) Math.Max(outBounds.Right, Rect.Right),
-                        (float) Math.Max(outBounds.Bottom, Rect.Bottom));
+                    RectExt.Set(ref outBounds,  Math.Min(outBounds.Left, Rect.Left),
+                         Math.Min(outBounds.Top, Rect.Top),  Math.Max(outBounds.Right, Rect.Right),
+                         Math.Max(outBounds.Bottom, Rect.Bottom));
             }
         }
 

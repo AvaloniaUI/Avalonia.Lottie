@@ -20,7 +20,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             Progress = Progress;
         }
 
-        public override float Progress
+        public override double  Progress
         {
             set
             {
@@ -34,7 +34,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         public override Vector2? Value => GetValue(null, 0);
 
-        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, float keyframeProgress)
+        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, double  keyframeProgress)
         {
             return _point;
         }

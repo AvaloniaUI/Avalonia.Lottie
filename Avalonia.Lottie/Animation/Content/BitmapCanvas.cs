@@ -450,12 +450,12 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Translate(double dx, double dy)
         {
-            _matrix = MatrixExt.PreTranslate(_matrix, (float) dx, (float) dy);
+            _matrix = MatrixExt.PreTranslate(_matrix,  dx,  dy);
         }
 
         public void Scale(double sx, double sy, double px, double py)
         {
-            _matrix = MatrixExt.PreScale(_matrix, (float) sx, (float) sy, (float) px, (float) py);
+            _matrix = MatrixExt.PreScale(_matrix,  sx,  sy,  px,  py);
         }
 
         public void SetMatrix(Matrix3X3 matrix)

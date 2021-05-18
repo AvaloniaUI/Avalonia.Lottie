@@ -29,10 +29,10 @@ namespace Avalonia.Lottie.Parser
             var preCompWidth = 0;
             var preCompHeight = 0;
             long parentId = -1;
-            var timeStretch = 1f;
-            var startFrame = 0f;
-            var inFrame = 0f;
-            var outFrame = 0f;
+            var timeStretch = 1d;
+            var startFrame = 0d;
+            var inFrame = 0d;
+            var outFrame = 0d;
             string cl = null;
             var hidden = false;
 
@@ -199,7 +199,7 @@ namespace Avalonia.Lottie.Parser
             var visibleKeyframe = new Keyframe<float?>(composition, 1f, 1f, null, inFrame, outFrame);
             inOutKeyframes.Add(visibleKeyframe);
 
-            var outKeyframe = new Keyframe<float?>(composition, 0f, 0f, null, outFrame, float.MaxValue);
+            var outKeyframe = new Keyframe<float?>(composition, 0f, 0f, null, outFrame, double .MaxValue);
             inOutKeyframes.Add(outKeyframe);
 
             if (layerName.EndsWith(".ai") || "ai".Equals(cl))

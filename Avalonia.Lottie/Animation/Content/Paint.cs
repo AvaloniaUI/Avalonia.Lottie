@@ -42,13 +42,13 @@ namespace Avalonia.Lottie.Animation.Content
         public ColorFilter ColorFilter { get; set; }
         public PenLineCap StrokeCap { get; set; }
         public PenLineJoin StrokeJoin { get; set; }
-        public float StrokeMiter { get; set; }
-        public float StrokeWidth { get; set; }
+        public double  StrokeMiter { get; set; }
+        public double  StrokeWidth { get; set; }
         public PathEffect PathEffect { get; set; }
         public PorterDuffXfermode Xfermode { get; set; }
         public Shader Shader { get; set; }
         public Typeface Typeface { get; set; }
-        public float TextSize { get; set; }
+        public double  TextSize { get; set; }
 
         public void Dispose()
         {

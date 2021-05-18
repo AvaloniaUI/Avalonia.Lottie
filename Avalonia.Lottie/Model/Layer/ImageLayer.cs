@@ -52,8 +52,8 @@ namespace Avalonia.Lottie.Model.Layer
             var bitmap = Bitmap;
             if (bitmap != null)
             {
-                RectExt.Set(ref outBounds, (float) outBounds.Left, (float) outBounds.Top,
-                    (float) Math.Min(outBounds.Right, PixelWidth), (float) Math.Min(outBounds.Bottom, PixelHeight));
+                RectExt.Set(ref outBounds,  outBounds.Left,  outBounds.Top,
+                     Math.Min(outBounds.Right, PixelWidth),  Math.Min(outBounds.Bottom, PixelHeight));
                 BoundsMatrix.MapRect(ref outBounds);
             }
         }

@@ -22,25 +22,25 @@ namespace Avalonia.Lottie
             _geometry = null;
             _geometry = _path.GetGeometry();
             _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
-            Length = (float) _geometry.PlatformImpl.ContourLength;
+            Length =  _geometry.PlatformImpl.ContourLength;
             if (Length > 0)
             {
                 
             }
         }
 
-        public float Length { get; private set; }
+        public double  Length { get; private set; }
 
-        public Vector2 GetPosTan(float distance)
+        public Vector2 GetPosTan(double distance)
         {
             if (_geometry.PlatformImpl.TryGetPointAndTangentAtDistance(distance, out var vect2, out _))
             {
-                return new Vector2((float) vect2.X, (float) vect2.Y);
+                return new Vector2((float)  vect2.X,  (float) vect2.Y);
             }
             return Vector2.Zero;
         }
 
-        public bool GetSegment(float startD, float stopD, ref Path dst, bool startWithMoveTo)
+        public bool GetSegment(double startD, double  stopD, ref Path dst, bool startWithMoveTo)
         {
             var length = Length;
             
@@ -64,7 +64,7 @@ namespace Avalonia.Lottie
             var accLength = startD;
             var isZeroLength = true;
             
-            var points = new float[6];
+            var points = new double [6];
             
             iterator.JumpToSegment(accLength);
             
@@ -80,7 +80,7 @@ namespace Avalonia.Lottie
             
                         if (type != PathIterator.ContourType.MoveTo == false)
                         {
-                            var lastPoint = new float[2];
+                            var lastPoint = new double [2];
                             iterator.GetCurrentSegmentEnd(lastPoint);
                             dst.MoveTo(lastPoint[0], lastPoint[1]);
                         }

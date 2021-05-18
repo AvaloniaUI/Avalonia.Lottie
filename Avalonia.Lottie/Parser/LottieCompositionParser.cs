@@ -10,9 +10,9 @@ namespace Avalonia.Lottie.Parser
         public static LottieComposition Parse(JsonReader reader)
         {
             var scale = Utils.Utils.DpScale();
-            var startFrame = 0f;
-            var endFrame = 0f;
-            var frameRate = 0f;
+            var startFrame = 0d;
+            var endFrame = 0d;
+            var frameRate = 0d;
             var layerMap = new Dictionary<long, Layer>();
             var layers = new List<Layer>();
             var width = 0;

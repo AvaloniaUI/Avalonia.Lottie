@@ -13,7 +13,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
         }
 
-        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, float keyframeProgress)
+        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, double  keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
                 throw new InvalidOperationException("Missing values for keyframe.");
@@ -25,8 +25,8 @@ namespace Avalonia.Lottie.Animation.Keyframe
                 return ValueCallback.GetValueInternal(keyframe.StartFrame.Value, keyframe.EndFrame.Value, startPoint,
                     endPoint, keyframeProgress, LinearCurrentKeyframeProgress, Progress);
 
-            _point.X = startPoint.Value.X + keyframeProgress * (endPoint.Value.X - startPoint.Value.X);
-            _point.Y = startPoint.Value.Y + keyframeProgress * (endPoint.Value.Y - startPoint.Value.Y);
+            _point.X = (float) (startPoint.Value.X + keyframeProgress * (endPoint.Value.X - startPoint.Value.X));
+            _point.Y = (float) (startPoint.Value.Y + keyframeProgress * (endPoint.Value.Y - startPoint.Value.Y));
 
             return _point;
         }

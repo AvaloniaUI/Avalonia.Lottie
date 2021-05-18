@@ -5,31 +5,31 @@ namespace Avalonia.Lottie.Utils
 {
     /// <summary>
     ///     This is a slightly modified <seealso cref="ValueAnimator" /> that allows us to update start and end values
-    ///     easily optimizing for the fact that we know that it's a value animator with 2 floats.
+    ///     easily optimizing for the fact that we know that it's a value animator with 2 double s.
     /// </summary>
     public class LottieValueAnimator : BaseLottieAnimator
     {
         private LottieComposition _composition;
-        private float _frame;
-        private float _frameRate;
+        private double  _frame;
+        private double  _frameRate;
         private long _lastFrameTimeNs;
-        private float _maxFrame = int.MaxValue;
-        private float _minFrame = int.MinValue;
+        private double  _maxFrame = int.MaxValue;
+        private double  _minFrame = int.MinValue;
         private int _repeatCount;
         protected bool _running;
         private bool _speedReversedForRepeatMode;
 
         /// <summary>
-        ///     Returns a float representing the current value of the animation from 0 to 1
+        ///     Returns a double  representing the current value of the animation from 0 to 1
         ///     regardless of the animation speed, direction, or min and max frames.
         /// </summary>
-        public float AnimatedValue => AnimatedValueAbsolute;
+        public double  AnimatedValue => AnimatedValueAbsolute;
 
         /// <summary>
         ///     Returns the current value of the animation from 0 to 1 regardless
         ///     of the animation speed, direction, or min and max frames.
         /// </summary>
-        public float AnimatedValueAbsolute
+        public double  AnimatedValueAbsolute
         {
             get
             {
@@ -42,7 +42,7 @@ namespace Avalonia.Lottie.Utils
         ///     Returns the current value of the currently playing animation taking into
         ///     account direction, min and max frames.
         /// </summary>
-        public override float AnimatedFraction
+        public override double  AnimatedFraction
         {
             get
             {
@@ -55,7 +55,7 @@ namespace Avalonia.Lottie.Utils
 
         public override long Duration => _composition == null ? 0 : (long) _composition.Duration;
 
-        public float Frame
+        public double  Frame
         {
             get => _frame;
             set
@@ -69,16 +69,16 @@ namespace Avalonia.Lottie.Utils
 
         public override bool IsRunning => _running;
 
-        private float FrameDurationNs
+        private double  FrameDurationNs
         {
             get
             {
-                if (_composition == null) return float.MaxValue;
+                if (_composition == null) return double .MaxValue;
                 return Utils.SecondInNanos / _composition.FrameRate / Math.Abs(Speed);
             }
         }
 
-        public override float FrameRate
+        public override double  FrameRate
         {
             get => _frameRate;
             set
@@ -110,7 +110,7 @@ namespace Avalonia.Lottie.Utils
             }
         }
 
-        public float MinFrame
+        public double  MinFrame
         {
             get
             {
@@ -120,7 +120,7 @@ namespace Avalonia.Lottie.Utils
             set => SetMinAndMaxFrames(value, _maxFrame);
         }
 
-        public float MaxFrame
+        public double  MaxFrame
         {
             get
             {
@@ -133,7 +133,7 @@ namespace Avalonia.Lottie.Utils
         /// <summary>
         ///     Gets or sets the current speed. This will be affected by repeat mode <see cref="RepeatMode.Reverse" />.
         /// </summary>
-        public float Speed { set; get; } = 1f;
+        public double  Speed { set; get; } = 1f;
 
         public override RepeatMode RepeatMode
         {
@@ -206,10 +206,10 @@ namespace Avalonia.Lottie.Utils
             _maxFrame = int.MaxValue;
         }
 
-        public void SetMinAndMaxFrames(float minFrame, float maxFrame)
+        public void SetMinAndMaxFrames(double minFrame, double  maxFrame)
         {
             var compositionMinFrame = _composition == null ? -float.MaxValue : _composition.StartFrame;
-            var compositionMaxFrame = _composition == null ? float.MaxValue : _composition.EndFrame;
+            var compositionMaxFrame = _composition == null ? double .MaxValue : _composition.EndFrame;
             _minFrame = MiscUtils.Clamp(minFrame, compositionMinFrame, compositionMaxFrame);
             _maxFrame = MiscUtils.Clamp(maxFrame, compositionMinFrame, compositionMaxFrame);
             Frame = MiscUtils.Clamp(_frame, minFrame, maxFrame);

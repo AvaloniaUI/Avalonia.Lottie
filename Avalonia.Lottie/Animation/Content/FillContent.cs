@@ -76,8 +76,8 @@ namespace Avalonia.Lottie.Animation.Content
             for (var i = 0; i < _paths.Count; i++) _path.AddPath(_paths[i].Path, parentMatrix);
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, (float) outBounds.Left - 1, (float) outBounds.Top - 1,
-                (float) outBounds.Right + 1, (float) outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds,  outBounds.Left - 1,  outBounds.Top - 1,
+                 outBounds.Right + 1,  outBounds.Bottom + 1);
         }
 
         public void ResolveKeyPath(KeyPath keyPath, int depth, List<KeyPath> accumulator, KeyPath currentPartialKeyPath)

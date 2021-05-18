@@ -15,7 +15,7 @@ namespace Avalonia.Lottie.Value
         {
         }
 
-        protected override int InterpolateValue(int startValue, int endValue, float progress)
+        protected override int InterpolateValue(int startValue, int endValue, double  progress)
         {
             return MiscUtils.Lerp(startValue, endValue, progress);
         }

@@ -5,19 +5,19 @@ namespace Avalonia.Lottie.Value
     // ReSharper disable once UnusedMember.Global
     public class LottieInterpolatedFloatValue : LottieInterpolatedValue<float>
     {
-        public LottieInterpolatedFloatValue(float startValue, float endValue)
+        public LottieInterpolatedFloatValue(float startValue, float  endValue)
             : base(startValue, endValue)
         {
         }
 
-        public LottieInterpolatedFloatValue(float startValue, float endValue, IInterpolator interpolator)
+        public LottieInterpolatedFloatValue(float startValue, float  endValue, IInterpolator interpolator)
             : base(startValue, endValue, interpolator)
         {
         }
 
-        protected override float InterpolateValue(float startValue, float endValue, float progress)
+        protected override float  InterpolateValue(float startValue, float  endValue, double  progress)
         {
-            return MiscUtils.Lerp(startValue, endValue, progress);
+            return (float) MiscUtils.Lerp(startValue, endValue, progress);
         }
     }
 }

@@ -5,10 +5,10 @@ namespace Avalonia.Lottie
 {
     internal class DashPathEffect : PathEffect
     {
-        private readonly float[] _intervals;
-        private readonly float _phase;
+        private readonly double [] _intervals;
+        private readonly double  _phase;
 
-        public DashPathEffect(float[] intervals, float phase)
+        public DashPathEffect(double[] intervals, double  phase)
         {
             _intervals = intervals;
             _phase = phase;

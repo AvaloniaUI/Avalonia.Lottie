@@ -24,6 +24,6 @@
             return InterpolateValue(_startValue, _endValue, progress);
         }
 
-        protected abstract T InterpolateValue(T startValue, T endValue, float progress);
+        protected abstract T InterpolateValue(T startValue, T endValue, double  progress);
     }
 }

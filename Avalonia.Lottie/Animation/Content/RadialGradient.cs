@@ -16,16 +16,16 @@ namespace Avalonia.Lottie.Animation.Content
     internal class RadialGradient : Gradient, IDisposable
     {
         private readonly List<ImmutableGradientStop> _canvasGradientStopCollection;
-        private readonly float _r;
-        private readonly float _x0;
-        private readonly float _y0;
-        private readonly float _x1;
-        private readonly float _y1;
+        private readonly double  _r;
+        private readonly double  _x0;
+        private readonly double  _y0;
+        private readonly double  _x1;
+        private readonly double  _y1;
         private IBrush _canvasRadialGradientBrush;
-        private float _ha;
-        private float _hl;
+        private double  _ha;
+        private double  _hl;
 
-        public RadialGradient(float x0, float y0, float x1, float y1, Color[] colors, float[] positions, float highlightAngle = 0, float highlightLength = 0)
+        public RadialGradient(double x0, double  y0, double  x1, double  y1, Color[] colors, double [] positions, double  highlightAngle = 0, double  highlightLength = 0)
         {
             _x0 = x0;
             _y0 = y0;
@@ -48,8 +48,8 @@ namespace Avalonia.Lottie.Animation.Content
         {
             if (_canvasRadialGradientBrush is not null) return _canvasRadialGradientBrush;
 
-            var startPoint = new Vector2(_x0, _y0);
-            var endPoint = new Vector2(_x1, _y1);
+            var startPoint = new Vector2((float) _x0, (float) _y0);
+            var endPoint = new Vector2((float) _x1, (float) _y1);
 
             startPoint = LocalMatrix.Transform(startPoint);
             endPoint = LocalMatrix.Transform(endPoint);
@@ -59,7 +59,7 @@ namespace Avalonia.Lottie.Animation.Content
             var x1 = endPoint.X;
             var y1 = endPoint.Y;
             
-            var r = (float) Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1 - y0, 2));
+            var r =  Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1 - y0, 2));
             var ang = Math.Atan2(x1 - x0, y1 - y0);
 
             var percent = _hl;
@@ -73,8 +73,8 @@ namespace Avalonia.Lottie.Animation.Content
 
             var dist = r * percent;
             
-            var fx = (float)Math.Cos(ang + _ha) * dist + x0;
-            var fy = (float)Math.Sin(ang + _ha) * dist + y0;
+            var fx = Math.Cos(ang + _ha) * dist + x0;
+            var fy = Math.Sin(ang + _ha) * dist + y0;
             
             _canvasRadialGradientBrush = new ImmutableRadialGradientBrush(
                 _canvasGradientStopCollection

@@ -12,12 +12,12 @@ namespace Avalonia.Lottie
             return matrix * transformAnimationMatrix;
         }
 
-        public static Matrix3X3 PreTranslate(Matrix3X3 matrix, float dx, float dy)
+        public static Matrix3X3 PreTranslate(Matrix3X3 matrix, double  dx, double  dy)
         {
             return matrix * GetTranslate(dx, dy);
         }
 
-        private static Matrix3X3 GetTranslate(float dx, float dy)
+        private static Matrix3X3 GetTranslate(double dx, double  dy)
         {
             return new()
             {
@@ -29,7 +29,7 @@ namespace Avalonia.Lottie
             };
         }
 
-        public static Matrix3X3 PreRotate(Matrix3X3 matrix, float rotation)
+        public static Matrix3X3 PreRotate(Matrix3X3 matrix, double  rotation)
         {
             var angle = MathExt.ToRadians(rotation);
             var sin = Math.Sin(angle);
@@ -38,7 +38,7 @@ namespace Avalonia.Lottie
             return matrix * GetRotate(sin, cos);
         }
 
-        public static Matrix3X3 PreRotate(Matrix3X3 matrix, float rotation, float px, float py)
+        public static Matrix3X3 PreRotate(Matrix3X3 matrix, double  rotation, double  px, double  py)
         {
             var angle = MathExt.ToRadians(rotation);
             var sin = Math.Sin(angle);
@@ -53,27 +53,27 @@ namespace Avalonia.Lottie
         {
             return new()
             {
-                M11 = (float) cos,
-                M12 = (float) -sin,
-                M21 = (float) sin,
-                M22 = (float) cos,
+                M11 =  cos,
+                M12 =  -sin,
+                M21 =  sin,
+                M22 =  cos,
                 M33 = 1
             };
         }
 
-        public static Matrix3X3 PreScale(Matrix3X3 matrix, float scaleX, float scaleY)
+        public static Matrix3X3 PreScale(Matrix3X3 matrix, double  scaleX, double  scaleY)
         {
             return matrix * GetScale(scaleX, scaleY);
         }
 
-        public static Matrix3X3 PreScale(Matrix3X3 matrix, float scaleX, float scaleY, float px, float py)
+        public static Matrix3X3 PreScale(Matrix3X3 matrix, double  scaleX, double  scaleY, double  px, double  py)
         {
             var tmp = GetTranslate(-px, -py) * GetScale(scaleX, scaleY) * GetTranslate(px, py);
 
             return matrix * tmp;
         }
 
-        private static Matrix3X3 GetScale(float scaleX, float scaleY)
+        private static Matrix3X3 GetScale(double scaleX, double  scaleY)
         {
             return new()
             {

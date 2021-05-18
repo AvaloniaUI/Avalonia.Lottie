@@ -190,8 +190,8 @@ namespace Avalonia.Lottie.Animation.Content
 
             _path.ComputeBounds(ref outBounds);
             // Add padding to account for rounding errors.
-            RectExt.Set(ref outBounds, (float) outBounds.Left - 1, (float) outBounds.Top - 1,
-                (float) outBounds.Right + 1, (float) outBounds.Bottom + 1);
+            RectExt.Set(ref outBounds,  outBounds.Left - 1,  outBounds.Top - 1,
+                 outBounds.Right + 1,  outBounds.Bottom + 1);
         }
 
         public string Name { get; }

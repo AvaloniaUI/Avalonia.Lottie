@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly ScaleXyParser Instance = new();
 
-        public ScaleXy Parse(JsonReader reader, float scale)
+        public ScaleXy Parse(JsonReader reader, double  scale)
         {
             var isArray = reader.Peek() == JsonToken.StartArray;
             if (isArray) reader.BeginArray();

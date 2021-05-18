@@ -31,7 +31,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             _endOpacity = animatableTransform.EndOpacity?.CreateAnimation();
         }
 
-        public float Progress
+        public double  Progress
         {
             set
             {
@@ -112,7 +112,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         /**
          * TODO: see if we can use this for the main get_Matrix method.
          */
-        internal Matrix3X3 GetMatrixForRepeater(float amount)
+        internal Matrix3X3 GetMatrixForRepeater(double amount)
         {
             var position = _position.Value;
             var anchorPoint = _anchorPoint.Value;
@@ -122,8 +122,8 @@ namespace Avalonia.Lottie.Animation.Keyframe
             _matrix.Reset();
             _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X * amount, position.Value.Y * amount);
             _matrix = MatrixExt.PreScale(_matrix,
-                (float) Math.Pow(scale.ScaleX, amount),
-                (float) Math.Pow(scale.ScaleY, amount));
+                 Math.Pow(scale.ScaleX, amount),
+                 Math.Pow(scale.ScaleY, amount));
             _matrix = MatrixExt.PreRotate(_matrix, rotation * amount, anchorPoint.Value.X, anchorPoint.Value.Y);
 
             return _matrix;

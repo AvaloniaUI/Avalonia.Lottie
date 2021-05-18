@@ -40,18 +40,18 @@ namespace Avalonia.Lottie.Parser
         /// <param name="reader"></param>
         /// <param name="scale"></param>
         /// <returns></returns>
-        public GradientColor Parse(JsonReader reader, float scale)
+        public GradientColor Parse(JsonReader reader, double  scale)
         {
             var array = new List<float>();
             // The array was started by Keyframe because it thought that this may be an array of keyframes 
             // but peek returned a number so it considered it a static array of numbers. 
             var isArray = reader.Peek() == JsonToken.StartArray;
             if (isArray) reader.BeginArray();
-            while (reader.HasNext()) array.Add(reader.NextDouble());
+            while (reader.HasNext()) array.Add((float) reader.NextDouble());
             if (isArray) reader.EndArray();
             if (_colorPoints == -1) _colorPoints = array.Count / 4;
 
-            var positions = new float[_colorPoints];
+            var positions = new double [_colorPoints];
             var colors = new Color[_colorPoints];
 
             byte r = 0;
@@ -64,7 +64,7 @@ namespace Avalonia.Lottie.Parser
                 {
                     case 0:
                         // position 
-                        positions[colorIndex] = (float) value;
+                        positions[colorIndex] =  value;
                         break;
                     case 1:
                         r = (byte) (value * 255);

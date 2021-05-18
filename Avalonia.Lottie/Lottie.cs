@@ -53,7 +53,7 @@ namespace Avalonia.Lottie
         private IImageAssetDelegate _imageAssetDelegate;
         private ImageAssetManager _imageAssetManager;
         private bool _performanceTrackingEnabled;
-        private float _scale = 1f;
+        private double  _scale = 1f;
         private TextDelegate _textDelegate;
 
         public Lottie()
@@ -114,7 +114,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Gets or sets the minimum frame that the animation will start from when playing or looping.
         /// </summary>
-        internal float MinFrame
+        internal double  MinFrame
         {
             get => 0;
             set
@@ -132,7 +132,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Sets the minimum progress that the animation will start from when playing or looping.
         /// </summary>
-        internal float MinProgress
+        internal double  MinProgress
         {
             get => 0;
 
@@ -151,7 +151,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Gets or sets the maximum frame that the animation will end at when playing or looping.
         /// </summary>
-        internal float MaxFrame
+        internal double  MaxFrame
         {
             set
             {
@@ -170,7 +170,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Sets the maximum progress that the animation will end at when playing or looping.
         /// </summary>
-        internal float MaxProgress
+        internal double  MaxProgress
         {
             get => 0;
 
@@ -195,13 +195,13 @@ namespace Avalonia.Lottie
         ///     Sets the playback speed. If speed &lt; 0, the animation will play backwards.
         ///     Returns the current playback speed. This will be &lt; 0 if the animation is playing backwards.
         /// </summary>
-        public virtual float Speed
+        public virtual double  Speed
         {
             set => _animator.Speed = value;
             get => _animator.Speed;
         }
 
-        internal float Frame
+        internal double  Frame
         {
             /**
             * Sets the progress to the specified frame.
@@ -224,7 +224,7 @@ namespace Avalonia.Lottie
             get => _animator.Frame;
         }
 
-        public virtual float Progress
+        public virtual double  Progress
         {
             get => _animator.AnimatedValueAbsolute;
             set
@@ -268,7 +268,7 @@ namespace Avalonia.Lottie
             get => _animator.RepeatCount;
         }
 
-        public float FrameRate
+        public double  FrameRate
         {
             get => _animator.FrameRate;
             set => _animator.FrameRate = value;
@@ -627,7 +627,7 @@ namespace Avalonia.Lottie
             
             var (x, y) = rtbSize.Size / _composition.Bounds.Size;
 
-            var matrix = MatrixExt.PreScale(Matrix3X3.CreateIdentity(), (float) x, (float) y);
+            var matrix = MatrixExt.PreScale(Matrix3X3.CreateIdentity(),  x,  y);
 
             using var session = _bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, rtbDrawingContext);
           
@@ -684,7 +684,7 @@ namespace Avalonia.Lottie
         /// </summary>
         /// <param name="minFrame"></param>
         /// <param name="maxFrame"></param>
-        public void SetMinAndMaxFrame(float minFrame, float maxFrame)
+        public void SetMinAndMaxFrame(double minFrame, double  maxFrame)
         {
             if (_composition == null)
             {
@@ -701,7 +701,7 @@ namespace Avalonia.Lottie
         /// </summary>
         /// <param name="minProgress"></param>
         /// <param name="maxProgress"></param>
-        public void SetMinAndMaxProgress(float minProgress, float maxProgress)
+        public void SetMinAndMaxProgress(double minProgress, double  maxProgress)
         {
             if (minProgress < 0)
                 minProgress = 0;
@@ -765,7 +765,7 @@ namespace Avalonia.Lottie
             if (_composition == null) return;
 
             _bitmapCanvas?.Dispose();
-            _bitmapCanvas = new BitmapCanvas((float) Width, (float) Height);
+            _bitmapCanvas = new BitmapCanvas( Width,  Height);
         }
 
         public virtual void CancelAnimation()
@@ -903,10 +903,10 @@ namespace Avalonia.Lottie
          * If there are masks or mattes, we can't scale the animation larger than the canvas or else 
          * the off screen rendering for masks and mattes after saveLayer calls will get clipped.
          */
-        private float GetMaxScale(BitmapCanvas canvas)
+        private double  GetMaxScale(BitmapCanvas canvas)
         {
-            var maxScaleX = (float) canvas.Width / (float) _composition.Bounds.Width;
-            var maxScaleY = (float) canvas.Height / (float) _composition.Bounds.Height;
+            var maxScaleX =  canvas.Width /  _composition.Bounds.Width;
+            var maxScaleY =  canvas.Height /  _composition.Bounds.Height;
             return Math.Min(maxScaleX, maxScaleY);
         }
 

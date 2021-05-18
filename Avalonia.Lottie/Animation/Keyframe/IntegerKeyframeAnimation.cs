@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
         }
 
-        public override int? GetValue(Keyframe<int?> keyframe, float keyframeProgress)
+        public override int? GetValue(Keyframe<int?> keyframe, double  keyframeProgress)
         {
             if (keyframe.StartValue == null || keyframe.EndValue == null)
                 throw new InvalidOperationException("Missing values for keyframe.");

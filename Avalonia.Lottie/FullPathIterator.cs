@@ -21,7 +21,7 @@
             return true;
         }
 
-        public override ContourType CurrentSegment(float[] points)
+        public override ContourType CurrentSegment(double[] points)
         {
             var contour = _path.Contours[_index];
 

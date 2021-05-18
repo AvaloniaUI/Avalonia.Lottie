@@ -13,7 +13,7 @@ namespace Avalonia.Lottie.Parser
         ///     PathInterpolator fails to create the interpolator in those cases and hangs.
         ///     Clamping the cp helps prevent that.
         /// </summary>
-        private const float MaxCpValue = 100;
+        private const double  MaxCpValue = 100;
 
         private static readonly IInterpolator LinearInterpolator = new LinearInterpolator();
 
@@ -47,7 +47,7 @@ namespace Avalonia.Lottie.Parser
             }
         }
 
-        internal static Keyframe<T> Parse<T>(JsonReader reader, LottieComposition composition, float scale,
+        internal static Keyframe<T> Parse<T>(JsonReader reader, LottieComposition composition, double  scale,
             IValueParser<T> valueParser, bool animated)
         {
             if (animated) return ParseKeyframe(composition, reader, scale, valueParser);
@@ -64,12 +64,12 @@ namespace Avalonia.Lottie.Parser
         /// <param name="scale"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader, float scale,
+        private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader, double  scale,
             IValueParser<T> valueParser)
         {
             Vector2? cp1 = null;
             Vector2? cp2 = null;
-            float startFrame = 0;
+            double  startFrame = 0;
             var startValue = default(T);
             var endValue = default(T);
             var hold = false;
@@ -122,10 +122,10 @@ namespace Avalonia.Lottie.Parser
             }
             else if (cp1 != null && cp2 != null)
             {
-                cp1 = new Vector2(MiscUtils.Clamp(cp1.Value.X, -scale, scale),
-                    MiscUtils.Clamp(cp1.Value.Y, -MaxCpValue, MaxCpValue));
-                cp2 = new Vector2(MiscUtils.Clamp(cp2.Value.X, -scale, scale),
-                    MiscUtils.Clamp(cp2.Value.Y, -MaxCpValue, MaxCpValue));
+                cp1 = new Vector2((float) MiscUtils.Clamp(cp1.Value.X, -scale, scale),
+                    (float) MiscUtils.Clamp(cp1.Value.Y, -MaxCpValue, MaxCpValue));
+                cp2 = new Vector2((float) MiscUtils.Clamp(cp2.Value.X, -scale, scale),
+                    (float) MiscUtils.Clamp(cp2.Value.Y, -MaxCpValue, MaxCpValue));
 
                 var hash = Utils.Utils.HashFor(cp1.Value.X, cp1.Value.Y, cp2.Value.X, cp2.Value.Y);
                 if (GetInterpolator(hash, out var interpolatorRef) == false ||
@@ -159,7 +159,7 @@ namespace Avalonia.Lottie.Parser
             return keyframe;
         }
 
-        private static Keyframe<T> ParseStaticValue<T>(JsonReader reader, float scale, IValueParser<T> valueParser)
+        private static Keyframe<T> ParseStaticValue<T>(JsonReader reader, double  scale, IValueParser<T> valueParser)
         {
             var value = valueParser.Parse(reader, scale);
             return new Keyframe<T>(value);

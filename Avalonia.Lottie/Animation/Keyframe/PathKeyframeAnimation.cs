@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
             GC.SuppressFinalize(this);
         }
 
-        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, float keyframeProgress)
+        public override Vector2? GetValue(Keyframe<Vector2?> keyframe, double  keyframeProgress)
         {
             var pathKeyframe = (PathKeyframe) keyframe;
             var path = pathKeyframe.Path;
