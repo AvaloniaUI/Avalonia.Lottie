@@ -25,7 +25,7 @@ namespace Avalonia.Lottie
             FillType = path.FillType;
         }
 
-        public void Transform(Matrix3X3 matrix)
+        public void Transform(Matrix matrix)
         {
             for (var j = 0; j < Contours.Count; j++) Contours[j].Transform(matrix);
         }
@@ -77,7 +77,7 @@ namespace Avalonia.Lottie
             rect = new Rect(bound.Left, bound.Top, bound.Right - bound.Left, bound.Bottom - bound.Top);
         }
 
-        public void AddPath(Path path, Matrix3X3 matrix)
+        public void AddPath(Path path, Matrix matrix)
         {
             var pathCopy = new Path();
             pathCopy.Set(path);
@@ -331,7 +331,7 @@ namespace Avalonia.Lottie
         {
             double [] Points { get; }
             PathIterator.ContourType Type { get; }
-            void Transform(Matrix3X3 matrix);
+            void Transform(Matrix matrix);
             IContour Copy();
             void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed);
             void Offset(double dx, double  dy);
@@ -359,7 +359,7 @@ namespace Avalonia.Lottie
                 _endPoint = GetPointAtAngle(startAngle + sweepAngle);
             }
 
-            public void Transform(Matrix3X3 matrix)
+            public void Transform(Matrix matrix)
             {
                 _startPoint = matrix.Transform(_startPoint);
                 _endPoint = matrix.Transform(_endPoint);
@@ -439,7 +439,7 @@ namespace Avalonia.Lottie
                 _vertex = vertex;
             }
 
-            public void Transform(Matrix3X3 matrix)
+            public void Transform(Matrix matrix)
             {
                 _control1 = matrix.Transform(_control1);
                 _control2 = matrix.Transform(_control2);
@@ -531,7 +531,7 @@ namespace Avalonia.Lottie
                 Points[1] = y;
             }
 
-            public void Transform(Matrix3X3 matrix)
+            public void Transform(Matrix matrix)
             {
                 var p = new Vector((float) Points[0], (float) Points[1]);
 
@@ -597,7 +597,7 @@ namespace Avalonia.Lottie
                 Points[1] += dy;
             }
 
-            public void Transform(Matrix3X3 matrix)
+            public void Transform(Matrix matrix)
             {
                 var p = new Vector((float) Points[0], (float) Points[1]);
 
@@ -632,7 +632,7 @@ namespace Avalonia.Lottie
             {
             }
 
-            public void Transform(Matrix3X3 matrix)
+            public void Transform(Matrix matrix)
             {
             }
         }

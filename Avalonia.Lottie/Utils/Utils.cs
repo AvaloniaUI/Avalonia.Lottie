@@ -7,6 +7,7 @@ using Avalonia.Media;
 
 namespace Avalonia.Lottie.Utils
 {
+    
     public static class Utils
     {
         public const int SecondInNanos = 1000000000;
@@ -22,6 +23,7 @@ namespace Avalonia.Lottie.Utils
             DpScale();
             Dpi();
         }
+
 
         internal static Path CreatePath(Vector startPoint, Vector endPoint, Vector? cp1, Vector? cp2)
         {
@@ -53,7 +55,7 @@ namespace Avalonia.Lottie.Utils
                 }
         }
 
-        internal static double  GetScale(Matrix3X3 matrix)
+        internal static double  GetScale(Matrix matrix)
         {
             _points[0] = Vector.Zero;
             _points[1] = new Vector(Sqrt2, Sqrt2);

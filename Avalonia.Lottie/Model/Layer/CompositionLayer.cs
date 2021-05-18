@@ -89,7 +89,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("CompositionLayer.Draw");
             canvas.Save();
@@ -111,7 +111,7 @@ namespace Avalonia.Lottie.Model.Layer
             LottieLog.EndSection("CompositionLayer.Draw");
         }
 
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref Rect, 0, 0, 0, 0);

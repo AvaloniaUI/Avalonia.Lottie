@@ -627,7 +627,7 @@ namespace Avalonia.Lottie
             
             var (x, y) = rtbSize.Size / _composition.Bounds.Size;
 
-            var matrix = MatrixExt.PreScale(Matrix3X3.CreateIdentity(),  x,  y);
+            var matrix = MatrixExt.PreScale(Matrix.Identity,  x,  y);
 
             using var session = _bitmapCanvas.CreateSession(rtbSize.Width, rtbSize.Height, rtbDrawingContext);
           

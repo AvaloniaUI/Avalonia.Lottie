@@ -18,7 +18,7 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         // Used for repeaters 
         private readonly IBaseKeyframeAnimation<float?, float?> _startOpacity;
-        private Matrix3X3 _matrix = Matrix3X3.CreateIdentity();
+        private Matrix _matrix =Matrix.Identity;
 
         internal TransformKeyframeAnimation(AnimatableTransform animatableTransform)
         {
@@ -51,11 +51,12 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         internal virtual IBaseKeyframeAnimation<float?, float?> EndOpacity => _endOpacity;
 
-        internal virtual Matrix3X3 Matrix
+        internal virtual Matrix Matrix
         {
             get
             {
-                _matrix.Reset();
+                _matrix = Matrix.Identity;
+                
                 var position = _position.Value;
                 if (position != null && (position.Value.X != 0 || position.Value.Y != 0))
                     _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X, position.Value.Y);
@@ -112,14 +113,14 @@ namespace Avalonia.Lottie.Animation.Keyframe
         /**
          * TODO: see if we can use this for the main get_Matrix method.
          */
-        internal Matrix3X3 GetMatrixForRepeater(double amount)
+        internal Matrix GetMatrixForRepeater(double amount)
         {
             var position = _position.Value;
             var anchorPoint = _anchorPoint.Value;
             var scale = _scale.Value;
             var rotation = _rotation.Value.Value;
 
-            _matrix.Reset();
+            _matrix = Matrix;
             _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X * amount, position.Value.Y * amount);
             _matrix = MatrixExt.PreScale(_matrix,
                  Math.Pow(scale.ScaleX, amount),

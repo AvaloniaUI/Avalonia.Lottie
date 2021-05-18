@@ -80,7 +80,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             canvas.Save();
             if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
@@ -117,7 +117,7 @@ namespace Avalonia.Lottie.Model.Layer
             canvas.Restore();
         }
 
-        private void DrawTextGlyphs(DocumentData documentData, Matrix3X3 parentMatrix, Font font, BitmapCanvas canvas)
+        private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, BitmapCanvas canvas)
         {
             var fontScale =  documentData.Size / 100;
             var parentScale = Utils.Utils.GetScale(parentMatrix);
@@ -140,7 +140,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix3X3 parentMatrix, BitmapCanvas canvas)
+        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix parentMatrix, BitmapCanvas canvas)
         {
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var typeface = _lottie.GetTypeface(font.Family, font.Style);
@@ -165,7 +165,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        private void DrawCharacterAsGlyph(FontCharacter character, Matrix3X3 parentMatrix, double  fontScale,
+        private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double  fontScale,
             DocumentData documentData, BitmapCanvas canvas)
         {
             var contentGroups = GetContentsForCharacter(character);
@@ -173,7 +173,7 @@ namespace Avalonia.Lottie.Model.Layer
             {
                 var path = contentGroups[j].Path;
                 //path.ComputeBounds(out _rectF);
-                Matrix.Set(parentMatrix);
+                Matrix = (parentMatrix);
                 Matrix = MatrixExt.PreTranslate(Matrix, 0,  -documentData.BaselineShift * Utils.Utils.DpScale());
                 Matrix = MatrixExt.PreScale(Matrix, fontScale, fontScale);
                 path.Transform(Matrix);

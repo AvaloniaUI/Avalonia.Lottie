@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Model.Layer
             _paint.Color = layerModel.SolidColor;
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             int backgroundAlpha = LayerModel.SolidColor.A;
             if (backgroundAlpha == 0) return;
@@ -50,7 +50,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             base.GetBounds(ref outBounds, parentMatrix);
             RectExt.Set(ref Rect, 0, 0, LayerModel.SolidWidth, LayerModel.SolidHeight);

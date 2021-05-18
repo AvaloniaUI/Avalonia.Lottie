@@ -2,88 +2,51 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Numerics;
+using Avalonia.Lottie.Utils;
 
 namespace Avalonia.Lottie
 {
     public static class MatrixExt
     {
-        public static Matrix3X3 PreConcat(Matrix3X3 matrix, Matrix3X3 transformAnimationMatrix)
+        
+        
+        public static Vector Transform(this  Matrix m, Vector v)
         {
-            return matrix * transformAnimationMatrix;
+            return new Point(v.X, v.Y) * m;
+        }
+        
+        public static Matrix PreConcat(Matrix matrix, Matrix transformAnimationMatrix)
+        {
+            return  transformAnimationMatrix * matrix ;
         }
 
-        public static Matrix3X3 PreTranslate(Matrix3X3 matrix, double  dx, double  dy)
+        public static Matrix PreTranslate(Matrix matrix, double  dx, double  dy)
         {
-            return matrix * GetTranslate(dx, dy);
+            return Matrix.CreateTranslation(dx, dy) * matrix;
+        }
+ 
+        public static Matrix PreRotate(Matrix matrix, double  rotation)
+        {
+            var angle = Matrix.ToRadians(rotation);
+ 
+            return  Matrix.CreateRotation(angle) * matrix;
         }
 
-        private static Matrix3X3 GetTranslate(double dx, double  dy)
+        public static Matrix PreRotate(Matrix matrix, double  rotation, double  px, double  py)
         {
-            return new()
-            {
-                M11 = 1,
-                M13 = dx,
-                M22 = 1,
-                M23 = dy,
-                M33 = 1
-            };
-        }
+            var angle = MathExt.ToRadians(rotation); 
 
-        public static Matrix3X3 PreRotate(Matrix3X3 matrix, double  rotation)
+            var tmp = Matrix.CreateTranslation(-px, -py) * Matrix.CreateRotation(angle) * Matrix.CreateTranslation(px, py);
+
+            return tmp * matrix ;
+        }
+ 
+        public static Matrix PreScale(Matrix matrix, double  scaleX, double  scaleY)
         {
-            var angle = MathExt.ToRadians(rotation);
-            var sin = Math.Sin(angle);
-            var cos = Math.Cos(angle);
-
-            return matrix * GetRotate(sin, cos);
+            return  Matrix.CreateScale(scaleX, scaleY) * matrix;
         }
-
-        public static Matrix3X3 PreRotate(Matrix3X3 matrix, double  rotation, double  px, double  py)
-        {
-            var angle = MathExt.ToRadians(rotation);
-            var sin = Math.Sin(angle);
-            var cos = Math.Cos(angle);
-
-            var tmp = GetTranslate(-px, -py) * GetRotate(sin, cos) * GetTranslate(px, py);
-
-            return matrix * tmp;
-        }
-
-        private static Matrix3X3 GetRotate(double sin, double cos)
-        {
-            return new()
-            {
-                M11 =  cos,
-                M12 =  -sin,
-                M21 =  sin,
-                M22 =  cos,
-                M33 = 1
-            };
-        }
-
-        public static Matrix3X3 PreScale(Matrix3X3 matrix, double  scaleX, double  scaleY)
-        {
-            return matrix * GetScale(scaleX, scaleY);
-        }
-
-        public static Matrix3X3 PreScale(Matrix3X3 matrix, double  scaleX, double  scaleY, double  px, double  py)
-        {
-            var tmp = GetTranslate(-px, -py) * GetScale(scaleX, scaleY) * GetTranslate(px, py);
-
-            return matrix * tmp;
-        }
-
-        private static Matrix3X3 GetScale(double scaleX, double  scaleY)
-        {
-            return new()
-            {
-                M11 = scaleX,
-                M22 = scaleY,
-                M33 = 1
-            };
-        }
-
-        public static void MapRect(this Matrix3X3 matrix, ref Rect rect)
+  
+        public static void MapRect(this Matrix matrix, ref Rect rect)
         {
             var p1 = new Vector((float) rect.Left, (float) rect.Top);
             var p2 = new Vector((float) rect.Right, (float) rect.Top);
@@ -103,7 +66,7 @@ namespace Avalonia.Lottie
             RectExt.Set(ref rect, new Rect(xMin, yMax, xMax, yMin));
         }
 
-        public static void MapPoints(this Matrix3X3 matrix, ref Vector[] points)
+        public static void MapPoints(this Matrix matrix, ref Vector[] points)
         {
             for (var i = 0; i < points.Length; i++) points[i] = matrix.Transform(points[i]);
         }

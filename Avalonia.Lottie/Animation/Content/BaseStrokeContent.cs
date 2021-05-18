@@ -99,7 +99,7 @@ namespace Avalonia.Lottie.Animation.Content
             if (currentPathGroup != null) _pathGroups.Add(currentPathGroup);
         }
 
-        public virtual void Draw(BitmapCanvas canvas, Matrix3X3 parentMatrix, byte parentAlpha)
+        public virtual void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("StrokeContent.Draw");
             var alpha = (byte) (parentAlpha / 255f * _opacityAnimation.Value / 100f * 255);
@@ -140,7 +140,7 @@ namespace Avalonia.Lottie.Animation.Content
             LottieLog.EndSection("StrokeContent.Draw");
         }
 
-        public void GetBounds(ref Rect outBounds, Matrix3X3 parentMatrix)
+        public void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
             LottieLog.BeginSection("StrokeContent.GetBounds");
             _path.Reset();
@@ -199,7 +199,7 @@ namespace Avalonia.Lottie.Animation.Content
             _lottie.InvalidateSelf();
         }
 
-        private void ApplyTrimPath(BitmapCanvas canvas, PathGroup pathGroup, Matrix3X3 parentMatrix)
+        private void ApplyTrimPath(BitmapCanvas canvas, PathGroup pathGroup, Matrix parentMatrix)
         {
             LottieLog.BeginSection("StrokeContent.ApplyTrimPath");
             if (pathGroup.TrimPath == null)
@@ -279,7 +279,7 @@ namespace Avalonia.Lottie.Animation.Content
             LottieLog.EndSection("StrokeContent.ApplyTrimPath");
         }
 
-        private void ApplyDashPatternIfNeeded(Matrix3X3 parentMatrix)
+        private void ApplyDashPatternIfNeeded(Matrix parentMatrix)
         {
             LottieLog.BeginSection("StrokeContent.ApplyDashPattern");
             if (_dashPatternAnimations.Count == 0)
