@@ -13,6 +13,7 @@ using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using Avalonia.Metadata;
 using Avalonia.Platform;
@@ -571,8 +572,11 @@ namespace Avalonia.Lottie
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
 
+            
+            
            renderCtx.Custom(new LottieCustomDrawOperation(_composition, _compositionLayer,
                _bitmapCanvas, containerRect, viewPort, Stretch, VisualRoot.RenderScaling));
+           
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
         }
@@ -647,24 +651,37 @@ namespace Avalonia.Lottie
                 // {
                 //     return;
                 // }
+                 
+
+                var _renderTargetBitmap = RefCountable.Create(
+                    context.CreateLayer(sourceRect.Size));
                 
-                var _renderTargetBitmap = context.CreateLayer(sourceRect.Size);
+                var sourceRectx = new Rect(0, 0, _renderTargetBitmap.Item.PixelSize.Width, _renderTargetBitmap.Item.PixelSize.Height);
 
-                using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
+                using (var rtbDrawingContext = _renderTargetBitmap.Item.CreateDrawingContext(null))
+                {
+                    rtbDrawingContext.Clear(Colors.Green);
+                    rtbDrawingContext.DrawRectangle(
+                        new ImmutableSolidColorBrush(Colors.Aqua), 
+                        null, 
+                        new RoundedRect(new Rect(new Point(200,200), new Size(100,100))));
+                }
 
-                using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.PixelSize.Width,
-                    _renderTargetBitmap.PixelSize.Height, rtbDrawingContext);
+                // using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.PixelSize.Width,
+                //     _renderTargetBitmap.PixelSize.Height, rtbDrawingContext);
 
-                _bitmapCanvas.Clear(Colors.Green);
 
                  // _compositionLayer.Draw(_bitmapCanvas, matrix, 255) ;
 
-                context.DrawBitmap(RefCountable.Create(
-                        _renderTargetBitmap), 
+                  
+
+                context.DrawBitmap(_renderTargetBitmap, 
                     1, 
-                    new Rect(new Point(), sourceRect.Size),
-                    destRect, 
+                    sourceRectx,
+                    sourceRectx, 
                     BitmapInterpolationMode.Default);
+                
+                //_renderTargetBitmap.Dispose();
 
                 LottieLog.EndSection("Drawable.Draw");
 
