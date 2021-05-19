@@ -18,7 +18,6 @@ using Avalonia.Threading;
 using Avalonia.Metadata;
 using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
-using Avalonia.Skia;
 using Avalonia.Utilities;
 using Avalonia.Visuals.Media.Imaging;
 
@@ -571,11 +570,11 @@ namespace Avalonia.Lottie
 
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
-
-            
             
            renderCtx.Custom(new LottieCustomDrawOperation(_composition, _compositionLayer,
                _bitmapCanvas, containerRect, viewPort, Stretch, VisualRoot.RenderScaling));
+           
+           
            
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
