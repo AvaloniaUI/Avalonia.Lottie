@@ -565,7 +565,7 @@ namespace Avalonia.Lottie
             var viewPort = new Rect(Bounds.Size);
             var containerRect = Bounds;
  
-            if (_bitmapCanvas is null || _compositionLayer is null || containerRect.Width <= 0 || containerRect.Height <= 0)
+            if ( _compositionLayer is null || containerRect.Width <= 0 || containerRect.Height <= 0)
                 return;
 
             if (_animator.IsRunning && _isEnabled)
@@ -576,7 +576,7 @@ namespace Avalonia.Lottie
            
            
            
-            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
 
         }
         
@@ -610,23 +610,24 @@ namespace Avalonia.Lottie
 
             public void Dispose()
             {
+                // No-op
             }
 
-            public Rect Bounds { get; }
-
+            public Rect Bounds =>   _viewPort;
             public bool HitTest(Point p) => false;
-
-            public bool Equals(ICustomDrawOperation? other) => false;
-
+            public bool Equals(ICustomDrawOperation other) => false;
+            
+            private static int k = 0;
+            
             public void Render(IDrawingContextImpl context)
             {
                 LottieLog.BeginSection("Drawable.Draw");
-
+ 
                 var matrix = Matrix.Identity;
                 
                 var sourceSize = _composition.Bounds.Size;
 
-                var scale = _stretch.CalculateScaling(Bounds.Size, sourceSize);
+                var scale = _stretch.CalculateScaling(_viewPort.Size, sourceSize);
                 var scaledSize = sourceSize * scale;
 
                 var destRect = _viewPort
@@ -640,31 +641,20 @@ namespace Avalonia.Lottie
                 matrix *= Matrix.CreateScale(scaledPixelSize.Width / sourceSize.Width,
                     scaledPixelSize.Height / sourceSize.Height);
                 
-                //
-                // if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledPixelSize))
-                // {
-                //     _renderTargetBitmap = CreateNewRtb(scaledPixelSize);
-                // }
-                //
-                // if (_renderTargetBitmap is null)
-                // {
-                //     return;
-                // }
-                 
-
-                var _renderTargetBitmap = RefCountable.Create(
-                    context.CreateLayer(sourceRect.Size));
+                var _renderTargetBitmap = 
+                    context.CreateLayer(sourceRect.Size);
                 
-                var sourceRectx = new Rect(0, 0, _renderTargetBitmap.Item.PixelSize.Width, _renderTargetBitmap.Item.PixelSize.Height);
-
-                using (var rtbDrawingContext = _renderTargetBitmap.Item.CreateDrawingContext(null))
+                var sourceRectx = new Rect(0, 0, _renderTargetBitmap.PixelSize.Width, _renderTargetBitmap.PixelSize.Height);
+                
+                using (var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null))
                 {
                     rtbDrawingContext.Clear(Colors.Green);
                     rtbDrawingContext.DrawRectangle(
                         new ImmutableSolidColorBrush(Colors.Aqua), 
-                        null, 
-                        new RoundedRect(new Rect(new Point(200,200), new Size(100,100))));
+                        new ImmutablePen( new ImmutableSolidColorBrush(Colors.Red)), 
+                        new RoundedRect(new Rect(new Point( ), sourceSize)));
                 }
+                
 
                 // using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.PixelSize.Width,
                 //     _renderTargetBitmap.PixelSize.Height, rtbDrawingContext);
@@ -674,13 +664,13 @@ namespace Avalonia.Lottie
 
                   
 
-                context.DrawBitmap(_renderTargetBitmap, 
+                context.DrawBitmap(RefCountable.CreateUnownedNotClonable(_renderTargetBitmap), 
                     1, 
                     sourceRectx,
                     sourceRectx, 
                     BitmapInterpolationMode.Default);
                 
-                //_renderTargetBitmap.Dispose();
+                _renderTargetBitmap.Dispose();
 
                 LottieLog.EndSection("Drawable.Draw");
 
