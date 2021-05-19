@@ -133,12 +133,12 @@ namespace Avalonia.Lottie.Animation.Content
                     lineJoin: paint.StrokeJoin,
                     miterLimit: paint.StrokeMiter);
 
-                CurrentDrawingContext.DrawGeometry(null, pen, geometry.PlatformImpl);
+                CurrentDrawingContext.DrawGeometry(null, pen, geometry);
             }
 
             else
             {
-                CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry.PlatformImpl);
+                CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry);
             }
 
 
@@ -186,7 +186,7 @@ namespace Avalonia.Lottie.Animation.Content
             // var layer = new Layer(CurrentDrawingContext);
            //  Console.WriteLine("\t\t PushGeometryClip");
 
-            CurrentDrawingContext.PushGeometryClip(geometery.PlatformImpl);
+            CurrentDrawingContext.PushGeometryClip(geometery);
 
             return new Disposable(() =>
             {
