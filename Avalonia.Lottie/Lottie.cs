@@ -638,9 +638,9 @@ namespace Avalonia.Lottie
 
                 var scaledPixelSize = PixelSize.FromSize(sourceRect.Size, 1);
 
-                matrix *= Matrix.CreateScale(scaledPixelSize.Width / sourceSize.Width,
-                    scaledPixelSize.Height / sourceSize.Height);
-                
+                // matrix *= Matrix.CreateScale(scaledPixelSize.Width / sourceSize.Width,
+                //     scaledPixelSize.Height / sourceSize.Height);
+                //
                 var _renderTargetBitmap = 
                     context.CreateLayer(sourceRect.Size);
                 
@@ -649,10 +649,12 @@ namespace Avalonia.Lottie
                 using (var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null))
                 {
                     rtbDrawingContext.Clear(Colors.Green);
-                    rtbDrawingContext.DrawRectangle(
-                        new ImmutableSolidColorBrush(Colors.Aqua), 
-                        new ImmutablePen( new ImmutableSolidColorBrush(Colors.Red)), 
-                        new RoundedRect(new Rect(new Point( ), sourceSize)));
+
+                    using (_bitmapCanvas.CreateSession(_renderTargetBitmap.PixelSize.Width,
+                        _renderTargetBitmap.PixelSize.Height, rtbDrawingContext))
+                    {
+                        _compositionLayer.Draw(_bitmapCanvas, matrix, 255) ;
+                    }
                 }
                 
 
@@ -667,7 +669,7 @@ namespace Avalonia.Lottie
                 context.DrawBitmap(RefCountable.CreateUnownedNotClonable(_renderTargetBitmap), 
                     1, 
                     sourceRectx,
-                    sourceRectx, 
+                    destRect, 
                     BitmapInterpolationMode.Default);
                 
                 _renderTargetBitmap.Dispose();
