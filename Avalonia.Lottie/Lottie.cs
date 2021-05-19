@@ -552,7 +552,58 @@ namespace Avalonia.Lottie
             _renderTargetBitmap = null;
         }
 
+        private Size SourceSize => _composition.Bounds.Size * VisualRoot.RenderScaling;
         
+        /// <summary>
+        /// Measures the control.
+        /// </summary>
+        /// <param name="availableSize">The available size.</param>
+        /// <returns>The desired size of the control.</returns>
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            var source = _composition;
+            var result = new Size();
+
+            if (source != null)
+            {
+                result = Stretch.CalculateSize(availableSize, SourceSize);
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc/>
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var source = Source;
+
+            if (source != null)
+            {
+                var result = Stretch.CalculateSize(finalSize, SourceSize);
+                return result;
+            }
+            else
+            {
+                return new Size();
+            }
+        }
+
+        private void UpdateRenderTargetBitmapIfNeeded(Size compositionSize, Size containerSize)
+        {
+            var scale = Stretch.CalculateScaling(containerSize, compositionSize);
+
+            var scaledSize = PixelSize.FromSize(compositionSize * scale, VisualRoot.RenderScaling);
+
+            if (_renderTargetBitmap is null || _renderTargetBitmap.PixelSize != scaledSize)
+            {
+                _renderTargetBitmap = CreateNewRtb(scaledSize);
+            }
+            
+            if (_renderTargetBitmap is null)
+            {
+                throw new Exception("Failed to create render target.");
+            }
+        }
 
         public override void Render(DrawingContext renderCtx)
         {
@@ -566,35 +617,28 @@ namespace Avalonia.Lottie
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
             
-            var matrix =  Matrix.Identity;
-            
-            var viewPort = new Rect(Bounds.Size);
-            
-            var sourceSize = _composition.Bounds.Size;
-
-            var scale = Stretch.CalculateScaling(Bounds.Size, sourceSize);
-            var scaledSize = sourceSize * scale;
-            
-            var destRect = viewPort
-                .CenterRect(new Rect(scaledSize))
-                .Intersect(viewPort);
-            
-            var sourceRect = destRect * VisualRoot.RenderScaling;
-                
-            var scaledPixelSize = PixelSize.FromSize(sourceRect.Size, 1);
-            
-            matrix *= Matrix.CreateScale(scaledPixelSize.Width / sourceSize.Width, scaledPixelSize.Height / sourceSize.Height);
-            
-            if (_renderTargetBitmap is null || (_renderTargetBitmap is { } && _renderTargetBitmap.PixelSize != scaledPixelSize))
-            {
-                _renderTargetBitmap = CreateNewRtb(scaledPixelSize);
-            }
+            UpdateRenderTargetBitmapIfNeeded(_composition.Bounds.Size, Bounds.Size);
 
             if (_renderTargetBitmap is null)
             {
                 return;
             }
 
+            var matrix =  Matrix.Identity;
+            var viewPort = new Rect(Bounds.Size);
+            
+            var sourceSize = _renderTargetBitmap.Size;
+            var scale = Stretch.CalculateScaling(Bounds.Size, sourceSize);
+            var scaledSize = sourceSize * scale;
+            
+            var destRect = viewPort
+                .CenterRect(new Rect(scaledSize))
+                .Intersect(viewPort);
+            var sourceRect = new Rect(sourceSize)
+                .CenterRect(new Rect(destRect.Size / scale));
+
+            matrix *= Matrix.CreateScale(_renderTargetBitmap.Size.Width / _composition.Bounds.Size.Width, _renderTargetBitmap.Size.Height / _composition.Bounds.Size.Height);
+            
             using var rtbDrawingContext = _renderTargetBitmap.CreateDrawingContext(null);
             
             using var session = _bitmapCanvas.CreateSession(_renderTargetBitmap.Size.Width, _renderTargetBitmap.Size.Height, rtbDrawingContext);
@@ -603,7 +647,7 @@ namespace Avalonia.Lottie
             
             _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
 
-            renderCtx.DrawImage(_renderTargetBitmap, new Rect(new Point(), sourceRect.Size), destRect);
+            renderCtx.DrawImage(_renderTargetBitmap, sourceRect, destRect);
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
