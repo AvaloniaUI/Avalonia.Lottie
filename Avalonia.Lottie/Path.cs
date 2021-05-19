@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace Avalonia.Lottie
 {
