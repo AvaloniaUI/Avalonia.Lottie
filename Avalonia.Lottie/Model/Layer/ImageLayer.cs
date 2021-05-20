@@ -40,7 +40,7 @@ namespace Avalonia.Lottie.Model.Layer
             canvas.Save();
             canvas.Concat(parentMatrix);
             RectExt.Set(ref _src, 0, 0, PixelWidth, PixelHeight);
-            RectExt.Set(ref _dst, 0, 0, (int) (PixelWidth), (int) (PixelHeight));
+            RectExt.Set(ref _dst, 0, 0, PixelWidth, PixelHeight);
             canvas.DrawBitmap(bitmap, _src, _dst, _paint);
             canvas.Restore();
         }

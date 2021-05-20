@@ -320,7 +320,7 @@ namespace Avalonia.Lottie
             }
 
             // Now that each division can use linear interpolation with less than the allowed error
-            foreach (var iter in tToPoint) AddLine(segmentPoints, lengths, new [] {(double)iter.Value.X, (double)iter.Value.Y});
+            foreach (var iter in tToPoint) AddLine(segmentPoints, lengths, new [] {iter.Value.X, iter.Value.Y});
         }
 
         private static bool SubdividePoints(double[] points, BezierCalculation bezierFunction, double  t0, Vector p0,
@@ -393,7 +393,7 @@ namespace Avalonia.Lottie
                 return new ArcContour(_startPoint, _rect, _startAngle, _sweepAngle);
             }
 
-            public double [] Points => new[] {(double)_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
+            public double [] Points => new[] {_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Arc;
 
@@ -461,7 +461,7 @@ namespace Avalonia.Lottie
                 return new BezierContour(_control1, _control2, _vertex);
             }
 
-            public double [] Points => new[] {(double) _control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
+            public double [] Points => new[] {_control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Bezier;
 

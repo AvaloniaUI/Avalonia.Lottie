@@ -69,10 +69,10 @@ namespace Avalonia.Lottie.Parser
                         parentId = reader.NextInt();
                         break;
                     case "sw":
-                        solidWidth = (int) (reader.NextInt() );
+                        solidWidth = reader.NextInt();
                         break;
                     case "sh":
-                        solidHeight = (int) (reader.NextInt() );
+                        solidHeight = reader.NextInt();
                         break;
                     case "sc":
                         solidColor = Utils.Utils.GetSolidColorBrush(reader.NextString());
@@ -152,10 +152,10 @@ namespace Avalonia.Lottie.Parser
                         startFrame = reader.NextDouble();
                         break;
                     case "w":
-                        preCompWidth = (int) (reader.NextInt() );
+                        preCompWidth = reader.NextInt();
                         break;
                     case "h":
-                        preCompHeight = (int) (reader.NextInt() );
+                        preCompHeight = reader.NextInt();
                         break;
                     case "ip":
                         inFrame = reader.NextDouble();
