@@ -645,9 +645,7 @@ namespace Avalonia.Lottie
 
             _bitmapCanvas.Clear(Colors.Transparent);
             
-            _compositionLayer.Draw(_bitmapCanvas, matrix, _alpha);
-
-            renderCtx.DrawImage(_renderTargetBitmap, sourceRect, destRect);
+            renderCtx.Custom(new LottieCustomDrawOp(_bitmapCanvas, _compositionLayer, matrix, _alpha, _renderTargetBitmap, sourceRect, destRect));
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 

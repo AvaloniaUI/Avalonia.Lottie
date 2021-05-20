@@ -101,7 +101,7 @@ namespace Avalonia.Lottie.Animation.Content
             var brush = new ImmutableSolidColorBrush(paint.Color);
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
-                    CurrentDrawingContext.DrawRectangle(null, new Pen(brush,
+                    CurrentDrawingContext.DrawRectangle(null, new ImmutablePen(brush,
                             paint.StrokeWidth,
                             lineCap: paint.StrokeCap,
                             lineJoin: paint.StrokeJoin,
@@ -127,18 +127,18 @@ namespace Avalonia.Lottie.Animation.Content
             var geometry = path.GetGeometry();
             if (paint.Style == Paint.PaintStyle.Stroke)
             {
-                var pen = new Pen(brush,
+                var pen = new ImmutablePen(brush,
                     paint.StrokeWidth,
                     lineCap: paint.StrokeCap,
                     lineJoin: paint.StrokeJoin,
                     miterLimit: paint.StrokeMiter);
 
-                CurrentDrawingContext.DrawGeometry(null, pen, geometry.PlatformImpl);
+                CurrentDrawingContext.DrawGeometry(null, pen, geometry);
             }
 
             else
             {
-                CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry.PlatformImpl);
+                CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry);
             }
 
 
@@ -186,7 +186,7 @@ namespace Avalonia.Lottie.Animation.Content
             // var layer = new Layer(CurrentDrawingContext);
            //  Console.WriteLine("\t\t PushGeometryClip");
 
-            CurrentDrawingContext.PushGeometryClip(geometery.PlatformImpl);
+            CurrentDrawingContext.PushGeometryClip(geometery);
 
             return new Disposable(() =>
             {
