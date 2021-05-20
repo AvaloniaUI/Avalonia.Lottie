@@ -631,8 +631,6 @@ namespace Avalonia.Lottie
             var sourceSize = _renderTargetBitmap.Size;
             var scale = Stretch.CalculateScaling(Bounds.Size, sourceSize);
             var scaledSize = sourceSize * scale;
-
-            Utils.Utils.SetDpi(VisualRoot.RenderScaling);
             
             var destRect = viewPort
                 .CenterRect(new Rect(scaledSize))

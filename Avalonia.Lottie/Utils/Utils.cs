@@ -18,6 +18,13 @@ namespace Avalonia.Lottie.Utils
         private static double  _dpScale = -1;
         private static double  _dpi = -1;
 
+        static Utils()
+        {
+            DpScale();
+            Dpi();
+        }
+
+
         internal static Path CreatePath(Vector startPoint, Vector endPoint, Vector? cp1, Vector? cp2)
         {
             var path = new Path();
@@ -190,12 +197,14 @@ namespace Avalonia.Lottie.Utils
 
         public static double  DpScale()
         {
-             return _dpScale;
+            if (_dpScale == -1) _dpScale = (int) DisplayInformation.GetForCurrentView().ResolutionScale / 100f;
+            return _dpScale;
         }
 
-        public static void  SetDpi(double normalizedDpi = 1)
+        public static double  Dpi()
         {
-            _dpScale = 1;
+            if (_dpi == -1) _dpi = (int) DisplayInformation.GetForCurrentView().LogicalDpi;
+            return _dpi;
         }
     }
 
