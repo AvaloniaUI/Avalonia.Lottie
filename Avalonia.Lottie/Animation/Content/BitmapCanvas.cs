@@ -548,5 +548,17 @@ namespace Avalonia.Lottie.Animation.Content
             public PorterDuffXfermode PaintXfermode { get; }
             public byte PaintAlpha { get; }
         }
+
+        public void DisposeOldLayers()
+        {
+            foreach (var v in _renderTargets)
+            {
+                v.Value.Bitmap?.Dispose();
+            }
+            
+            _renderTargets.Clear();
+            _renderTargetSaves.Clear();
+            
+        }
     }
 }

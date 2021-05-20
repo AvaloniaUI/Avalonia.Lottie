@@ -1,5 +1,7 @@
+using System;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Model.Layer;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
@@ -36,9 +38,17 @@ namespace Avalonia.Lottie
         public bool HitTest(Point p) => false;
         public void Render(IDrawingContextImpl context)
         {
-            _compositionLayer.Draw(_bitmapCanvas, _matrix, _alpha);
+            try
+            {
+                _compositionLayer.Draw(_bitmapCanvas, _matrix, _alpha);
 
-            context.DrawBitmap(_renderTargetBitmap.PlatformImpl,_alpha/255d, _sourceRect, _destRect);
+                context.DrawBitmap(_renderTargetBitmap.PlatformImpl,_alpha/255d, _sourceRect, _destRect);
+
+            }
+            catch (Exception e)
+            {
+                context.Clear(Colors.Red);
+            }
         }
 
         public Rect Bounds => _destRect;

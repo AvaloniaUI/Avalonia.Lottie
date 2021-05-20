@@ -552,7 +552,7 @@ namespace Avalonia.Lottie
             _renderTargetBitmap = null;
         }
 
-        private Size SourceSize => _composition.Bounds.Size * VisualRoot.RenderScaling;
+        private Size SourceSize => (_composition?.Bounds.Size ?? Size.Empty) * VisualRoot.RenderScaling;
         
         /// <summary>
         /// Measures the control.
@@ -597,6 +597,7 @@ namespace Avalonia.Lottie
             if (_renderTargetBitmap is null || _renderTargetBitmap.PixelSize != scaledSize)
             {
                 _renderTargetBitmap = CreateNewRtb(scaledSize);
+                _bitmapCanvas.DisposeOldLayers();
             }
             
             if (_renderTargetBitmap is null)
