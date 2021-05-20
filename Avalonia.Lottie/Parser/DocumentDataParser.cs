@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly DocumentDataParser Instance = new();
 
-        public DocumentData Parse(JsonReader reader, double  scale)
+        public DocumentData Parse(JsonReader reader)
         {
             string text = null;
             string fontName = null;

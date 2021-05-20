@@ -19,10 +19,10 @@ namespace Avalonia.Lottie.Parser
                         name = reader.NextString();
                         break;
                     case "c":
-                        copies = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        copies = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "o":
-                        offset = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        offset = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "tr":
                         transform = AnimatableTransformParser.Parse(reader, composition);

@@ -9,7 +9,7 @@ namespace Avalonia.Lottie.Parser
         {
             var animated = reader.Peek() == JsonToken.StartObject;
             var keyframe =
-                KeyframeParser.Parse(reader, composition, Utils.Utils.DpScale(), PathParser.Instance, animated);
+                KeyframeParser.Parse(reader, composition, PathParser.Instance, animated);
 
             return new PathKeyframe(composition, keyframe);
         }

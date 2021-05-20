@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Parser
 {
     internal static class KeyframesParser
     {
-        internal static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition, double  scale,
+        internal static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition,
             IValueParser<T> valueParser)
         {
             var keyframes = new List<Keyframe<T>>();
@@ -29,15 +29,15 @@ namespace Avalonia.Lottie.Parser
 
                             if (reader.Peek() == JsonToken.Integer || reader.Peek() == JsonToken.Float)
                                 // For properties in which the static value is an array of numbers. 
-                                keyframes.Add(KeyframeParser.Parse(reader, composition, scale, valueParser, false));
+                                keyframes.Add(KeyframeParser.Parse(reader, composition,   valueParser, false));
                             else
                                 while (reader.HasNext())
-                                    keyframes.Add(KeyframeParser.Parse(reader, composition, scale, valueParser, true));
+                                    keyframes.Add(KeyframeParser.Parse(reader, composition,  valueParser, true));
                             reader.EndArray();
                         }
                         else
                         {
-                            keyframes.Add(KeyframeParser.Parse(reader, composition, scale, valueParser, false));
+                            keyframes.Add(KeyframeParser.Parse(reader, composition, valueParser, false));
                         }
 
                         break;

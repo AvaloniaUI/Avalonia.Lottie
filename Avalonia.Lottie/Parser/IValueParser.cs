@@ -2,6 +2,6 @@
 {
     internal interface IValueParser<out T>
     {
-        T Parse(JsonReader reader, double  scale);
+        T Parse(JsonReader reader);
     }
 }

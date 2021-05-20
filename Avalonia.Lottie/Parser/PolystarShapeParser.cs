@@ -28,25 +28,25 @@ namespace Avalonia.Lottie.Parser
                         type = (PolystarShape.Type) reader.NextInt();
                         break;
                     case "pt":
-                        points = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        points = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "p":
                         position = AnimatablePathValueParser.ParseSplitPath(reader, composition);
                         break;
                     case "r":
-                        rotation = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        rotation = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "or":
                         outerRadius = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "os":
-                        outerRoundedness = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        outerRoundedness = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "ir":
                         innerRadius = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "is":
-                        innerRoundedness = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        innerRoundedness = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     default:
                         reader.SkipValue();

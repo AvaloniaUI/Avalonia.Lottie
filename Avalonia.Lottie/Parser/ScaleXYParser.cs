@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Parser
     {
         public static readonly ScaleXyParser Instance = new();
 
-        public ScaleXy Parse(JsonReader reader, double  scale)
+        public ScaleXy Parse(JsonReader reader)
         {
             var isArray = reader.Peek() == JsonToken.StartArray;
             if (isArray) reader.BeginArray();
@@ -15,7 +15,7 @@ namespace Avalonia.Lottie.Parser
             var sy = reader.NextDouble();
             while (reader.HasNext()) reader.SkipValue();
             if (isArray) reader.EndArray();
-            return new ScaleXy(sx / 100f * scale, sy / 100f * scale);
+            return new ScaleXy(sx / 100f , sy / 100f );
         }
     }
 }

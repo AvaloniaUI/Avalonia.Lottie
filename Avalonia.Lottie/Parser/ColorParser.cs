@@ -7,7 +7,7 @@ namespace Avalonia.Lottie.Parser
     {
         internal static readonly ColorParser Instance = new();
 
-        public Color? Parse(JsonReader reader, double  scale)
+        public Color? Parse(JsonReader reader)
         {
             var isArray = reader.Peek() == JsonToken.StartArray;
             if (isArray) reader.BeginArray();

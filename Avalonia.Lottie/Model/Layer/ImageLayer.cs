@@ -34,14 +34,13 @@ namespace Avalonia.Lottie.Model.Layer
         {
             var bitmap = Bitmap;
             if (bitmap == null) return;
-            var density = Utils.Utils.DpScale();
-
+ 
             _paint.Alpha = parentAlpha;
             if (_colorFilterAnimation != null) _paint.ColorFilter = _colorFilterAnimation.Value;
             canvas.Save();
             canvas.Concat(parentMatrix);
             RectExt.Set(ref _src, 0, 0, PixelWidth, PixelHeight);
-            RectExt.Set(ref _dst, 0, 0, (int) (PixelWidth * density), (int) (PixelHeight * density));
+            RectExt.Set(ref _dst, 0, 0, (int) (PixelWidth), (int) (PixelHeight));
             canvas.DrawBitmap(bitmap, _src, _dst, _paint);
             canvas.Restore();
         }

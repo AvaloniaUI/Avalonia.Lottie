@@ -20,7 +20,7 @@ namespace Avalonia.Lottie.Parser
             }
             else
             {
-                keyframes.Add(new Keyframe<Vector?>(JsonUtils.JsonToPoint(reader, Utils.Utils.DpScale())));
+                keyframes.Add(new Keyframe<Vector?>(JsonUtils.JsonToPoint(reader)));
             }
 
             return new AnimatablePathValue(keyframes);

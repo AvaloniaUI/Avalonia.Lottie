@@ -40,7 +40,7 @@ namespace Avalonia.Lottie.Parser
         /// <param name="reader"></param>
         /// <param name="scale"></param>
         /// <returns></returns>
-        public GradientColor Parse(JsonReader reader, double  scale)
+        public GradientColor Parse(JsonReader reader)
         {
             var array = new List<float>();
             // The array was started by Keyframe because it thought that this may be an array of keyframes 

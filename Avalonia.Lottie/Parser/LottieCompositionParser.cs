@@ -9,7 +9,6 @@ namespace Avalonia.Lottie.Parser
     {
         public static LottieComposition Parse(JsonReader reader)
         {
-            var scale = Utils.Utils.DpScale();
             var startFrame = 0d;
             var endFrame = 0d;
             var frameRate = 0d;
@@ -70,8 +69,8 @@ namespace Avalonia.Lottie.Parser
 
             reader.EndObject();
 
-            var scaledWidth = (int) (width * scale);
-            var scaledHeight = (int) (height * scale);
+            var scaledWidth = (int) (width );
+            var scaledHeight = (int) (height);
             var bounds = new Rect(0, 0, scaledWidth, scaledHeight);
 
             composition.Init(bounds, startFrame, endFrame, frameRate, layers, layerMap, precomps, images, characters,
