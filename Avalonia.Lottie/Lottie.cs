@@ -13,6 +13,7 @@ using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using Avalonia.Metadata;
 using Avalonia.Platform;
@@ -588,26 +589,7 @@ namespace Avalonia.Lottie
                 return new Size();
             }
         }
-
-        private PixelSize priorSize;
-        private bool isResized;
-
-        private void UpdateRenderTargetBitmapIfNeeded(Size compositionSize, Size containerSize)
-        {
-            var scale = Stretch.CalculateScaling(containerSize, compositionSize);
-
-            var scaledSize = PixelSize.FromSize(compositionSize * scale, VisualRoot.RenderScaling);
-
-            if (priorSize != scaledSize)
-            {
-                priorSize = scaledSize;
-                isResized = true;
-                return;
-            }
-
-            isResized = false;
-        }
-
+ 
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
@@ -620,33 +602,33 @@ namespace Avalonia.Lottie
 
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
-
-            UpdateRenderTargetBitmapIfNeeded(_composition.Bounds.Size, Bounds.Size);
- 
-            var matrix = Matrix.Identity;
-            var viewPort = new Rect(Bounds.Size);
-
-            var scale1 = Stretch.CalculateScaling(_composition.Bounds.Size, Bounds.Size);
-
-            var surfaceSize =  _composition.Bounds.Size * scale1 ;
             
-            var scale = Stretch.CalculateScaling(Bounds.Size, surfaceSize);
-            var scaledSize = surfaceSize * scale;
+            var viewPort = new Rect(containerRect.Size);
+            
+            var sourceSize =  _composition.Bounds.Size;
+            
+            var scale = Stretch.CalculateScaling(viewPort.Size, sourceSize);
+            var scaledSize = sourceSize * scale;
 
             var destRect = viewPort
                 .CenterRect(new Rect(scaledSize))
                 .Intersect(viewPort);
-            var sourceRect = new Rect(surfaceSize)
-                .CenterRect(new Rect(destRect.Size / scale));
-
-            matrix *= Matrix.CreateScale(surfaceSize.Width / _composition.Bounds.Size.Width,
-                surfaceSize.Height / _composition.Bounds.Size.Height);
+            
+            // new ImmutableSolidColorBrush(Colors.Coral),
+            
             
             renderCtx.Custom(
-                new LottieCustomDrawOp(_bitmapCanvas,
-                    _compositionLayer, 
-                    matrix, _alpha,
-                sourceRect, destRect, isResized, priorSize, VisualRoot.RenderScaling, surfaceSize));
+                new LottieCustomDrawOp(_bitmapCanvas, _compositionLayer,sourceSize, destRect));
+            
+            // renderCtx.DrawRectangle( new ImmutablePen(new ImmutableSolidColorBrush(Colors.Aqua)), destRect);
+            //
+            // var sourceRect = new Rect(surfaceSize)
+            //     .CenterRect(new Rect(destRect.Size / scale));
+            //
+           //
+           // var  matrix = Matrix.CreateScale(destRect.Width / _composition.Bounds.Size.Width,
+           //     destRect.Height / _composition.Bounds.Size.Height);
+           //  
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
