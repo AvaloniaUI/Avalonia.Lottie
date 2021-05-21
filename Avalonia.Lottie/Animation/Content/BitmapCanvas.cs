@@ -226,6 +226,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void SaveLayer(Rect bounds, Paint paint, int flags, Path path = null)
         {
+            return;
            //  Console.WriteLine("\t SaveLayer");
 
             _flagSaves.Push(flags);
@@ -295,6 +296,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Restore()
         {
+            return;
             if (_flagSaves.Count < 1) return;
 
             var flags = _flagSaves.Pop();
