@@ -53,7 +53,7 @@ namespace Avalonia.Lottie
 
                         var  matrix = Matrix.CreateScale(_viewPort.Width / _sourceSize.Width, _viewPort.Height / _sourceSize.Height);
                         
-                        _compositionLayer.Draw(_bitmapCanvas, Matrix.Identity, 255);
+                        _compositionLayer.Draw(_bitmapCanvas, matrix, 255);
                     }
                 }
 
