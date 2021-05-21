@@ -38,22 +38,28 @@ namespace Avalonia.Lottie
             {
                 finalRenderSurface = context.CreateLayer(_sourceSize);
 
+                if (finalRenderSurface is null)
+                {
+                    context.Clear(Colors.Aqua);
+                    return;
+                }
+
                 using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
                 {
-                    using (var session = _bitmapCanvas.CreateSession(_sourceSize.Width,
-                        _sourceSize.Height, renderSurfaceCtx))
+                    using (var session = _bitmapCanvas.CreateSession(_sourceSize, finalRenderSurface,
+                       renderSurfaceCtx))
                     {
-                        _bitmapCanvas.Clear(Colors.Blue);
+                        _bitmapCanvas.Clear(Colors.Transparent);
 
                         var  matrix = Matrix.CreateScale(_viewPort.Width / _sourceSize.Width, _viewPort.Height / _sourceSize.Height);
                         
-                        _compositionLayer.Draw(_bitmapCanvas, matrix, 255);
+                        _compositionLayer.Draw(_bitmapCanvas, Matrix.Identity, 255);
                     }
                 }
 
                 context.DrawBitmap(RefCountable.Create(finalRenderSurface),
                     1,
-                    new Rect(_sourceSize), _viewPort);
+                    new Rect(_sourceSize), new Rect(_viewPort.Size));
 
             }
             catch (Exception e)
@@ -64,7 +70,7 @@ namespace Avalonia.Lottie
             finally
             {
                 finalRenderSurface?.Dispose();
-            }
+             }
         }
 
         public Rect Bounds => _viewPort;

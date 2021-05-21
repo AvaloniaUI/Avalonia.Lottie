@@ -6,10 +6,10 @@ using System.Reflection;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
-using Avalonia.Platform; 
+using Avalonia.Platform;
 using Avalonia.Utilities;
 using Avalonia.Visuals.Media.Imaging;
-using Newtonsoft.Json; 
+using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Animation.Content
 {
@@ -23,17 +23,15 @@ namespace Avalonia.Lottie.Animation.Content
         //public static int FullColorLayerSaveFlag = 0b01000;
         public static int ClipToLayerSaveFlag = 0b10000;
         public static int AllSaveFlag = 0b11111;
-        private readonly Stack<RenderTargetHolder> _canvasDrawingSessions = new();
 
         private readonly Stack<ClipSave> _clipSaves = new();
         private readonly Stack<int> _flagSaves = new();
         private readonly Stack<Matrix> _matrixSaves = new();
 
-        private readonly Dictionary<int, RenderTargetHolder> _renderTargets = new();
 
         private readonly Stack<RenderTargetSave> _renderTargetSaves = new();
         private Rect _currentClip;
-        private Matrix _matrix =Matrix.Identity;
+        private Matrix _matrix = Matrix.Identity;
 
         public BitmapCanvas(double width, double height)
         {
@@ -41,63 +39,53 @@ namespace Avalonia.Lottie.Animation.Content
             UpdateClip(width, height);
         }
 
-        //internal RenderTarget OutputRenderTarget { get; private set; }
         internal IDrawingContextImpl CurrentDrawingContext =>
-            _canvasDrawingSessions.Count > 0 ? _canvasDrawingSessions.Peek()?.DrawingContext : null;
+            _renderTargetSaves.Count > 0 ? _renderTargetSaves.Peek().Context : null;
 
         public double Width { get; private set; }
         public double Height { get; private set; }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+       _renderTargetSaves.Clear();
+                
         }
 
         private void UpdateClip(double width, double height)
         {
-           //  Console.WriteLine("\t UpdateClip");
-
-            if (Math.Abs(width - Width) > 0 || Math.Abs(height - Height) > 0) Dispose(false);
+            if (Math.Abs(width - Width) > 0 || Math.Abs(height - Height) > 0) Dispose();
 
             Width = width;
             Height = height;
             _currentClip = new Rect(0, 0, Width, Height);
         }
-
-        internal IDisposable CreateSession(double width, double height, IDrawingContextImpl drawingSession)
+        
+        internal IDisposable CreateSession(Size size,IDrawingContextLayerImpl layer, IDrawingContextImpl drawingSession)
         {
-           //  Console.WriteLine("\t CreateSession");
+            _renderTargetSaves.Clear();
 
-            _canvasDrawingSessions.Clear();
-            //_renderTarget = drawingSession;
-            _canvasDrawingSessions.Push(new RenderTargetHolder
-            {
-                SessionWidth = width,
-                SessionHeight = height,
-                DrawingContext = drawingSession
-            });
+             var rts = new RenderTargetSave(layer,
+                 drawingSession, size,
+                0,
+                new PorterDuffXfermode(PorterDuff.Mode.Clear),
+                255);
+             
+            _renderTargetSaves.Push(rts);
 
-            UpdateClip(width, height);
+            rts.Context.Clear(Colors.Transparent);
+
+            UpdateClip(size.Width, size.Height);
 
             return PushMask(_currentClip, 1f);
-            //return new Disposable(() => { });
         }
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
         {
-           //  Console.WriteLine("\t DrawRect Sub");
-
             DrawRect(new Rect(x1, y1, x2 - x1, y2 - y1), paint);
         }
 
-
-        internal void DrawRect(Rect rect, Paint paint)
+        private void DrawRect(Rect rect, Paint paint)
         {
-            // UpdateDrawingSessionWithFlags(paint.Flags);
-           //  Console.WriteLine("\t DrawRect Main");
-
-            // CurrentDrawingContext.Transform = GetCurrentTransform();
             var brush = new ImmutableSolidColorBrush(paint.Color);
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
@@ -115,14 +103,9 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void DrawPath(Path path, Paint paint, bool fromMask = false)
         {
-            // UpdateDrawingSessionWithFlags(paint.Flags);
-
-            // CurrentDrawingContext.Transform = GetCurrentTransform();
-           //  Console.WriteLine("\t DrawPath");
-
-            var gradient = paint.Shader as Gradient;
-            var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new ImmutableSolidColorBrush(paint.Color);
-            var finalBrush =  brush;
+            var brush = paint.Shader is Gradient gradient
+                ? gradient.GetBrush(paint.Alpha)
+                : new ImmutableSolidColorBrush(paint.Color);
 
             var geometry = path.GetGeometry();
             if (paint.Style == Paint.PaintStyle.Stroke)
@@ -138,78 +121,31 @@ namespace Avalonia.Lottie.Animation.Content
 
             else
             {
-                CurrentDrawingContext.DrawGeometry(finalBrush, null, geometry);
+                CurrentDrawingContext.DrawGeometry(brush, null, geometry);
             }
-
-
-            //     CurrentDrawingContext.DrawGeometry(geometry, finalBrush, paint.StrokeWidth, GetStrokeStyle(paint));
-            // else
-            //     CurrentDrawingContext.FillGeometry(geometry, finalBrush);
-
-
-            // if (gradient == null)
-            // {
-            //     brush?.Dispose();
-            //     finalBrush?.Dispose();
-            // }
         }
 
         public Disposable PushMask(Rect rect, double alpha, Path path = null)
         {
-           //  Console.WriteLine("\t PushMask");
-
             if (alpha >= 1 && path == null)
             {
-               //  Console.WriteLine("\t\t PushClip");
-
                 CurrentDrawingContext.PushClip(rect);
-                // CurrentDrawingContext.PushAxisAlignedClip(rect, CurrentDrawingContext.AntialiasMode);
 
-                return new Disposable(() =>
-                {
-                   //  Console.WriteLine("\t\t PopClip");
-
-                    CurrentDrawingContext.PopClip();
-                });
+                return new Disposable(() => { CurrentDrawingContext.PopClip(); });
             }
 
             var geometery = path.GetGeometry();
-            //
-            // var parameters = new LayerParameters
-            // {
-            //     ContentBounds = rect,
-            //     Opacity = alpha,
-            //     MaskTransform = GetCurrentTransform(),
-            //     GeometricMask = geometery
-            // };
-            //
-            // var layer = new Layer(CurrentDrawingContext);
-           //  Console.WriteLine("\t\t PushGeometryClip");
 
             CurrentDrawingContext.PushGeometryClip(geometery);
 
-            return new Disposable(() =>
-            {
-               //  Console.WriteLine("\t\t PopGeometryClip");
-
-                CurrentDrawingContext.PopGeometryClip();
-                // this.CurrentDrawingContext.PopLayer();
-                // layer.Dispose();
-                // geometery?.Dispose();
-                
-            });
+            return new Disposable(() => { CurrentDrawingContext.PopGeometryClip(); });
         }
- 
+
 
         public bool ClipRect(Rect rect)
         {
             _currentClip.Intersects(rect);
             return _currentClip.IsEmpty == false;
-        }
-
-        public void ClipReplaceRect(Rect rect)
-        {
-            _currentClip = rect;
         }
 
         public void Concat(Matrix parentMatrix)
@@ -226,9 +162,6 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void SaveLayer(Rect bounds, Paint paint, int flags, Path path = null)
         {
-            return;
-           //  Console.WriteLine("\t SaveLayer");
-
             _flagSaves.Push(flags);
             if ((flags & MatrixSaveFlag) == MatrixSaveFlag) SaveMatrix();
 
@@ -236,53 +169,29 @@ namespace Avalonia.Lottie.Animation.Content
 
             if (isClipToLayer)
             {
-                ///  UpdateDrawingSessionWithFlags(paint.Flags);
+                var rendertarget = CurrentDrawingContext.CreateLayer(bounds.Size);
+                var rts = new RenderTargetSave(rendertarget, rendertarget.CreateDrawingContext(null), bounds.Size, paint.Flags,
+                    paint.Xfermode,
+                    paint.Xfermode != null ? (byte) 255 : paint.Alpha);
 
-                var rendertarget = CreateRenderTarget(bounds, _renderTargetSaves.Count);
-                _renderTargetSaves.Push(new RenderTargetSave(rendertarget.DrawingContext, paint.Flags, paint.Xfermode,
-                    paint.Xfermode != null ? (byte) 255 : paint.Alpha));
+                _renderTargetSaves.Push(rts);
 
-                //var drawingSession = rendertarget.CreateDrawingSession();
-                rendertarget.DrawingContext.Clear(Colors.Transparent);
-                _canvasDrawingSessions.Push(rendertarget);
+                rts.Context.Clear(Colors.Transparent);
             }
 
             if ((flags & ClipSaveFlag) == ClipSaveFlag) SaveClip(isClipToLayer ? (byte) 255 : paint.Alpha, path);
         }
 
-        private RenderTargetHolder CreateRenderTarget(Rect bounds, int index)
-        {
-           //  Console.WriteLine("\t CreateRenderTarget");
-
-            if (!_renderTargets.TryGetValue(index, out var rendertarget))
-            {
-                var bitmap = new RenderTargetBitmap(new PixelSize((int) bounds.Width, (int) bounds.Height),
-                    new Vector(96, 96));
-
-                var rt = bitmap.CreateDrawingContext(null);
-
-                rendertarget = new RenderTargetHolder
-                {
-                    DrawingContext = rt,
-                    Bitmap = bitmap
-                };
-                _renderTargets.Add(index, rendertarget);
-            }
-
-            return rendertarget;
-        }
 
         private void SaveMatrix()
         {
             var copy = new Matrix();
-            copy=(_matrix);
+            copy = _matrix;
             _matrixSaves.Push(copy);
         }
 
         private void SaveClip(byte alpha, Path path = null)
         {
-           //  Console.WriteLine("\t SaveClip");
-
             var currentLayer = PushMask(_currentClip, alpha / 255f, path);
 
             _clipSaves.Push(new ClipSave(_currentClip, currentLayer));
@@ -296,17 +205,9 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Restore()
         {
-            return;
             if (_flagSaves.Count < 1) return;
 
             var flags = _flagSaves.Pop();
-
-            //if ((flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag)
-            //{
-            //    using (var brush = new SolidColorBrush(new RawColor4(0, 0, 0, 0.3f)))
-            //        CurrentRenderTarget.FillRectangle(new Rect(0, 0, 100, 100), brush);
-            //}
-
 
             if ((flags & MatrixSaveFlag) == MatrixSaveFlag) _matrix = _matrixSaves.Pop();
 
@@ -319,106 +220,37 @@ namespace Avalonia.Lottie.Animation.Content
 
             if ((flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag)
             {
-                var drawingSession = _canvasDrawingSessions.Pop();
-                // drawingSession.DrawingContext.Flush();
-                // drawingSession.DrawingContext.EndDraw();
-
                 var renderTargetSave = _renderTargetSaves.Pop();
 
-                //  UpdateDrawingSessionWithFlags(renderTargetSave.PaintFlags);
-                // CurrentDrawingContext.Transform = GetCurrentTransform();
-
-
-                // var canvasComposite = CompositeMode.SourceOver;
-                // if (renderTargetSave.PaintXfermode != null)
-                // {
-                //     canvasComposite = PorterDuff.ToCanvasComposite(renderTargetSave.PaintXfermode.Mode);
-                // }
-                //
-                // CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl,1,
-                //       new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) ,
-                //       new Rect(0,0, drawingSession.Bitmap.Size.Width,  drawingSession.Bitmap.Size.Height) );
-
-                var j = new Rect(0, 0, drawingSession.Bitmap.Size.Width, drawingSession.Bitmap.Size.Height);
+                var j = new Rect(0, 0, renderTargetSave.BitmapSize.Width, renderTargetSave.BitmapSize.Height);
 
                 BitmapBlendingMode blendingMode = BitmapBlendingMode.SourceOver;
-                
+
                 if (renderTargetSave.PaintXfermode != null)
                     blendingMode = renderTargetSave.PaintXfermode.Mode switch
                     {
-                         PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
+                        PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
                         PorterDuff.Mode.DstOut => BitmapBlendingMode.DestinationOut,
                         PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationIn,
                         _ => blendingMode
                     };
 
                 CurrentDrawingContext.PushBitmapBlendMode(blendingMode);
-                CurrentDrawingContext.DrawBitmap(drawingSession.Bitmap.PlatformImpl, 1, j, j);
+                CurrentDrawingContext.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, j, j);
                 CurrentDrawingContext.PopBitmapBlendMode();
-                 
-                // CurrentDrawingContext.DrawImage(drawingSession.Bitmap,
-                //     new RawAvalonia.Vector(0, 0),
-                //     new Rect(0, 0, renderTargetSave.RenderTarget.Size.Width, renderTargetSave.RenderTarget.Size.Height),
-                //     //renderTargetSave.PaintAlpha / 255f,
-                //     InterpolationMode.Linear,
-                //     canvasComposite);
-
-                //CurrentRenderTarget.DrawBitmap(drawingSession.Bitmap, 255f, InterpolationMode.Linear);
-
-
-                //var rect = new RawRect(0, 0, rt.Size.Width, rt.Size.Height);
-                ////using (var brush = new SolidColorBrush(Color.Black))
-                ////    CurrentRenderTarget.FillOpacityMask(rt, brush, OpacityMaskContent.Graphics, rect, rect);
-                //CurrentRenderTarget.DrawImage(rt, rect, renderTargetSave.PaintAlpha / 255f, BitmapInterpolationMode.Linear, rect);
-
-                //rt.Dispose();
-                //renderTargetSave.RenderTarget.Dispose();
-            }
-
-            // CurrentDrawingContext.Flush();
-        }
-
-        public static object ReflCast(object obj, Type t)
-        {
-            try
-            {
-                var param = Expression.Parameter(obj.GetType());
-                return Expression.Lambda(Expression.Convert(param, t), param)
-                    .Compile().DynamicInvoke(obj);
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
+                
+                renderTargetSave.Dispose();
             }
         }
+
 
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
-           /////  Console.WriteLine("\t DrawBitmap");
-
-            // UpdateDrawingSessionWithFlags(paint.Flags);
-            // var curMatrix = GetCurrentTransform();
-            // CurrentDrawingContext.Transform = new Matrix(curMatrix.M11, curMatrix.M12, curMatrix.M21, curMatrix.M22,
-            //     curMatrix.M31, curMatrix.M32);
-
-            //var canvasComposite = CanvasComposite.SourceOver;
-            // TODO paint.ColorFilter
-            //if (paint.ColorFilter is PorterDuffColorFilter porterDuffColorFilter)
-            //    canvasComposite = PorterDuff.ToCanvasComposite(porterDuffColorFilter.Mode);
-
             CurrentDrawingContext.DrawBitmap(bitmap.PlatformImpl, paint.Alpha, src, dst);
-        }
-
-        public void GetClipBounds(ref Rect bounds)
-        {
-            RectExt.Set(ref bounds, _currentClip.X, _currentClip.Y, _currentClip.Width, _currentClip.Height);
         }
 
         public void Clear(Color color)
         {
-            //   UpdateDrawingSessionWithFlags(0);
-           //  Console.WriteLine("\t Clear");
-
             CurrentDrawingContext.Clear(color);
 
             _matrixSaves.Clear();
@@ -426,38 +258,22 @@ namespace Avalonia.Lottie.Animation.Content
             _clipSaves.Clear();
         }
 
-        private void UpdateDrawingSessionWithFlags(int flags)
-        {
-            // CurrentDrawingContext.AntialiasMode = (flags & Paint.AntiAliasFlag) == Paint.AntiAliasFlag
-            //     ? AntialiasMode.PerPrimitive
-            //     : AntialiasMode.Aliased;
-        }
-
-        // private AntialiasMode GetDrawingSessionMode(int flags)
-        // {
-        //     return (flags & Paint.AntiAliasFlag) == Paint.AntiAliasFlag
-        //         ? AntialiasMode.PerPrimitive
-        //         : AntialiasMode.Aliased;
-        // }
-
         public void Translate(double dx, double dy)
         {
-            _matrix = MatrixExt.PreTranslate(_matrix,  dx,  dy);
+            _matrix = MatrixExt.PreTranslate(_matrix, dx, dy);
         }
- 
+
         public void SetMatrix(Matrix matrix)
         {
-            _matrix=(matrix);
+            _matrix = matrix;
         }
 
         public Rect DrawText(char character, Paint paint)
         {
-            var gradient = paint.Shader as Gradient;
-            var brush = gradient != null ? gradient.GetBrush(paint.Alpha) : new SolidColorBrush(paint.Color);
+            var brush = paint.Shader is Gradient gradient
+                ? gradient.GetBrush(paint.Alpha)
+                : new SolidColorBrush(paint.Color);
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
-
-            //  UpdateDrawingSessionWithFlags(paint.Flags);
-            // CurrentDrawingContext.Transform = GetCurrentTransform();
 
             var text = new string(character, 1);
 
@@ -470,48 +286,6 @@ namespace Avalonia.Lottie.Animation.Content
 
             CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout.PlatformImpl);
             return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
-
-            // //TODO: OID: Check for global factory
-            // using (var factory = new SharpDX.DirectWrite.Factory())
-            // {
-            //     var textFormat = new TextFormat(factory, paint.Typeface.FontFamily, paint.Typeface.Weight,
-            //         paint.Typeface.Style, paint.TextSize)
-            //     {
-            //         //FontSize = paint.TextSize,
-            //         //FontFamily = paint.Typeface.FontFamily,
-            //         //FontStyle = paint.Typeface.Style,
-            //         //FontWeight = paint.Typeface.Weight,
-            //         //VerticalAlignment = CanvasVerticalAlignment.Center,
-            //         //HorizontalAlignment = CanvasHorizontalAlignment.Left,
-            //         //LineSpacingBaseline = 0,
-            //         //LineSpacing = 0
-            //     };
-            //     var textLayout = new TextLayout(factory, text, textFormat, 0.0f, 0.0f);
-            //     CurrentDrawingContext.DrawText(text, textFormat, new Rect(0, 0, 0, 0), finalBrush);
-            //
-            //     if (gradient == null)
-            //     {
-            //         brush?.Dispose();
-            //         finalBrush?.Dispose();
-            //     }
-            //
-            //     //TODO: OID: LayoutBound is not exists in text layout
-            //     return new Rect(0, 0, , 0);
-            // }
-        }
-
-        private void Dispose(bool disposing)
-        {
-            foreach (var renderTarget in _renderTargets)
-            {
-                renderTarget.Value.DrawingContext.Dispose();
-                renderTarget.Value.DrawingContext = null;
-
-                renderTarget.Value.Bitmap.Dispose();
-                renderTarget.Value.Bitmap = null;
-            }
-
-            _renderTargets.Clear();
         }
 
         private class RenderTargetHolder
@@ -534,33 +308,33 @@ namespace Avalonia.Lottie.Animation.Content
             public IDisposable Layer { get; }
         }
 
-        private class RenderTargetSave
+        private struct RenderTargetSave
         {
-            public RenderTargetSave(IDrawingContextImpl renderTarget, int paintFlags, PorterDuffXfermode paintXfermode,
+            public RenderTargetSave(IDrawingContextLayerImpl layer, IDrawingContextImpl layerCtx, Size bitmapSize,
+                int paintFlags, PorterDuffXfermode paintXfermode,
                 byte paintAlpha)
             {
-                RenderTarget = renderTarget;
+                BitmapSize = bitmapSize;
+                Layer = layer;
+                Context = layerCtx;
                 PaintFlags = paintFlags;
                 PaintXfermode = paintXfermode;
                 PaintAlpha = paintAlpha;
             }
 
-            public IDrawingContextImpl RenderTarget { get; }
+            public Size BitmapSize { get; }
+            public IDrawingContextImpl Context { get; }
+
+            public IDrawingContextLayerImpl Layer { get; }
             public int PaintFlags { get; }
             public PorterDuffXfermode PaintXfermode { get; }
             public byte PaintAlpha { get; }
-        }
 
-        public void DisposeOldLayers()
-        {
-            foreach (var v in _renderTargets)
+            public void Dispose()
             {
-                v.Value.Bitmap?.Dispose();
+                Context?.Dispose();
+                Layer?.Dispose();
             }
-            
-            _renderTargets.Clear();
-            _renderTargetSaves.Clear();
-            
         }
     }
 }
