@@ -23,7 +23,7 @@ namespace Avalonia.Lottie.Sample.ViewModels
                 
                 _assetSources = asset.GetAssets(
                     new Uri("avares://Avalonia.Lottie.Sample/Assets"),
-                    new Uri("/"))
+                    new Uri("avares://Avalonia.Lottie.Sample/"))
                     .Select(x=>x.AbsoluteUri)
                     .ToList();
                 
