@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
@@ -11,10 +12,12 @@ using Avalonia.Lottie.Model.Layer;
 using Avalonia.Lottie.Parser;
 using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.Metadata;
+using Avalonia.Platform;
 
 #nullable enable
 
@@ -33,12 +36,15 @@ namespace Avalonia.Lottie
     [PseudoClasses(":animation-started", ":animation-ended")]
     public class Lottie : Control, IAnimatable
     {
+        private static readonly IAssetLoader s_AssetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
+
         /// <summary>
         ///     This value used used with the <see cref="RepeatCount" /> property to repeat
         ///     the animation indefinitely.
         /// </summary>
         public const int Infinite = -1;
 
+        private readonly Uri _baseUri;
         private readonly LottieValueAnimator _animator = new();
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
@@ -56,10 +62,37 @@ namespace Avalonia.Lottie
         private double _scale = 1f;
         private TextDelegate _textDelegate;
 
-        public Lottie()
+        static Lottie()
+        {
+            AffectsMeasure<Lottie>(SourceProperty);
+            AffectsArrange<Lottie>(SourceProperty);
+            AffectsRender<Lottie>(SourceProperty);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Lottie"/> class.
+        /// </summary>
+        /// <param name="baseUri">The base URL for the XAML context.</param>
+        public Lottie(Uri baseUri)
+        {
+            _baseUri = baseUri;
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Lottie"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The XAML service provider.</param>
+        public Lottie(IServiceProvider serviceProvider)
+        {
+            _baseUri = ((IUriContext)serviceProvider.GetService(typeof(IUriContext))).BaseUri;
+            Initialize();
+        }
+
+        private void Initialize()
         {
             ClipToBounds = true;
-            
+
             _animator.Update += delegate
             {
                 if (_compositionLayer is not null)
@@ -77,10 +110,6 @@ namespace Avalonia.Lottie
                 PseudoClasses.Set(":animation-ended", true);
                 PseudoClasses.Set(":animation-started", false);
             };
-
-            AffectsMeasure<Lottie>(SourceProperty);
-            AffectsArrange<Lottie>(SourceProperty);
-            AffectsRender<Lottie>(SourceProperty);
         }
 
         /// <summary>
@@ -483,11 +512,11 @@ namespace Avalonia.Lottie
                 Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
         }
 
-        public static readonly StyledProperty<LottieCompositionSource> SourceProperty =
-            AvaloniaProperty.Register<Lottie, LottieCompositionSource>(nameof(Source));
+        public static readonly StyledProperty<string> SourceProperty =
+            AvaloniaProperty.Register<Lottie, string>(nameof(Source));
 
         [Content]
-        public LottieCompositionSource Source
+        public string Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
@@ -508,17 +537,43 @@ namespace Avalonia.Lottie
             set { SetValue(StretchProperty, value); }
         }
 
+        private LottieComposition Load(string s, Uri? baseUri)
+        {
+            if (s is { })
+            {
+                var uri = s.StartsWith("/")
+                    ? new Uri(s, UriKind.Relative)
+                    : new Uri(s, UriKind.RelativeOrAbsolute);
+
+                if (uri.IsAbsoluteUri && uri.IsFile)
+                {
+                    using (var file = File.Open(uri.LocalPath, FileMode.Open, FileAccess.Read))
+                    {
+                        return LottieCompositionFactory.FromJsonInputStreamSync(file, uri.AbsoluteUri).Value;
+                    }
+                }
+
+                using (var asset = s_AssetLoader.Open(uri, baseUri))
+                {
+                    return LottieCompositionFactory.FromJsonInputStreamSync(asset, uri.ToString()).Value;
+                }
+            }
+
+            return null;
+        }
+        
         protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
             base.OnPropertyChanged(change);
 
             if (change.Property == SourceProperty)
             {
-                var newValue = change.NewValue.GetValueOrDefault<LottieCompositionSource>();
+                var newValue = change.NewValue.GetValueOrDefault<string>();
+                var composition = Load(newValue, _baseUri);
 
-                if (newValue is { } && newValue.Composition is { })
+                if (composition is { })
                 {
-                    SetComposition(newValue.Composition);
+                    SetComposition(composition);
                     Start();
                 }
                 else
@@ -530,7 +585,7 @@ namespace Avalonia.Lottie
             {
                 _isEnabled = change.NewValue.GetValueOrDefault<bool>();
 
-                if (change.NewValue.GetValueOrDefault<bool>() && Source != null)
+                if (change.NewValue.GetValueOrDefault<bool>() && _composition != null)
                 {
                     Start();
                 }
