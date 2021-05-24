@@ -17,7 +17,8 @@ namespace Avalonia.Lottie
         private readonly Rect _bounds;
         private readonly Matrix _matrix;
 
-        public LottieCustomDrawOp(LottieCanvas lottieCanvas, CompositionLayer compositionLayer, Rect bounds, Matrix matrix)
+        public LottieCustomDrawOp(LottieCanvas lottieCanvas, CompositionLayer compositionLayer, Rect bounds,
+            Matrix matrix)
         {
             _lottieCanvas = lottieCanvas;
             _compositionLayer = compositionLayer;
@@ -34,40 +35,30 @@ namespace Avalonia.Lottie
         public void Render(IDrawingContextImpl context)
         {
             IDrawingContextLayerImpl finalRenderSurface = null;
-            try
-            {
-                finalRenderSurface = context.CreateLayer(_bounds.Size);
+            finalRenderSurface = context.CreateLayer(_bounds.Size);
 
-                if (finalRenderSurface is null)
-                {
-                    context.Clear(Colors.Aqua);
-                    return;
-                }
+            if (finalRenderSurface is null)
+            {
+                context.Clear(Colors.Aqua);
+                return;
+            }
 
-                using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
+            using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
+            {
+                renderSurfaceCtx.Transform *= _matrix;
+                using (var session = _lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
+                    renderSurfaceCtx))
                 {
-                    renderSurfaceCtx.Transform *= _matrix;
-                    using (var session = _lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
-                        renderSurfaceCtx))
-                    {
-                        _lottieCanvas.Clear(Colors.Transparent);
-                        _compositionLayer.Draw(_lottieCanvas, Matrix.Identity, 255);
-                    }
+                    _lottieCanvas.Clear(Colors.Transparent);
+                    _compositionLayer.Draw(_lottieCanvas, Matrix.Identity, 255);
                 }
-                
-                context.DrawBitmap(RefCountable.Create(finalRenderSurface),
-                    1,
-                    new Rect(finalRenderSurface.PixelSize.ToSize(1)), _bounds);
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.StackTrace);
-                context.Clear(Colors.Red);
-            }
-            finally
-            {
-                finalRenderSurface?.Dispose();
-            }
+
+            context.DrawBitmap(RefCountable.Create(finalRenderSurface),
+                1,
+                new Rect(finalRenderSurface.PixelSize.ToSize(1)), _bounds);
+
+            finalRenderSurface?.Dispose();
         }
 
         public Rect Bounds => _bounds;
