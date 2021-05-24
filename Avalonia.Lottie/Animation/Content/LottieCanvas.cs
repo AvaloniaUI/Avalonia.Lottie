@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Animation.Content
 {
-    public class BitmapCanvas : IDisposable
+    public class LottieCanvas : IDisposable
     {
         public static int MatrixSaveFlag = 0b00001;
 
@@ -33,7 +33,7 @@ namespace Avalonia.Lottie.Animation.Content
         private Rect _currentClip;
         private Matrix _matrix = Matrix.Identity;
 
-        public BitmapCanvas(double width, double height)
+        public LottieCanvas(double width, double height)
         {
             //OutputRenderTarget = renderTarget;
             UpdateClip(width, height);

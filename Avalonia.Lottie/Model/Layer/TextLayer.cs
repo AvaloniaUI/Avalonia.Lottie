@@ -80,7 +80,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             canvas.Save();
             if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
@@ -117,7 +117,7 @@ namespace Avalonia.Lottie.Model.Layer
             canvas.Restore();
         }
 
-        private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, BitmapCanvas canvas)
+        private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, LottieCanvas canvas)
         {
             var fontScale =  documentData.Size / 100;
             var parentScale = Utils.Utils.GetScale(parentMatrix);
@@ -140,7 +140,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix parentMatrix, BitmapCanvas canvas)
+        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix parentMatrix, LottieCanvas canvas)
         {
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var typeface = _lottie.GetTypeface(font.Family, font.Style);
@@ -166,7 +166,7 @@ namespace Avalonia.Lottie.Model.Layer
         }
 
         private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double  fontScale,
-            DocumentData documentData, BitmapCanvas canvas)
+            DocumentData documentData, LottieCanvas canvas)
         {
             var contentGroups = GetContentsForCharacter(character);
             for (var j = 0; j < contentGroups.Count; j++)
@@ -190,14 +190,14 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        private void DrawGlyph(Path path, Paint paint, BitmapCanvas canvas)
+        private void DrawGlyph(Path path, Paint paint, LottieCanvas canvas)
         {
             if (paint.Color == Colors.Transparent) return;
             if (paint.Style == Paint.PaintStyle.Stroke && paint.StrokeWidth == 0) return;
             canvas.DrawPath(path, paint);
         }
 
-        private Rect? DrawCharacterFromFont(char c, DocumentData documentData, BitmapCanvas canvas)
+        private Rect? DrawCharacterFromFont(char c, DocumentData documentData, LottieCanvas canvas)
         {
             Rect? ret;
             if (documentData.StrokeOverFill)
@@ -210,7 +210,7 @@ namespace Avalonia.Lottie.Model.Layer
             return DrawCharacter(c, _fillPaint, canvas) ?? ret;
         }
 
-        private Rect? DrawCharacter(char character, Paint paint, BitmapCanvas canvas)
+        private Rect? DrawCharacter(char character, Paint paint, LottieCanvas canvas)
         {
             if (paint.Color == Colors.Transparent) return null;
             if (paint.Style == Paint.PaintStyle.Stroke && paint.StrokeWidth == 0) return null;

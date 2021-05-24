@@ -99,7 +99,7 @@ namespace Avalonia.Lottie.Animation.Content
             if (currentPathGroup != null) _pathGroups.Add(currentPathGroup);
         }
 
-        public virtual void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public virtual void Draw(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("StrokeContent.Draw");
             var alpha = (byte) (parentAlpha / 255f * _opacityAnimation.Value / 100f * 255);
@@ -199,7 +199,7 @@ namespace Avalonia.Lottie.Animation.Content
             _lottie.InvalidateSelf();
         }
 
-        private void ApplyTrimPath(BitmapCanvas canvas, PathGroup pathGroup, Matrix parentMatrix)
+        private void ApplyTrimPath(LottieCanvas canvas, PathGroup pathGroup, Matrix parentMatrix)
         {
             LottieLog.BeginSection("StrokeContent.ApplyTrimPath");
             if (pathGroup.TrimPath == null)

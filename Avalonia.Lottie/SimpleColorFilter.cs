@@ -17,7 +17,7 @@ namespace Avalonia.Lottie
         {
         }
 
-        public override IBrush Apply(BitmapCanvas dst, IBrush brush)
+        public override IBrush Apply(LottieCanvas dst, IBrush brush)
         {
             // TODO: Passthrough color filter for now
             return brush;

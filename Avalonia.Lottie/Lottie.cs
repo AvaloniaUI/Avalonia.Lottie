@@ -45,7 +45,7 @@ namespace Avalonia.Lottie
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
         private byte _alpha = 255;
-        private BitmapCanvas? _bitmapCanvas;
+        private LottieCanvas? _bitmapCanvas;
         private LottieComposition _composition;
         private CompositionLayer _compositionLayer;
         private bool _enableMergePaths;
@@ -589,7 +589,7 @@ namespace Avalonia.Lottie
                 return new Size();
             }
         }
- 
+
         public override void Render(DrawingContext renderCtx)
         {
             LottieLog.BeginSection("Drawable.Draw");
@@ -602,33 +602,22 @@ namespace Avalonia.Lottie
 
             if (_animator.IsRunning && _isEnabled)
                 _animator.DoFrame();
-            
+
             var viewPort = new Rect(containerRect.Size);
-            
-            var sourceSize =  _composition.Bounds.Size;
-            
+
+            var sourceSize = _composition.Bounds.Size;
+
             var scale = Stretch.CalculateScaling(viewPort.Size, sourceSize);
             var scaledSize = sourceSize * scale;
 
             var destRect = viewPort
                 .CenterRect(new Rect(scaledSize))
                 .Intersect(viewPort);
-            
-            // new ImmutableSolidColorBrush(Colors.Coral),
-            
-            
+
+
             renderCtx.Custom(
-                new LottieCustomDrawOp(_bitmapCanvas, _compositionLayer,sourceSize, destRect));
-            
-            // renderCtx.DrawRectangle( new ImmutablePen(new ImmutableSolidColorBrush(Colors.Aqua)), destRect);
-            //
-            // var sourceRect = new Rect(surfaceSize)
-            //     .CenterRect(new Rect(destRect.Size / scale));
-            //
-           //
-           // var  matrix = Matrix.CreateScale(destRect.Width / _composition.Bounds.Size.Width,
-           //     destRect.Height / _composition.Bounds.Size.Height);
-           //  
+                new LottieCustomDrawOp(_bitmapCanvas, _compositionLayer, sourceSize, destRect));
+            //  
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
@@ -758,7 +747,7 @@ namespace Avalonia.Lottie
             if (_composition == null) return;
 
             _bitmapCanvas?.Dispose();
-            _bitmapCanvas = new BitmapCanvas(Width, Height);
+            _bitmapCanvas = new LottieCanvas(Width, Height);
         }
 
         public virtual void CancelAnimation()
@@ -896,7 +885,7 @@ namespace Avalonia.Lottie
          * If there are masks or mattes, we can't scale the animation larger than the canvas or else 
          * the off screen rendering for masks and mattes after saveLayer calls will get clipped.
          */
-        private double GetMaxScale(BitmapCanvas canvas)
+        private double GetMaxScale(LottieCanvas canvas)
         {
             var maxScaleX = canvas.Width / _composition.Bounds.Width;
             var maxScaleY = canvas.Height / _composition.Bounds.Height;

@@ -10,7 +10,7 @@ namespace Avalonia.Lottie.Model.Layer
     public abstract class BaseLayer : IDrawingContent, IKeyPathElement, IDisposable
     {
         private static readonly int SaveFlags =
-            BitmapCanvas.ClipSaveFlag | BitmapCanvas.ClipToLayerSaveFlag | BitmapCanvas.MatrixSaveFlag;
+            LottieCanvas.ClipSaveFlag | LottieCanvas.ClipToLayerSaveFlag | LottieCanvas.MatrixSaveFlag;
 
         private readonly Paint _addMaskPaint = new(Paint.AntiAliasFlag);
 
@@ -127,7 +127,7 @@ namespace Avalonia.Lottie.Model.Layer
             BoundsMatrix = MatrixExt.PreConcat(BoundsMatrix, Transform.Matrix);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public void Draw(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection(_drawTraceName);
             if (!_visible)
@@ -165,7 +165,7 @@ namespace Avalonia.Lottie.Model.Layer
             LottieLog.EndSection("Layer.ComputeBounds");
 
             LottieLog.BeginSection("Layer.SaveLayer");
-            canvas.SaveLayer(Rect, _contentPaint, BitmapCanvas.AllSaveFlag);
+            canvas.SaveLayer(Rect, _contentPaint, LottieCanvas.AllSaveFlag);
             LottieLog.EndSection("Layer.SaveLayer");
 
             // Clear the off screen buffer. This is necessary for some phones.
@@ -293,7 +293,7 @@ namespace Avalonia.Lottie.Model.Layer
             Lottie.Composition.PerformanceTracker.RecordRenderTime(LayerModel.Name, ms);
         }
 
-        private void ClearCanvas(BitmapCanvas canvas)
+        private void ClearCanvas(LottieCanvas canvas)
         {
             LottieLog.BeginSection("Layer.ClearLayer");
             // If we don't pad the clear draw, some phones leave a 1px border of the graphics buffer.
@@ -360,9 +360,9 @@ namespace Avalonia.Lottie.Model.Layer
                  Math.Min(rect.Bottom, _matteBoundsRect.Bottom));
         }
 
-        public abstract void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha);
+        public abstract void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha);
 
-        private int ApplyMasks(BitmapCanvas canvas, Matrix matrix)
+        private int ApplyMasks(LottieCanvas canvas, Matrix matrix)
         {
             var num = 0;
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeAdd);
@@ -373,7 +373,7 @@ namespace Avalonia.Lottie.Model.Layer
             return num;
         }
 
-        private int ApplyMasks(BitmapCanvas canvas, Matrix matrix, Mask.MaskMode maskMode)
+        private int ApplyMasks(LottieCanvas canvas, Matrix matrix, Mask.MaskMode maskMode)
         {
             Paint paint;
             switch (maskMode)

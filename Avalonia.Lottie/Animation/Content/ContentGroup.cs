@@ -93,7 +93,7 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public virtual void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public virtual void Draw(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             _matrix=(parentMatrix);
             byte alpha;

@@ -46,7 +46,7 @@ namespace Avalonia.Lottie.Animation.Content
             _contentGroup.SetContents(contentsBefore, contentsAfter);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte alpha)
+        public void Draw(LottieCanvas canvas, Matrix parentMatrix, byte alpha)
         {
             var copies = _copies.Value.Value;
             var offset = _offset.Value.Value;
