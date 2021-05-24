@@ -46,11 +46,12 @@ namespace Avalonia.Lottie
 
                 using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
                 {
+                    renderSurfaceCtx.Transform *= _matrix;
                     using (var session = _lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
                         renderSurfaceCtx))
                     {
                         _lottieCanvas.Clear(Colors.Transparent);
-                        _compositionLayer.Draw(_lottieCanvas, _matrix, 255);
+                        _compositionLayer.Draw(_lottieCanvas, Matrix.Identity, 255);
                     }
                 }
                 
