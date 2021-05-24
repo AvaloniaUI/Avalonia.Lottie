@@ -14,16 +14,15 @@ namespace Avalonia.Lottie
     {
         private readonly LottieCanvas _lottieCanvas;
         private readonly CompositionLayer _compositionLayer;
-        private readonly Size _sourceSize;
-        private readonly Rect _viewPort;
+        private readonly Rect _bounds;
+        private readonly Matrix _matrix;
 
-        public LottieCustomDrawOp(LottieCanvas lottieCanvas, CompositionLayer compositionLayer, Size sourceSize,
-            Rect viewPort)
+        public LottieCustomDrawOp(LottieCanvas lottieCanvas, CompositionLayer compositionLayer, Rect bounds, Matrix matrix)
         {
             _lottieCanvas = lottieCanvas;
             _compositionLayer = compositionLayer;
-            _sourceSize = sourceSize;
-            _viewPort = viewPort;
+            _bounds = bounds;
+            _matrix = matrix;
         }
 
         public void Dispose()
@@ -37,7 +36,7 @@ namespace Avalonia.Lottie
             IDrawingContextLayerImpl finalRenderSurface = null;
             try
             {
-                finalRenderSurface = context.CreateLayer(_sourceSize);
+                finalRenderSurface = context.CreateLayer(_bounds.Size);
 
                 if (finalRenderSurface is null)
                 {
@@ -47,21 +46,17 @@ namespace Avalonia.Lottie
 
                 using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
                 {
-                    using (var session = _lottieCanvas.CreateSession(_sourceSize, finalRenderSurface,
+                    using (var session = _lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
                         renderSurfaceCtx))
                     {
                         _lottieCanvas.Clear(Colors.Transparent);
-
-                        var matrix = Matrix.CreateScale(_viewPort.Width / _sourceSize.Width,
-                            _viewPort.Height / _sourceSize.Height);
-
-                        _compositionLayer.Draw(_lottieCanvas, matrix, 255);
+                        _compositionLayer.Draw(_lottieCanvas, _matrix, 255);
                     }
                 }
-
+                
                 context.DrawBitmap(RefCountable.Create(finalRenderSurface),
                     1,
-                    new Rect(_sourceSize), new Rect(_viewPort.Size));
+                    new Rect(finalRenderSurface.PixelSize.ToSize(1)), _bounds);
             }
             catch (Exception e)
             {
@@ -74,7 +69,7 @@ namespace Avalonia.Lottie
             }
         }
 
-        public Rect Bounds => _viewPort;
+        public Rect Bounds => _bounds;
 
         public bool Equals(ICustomDrawOperation? other) => false;
     }

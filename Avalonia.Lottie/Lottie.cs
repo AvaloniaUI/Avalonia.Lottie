@@ -45,7 +45,7 @@ namespace Avalonia.Lottie
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
         private byte _alpha = 255;
-        private LottieCanvas? _bitmapCanvas;
+        private LottieCanvas? _lottieCanvas;
         private LottieComposition _composition;
         private CompositionLayer _compositionLayer;
         private bool _enableMergePaths;
@@ -596,7 +596,7 @@ namespace Avalonia.Lottie
 
             var containerRect = Bounds;
 
-            if (_bitmapCanvas is null || _compositionLayer is null || containerRect.Width <= 0 ||
+            if (_lottieCanvas is null || _compositionLayer is null || containerRect.Width <= 0 ||
                 containerRect.Height <= 0)
                 return;
 
@@ -614,9 +614,12 @@ namespace Avalonia.Lottie
                 .CenterRect(new Rect(scaledSize))
                 .Intersect(viewPort);
 
+            var matrix = Matrix.Identity;
+            
+            matrix *= Matrix.CreateScale(scale.X, scale.Y);
 
             renderCtx.Custom(
-                new LottieCustomDrawOp(_bitmapCanvas, _compositionLayer, sourceSize, destRect));
+                new LottieCustomDrawOp(_lottieCanvas, _compositionLayer, destRect, matrix));
             //  
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
@@ -746,8 +749,8 @@ namespace Avalonia.Lottie
         {
             if (_composition == null) return;
 
-            _bitmapCanvas?.Dispose();
-            _bitmapCanvas = new LottieCanvas(Width, Height);
+            _lottieCanvas?.Dispose();
+            _lottieCanvas = new LottieCanvas(Width, Height);
         }
 
         public virtual void CancelAnimation()
@@ -901,8 +904,8 @@ namespace Avalonia.Lottie
 
             _composition = null;
 
-            _bitmapCanvas?.Dispose();
-            _bitmapCanvas = null;
+            _lottieCanvas?.Dispose();
+            _lottieCanvas = null;
 
             _compositionLayer = null;
 
