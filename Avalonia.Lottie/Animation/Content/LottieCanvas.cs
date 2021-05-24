@@ -80,8 +80,6 @@ namespace Avalonia.Lottie.Animation.Content
 
             rts.Context.Clear(Colors.Transparent);
 
-            
-
             return PushMask(_currentClip, 1f);
         }
 
