@@ -226,7 +226,8 @@ namespace Avalonia.Lottie.Animation.Content
             {
                 var renderTargetSave = _renderTargetSaves.Pop();
 
-                var j = new Rect(0, 0, renderTargetSave.BitmapSize.Width, renderTargetSave.BitmapSize.Height);
+                var source = new Rect(renderTargetSave.Layer.PixelSize.ToSize(1));
+                var destination = new Rect(renderTargetSave.BitmapSize);
 
                 BitmapBlendingMode blendingMode = BitmapBlendingMode.SourceOver;
 
@@ -240,7 +241,7 @@ namespace Avalonia.Lottie.Animation.Content
                     };
 
                 CurrentDrawingContext.PushBitmapBlendMode(blendingMode);
-                CurrentDrawingContext.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, j, j);
+                CurrentDrawingContext.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, source, destination);
                 CurrentDrawingContext.PopBitmapBlendMode();
                 
                 renderTargetSave.Dispose();
