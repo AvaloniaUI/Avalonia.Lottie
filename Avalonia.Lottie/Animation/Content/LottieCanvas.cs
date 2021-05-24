@@ -47,21 +47,27 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Dispose()
         {
-       _renderTargetSaves.Clear();
-                
+            _renderTargetSaves.Clear();
         }
 
         private void UpdateClip(double width, double height)
         {
-            if (Math.Abs(width - Width) > 0 || Math.Abs(height - Height) > 0) Dispose();
+            if (Math.Abs(width - Width) > 0 || Math.Abs(height - Height) > 0)
+            {
+                Dispose();
+            }
 
             Width = width;
             Height = height;
             _currentClip = new Rect(0, 0, Width, Height);
+            
+            
         }
         
         internal IDisposable CreateSession(Size size,IDrawingContextLayerImpl layer, IDrawingContextImpl drawingSession)
         {
+            UpdateClip(size.Width, size.Height);
+            
             _renderTargetSaves.Clear();
 
              var rts = new RenderTargetSave(layer,
@@ -74,7 +80,7 @@ namespace Avalonia.Lottie.Animation.Content
 
             rts.Context.Clear(Colors.Transparent);
 
-            UpdateClip(size.Width, size.Height);
+            
 
             return PushMask(_currentClip, 1f);
         }
