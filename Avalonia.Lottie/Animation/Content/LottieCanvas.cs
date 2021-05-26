@@ -101,6 +101,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         public IDisposable ClipRect(Rect rect)
         {
+            return System.Reactive.Disposables.Disposable.Empty;
+            ;
             // somehow there's a bug here that swaps the Y coord and Height value...
             return CurrentDrawingContext.PushClip(new Rect(rect.X, rect.Height, rect.Width, rect.Y));
         }

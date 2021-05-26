@@ -83,7 +83,7 @@ namespace Avalonia.Lottie.Model.Layer
 
         public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
-           var disp = canvas.Save();
+            var disp = canvas.Save();
             // if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
             var documentData = _textAnimation.Value;
             if (!_composition.Fonts.TryGetValue(documentData.FontName, out var font))
@@ -107,7 +107,7 @@ namespace Avalonia.Lottie.Model.Layer
             else
             {
                 var parentScale = Utils.Utils.GetScale(parentMatrix);
-                _strokePaint.StrokeWidth = documentData.StrokeWidth  * parentScale;
+                _strokePaint.StrokeWidth = documentData.StrokeWidth * parentScale;
             }
 
             if (_lottie.UseTextGlyphs())
@@ -120,26 +120,27 @@ namespace Avalonia.Lottie.Model.Layer
 
         private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, LottieCanvas canvas)
         {
-            var fontScale =  documentData.Size / 100;
+            var fontScale = documentData.Size / 100;
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var text = documentData.Text;
-            IDisposable prevDisp = null;
-            
-for (var i = 0; i < text.Length; i++)
+            var priorTx = 0d;
+            for (var i = 0; i < text.Length; i++)
             {
-                var c = text[i];
-                var characterHash = FontCharacter.HashFor(c, font.Family, font.Style);
-                if (!_composition.Characters.TryGetValue(characterHash, out var character))
-                    // Something is wrong. Potentially, they didn't export the text as a glyph. 
-                    continue;
-                DrawCharacterAsGlyph(character, parentMatrix, fontScale, documentData, canvas);
-                var tx =  character.Width * fontScale  * parentScale;
-                // Add tracking 
-                var tracking = documentData.Tracking / 10f;
-                if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
-                tx += tracking * parentScale;
-                prevDisp?.Dispose();
-                prevDisp =  canvas.Translate(tx, 0);
+                using (canvas.Translate(priorTx, 0))
+                {
+                    var c = text[i];
+                    var characterHash = FontCharacter.HashFor(c, font.Family, font.Style);
+                    if (!_composition.Characters.TryGetValue(characterHash, out var character))
+                        // Something is wrong. Potentially, they didn't export the text as a glyph. 
+                        continue;
+                    DrawCharacterAsGlyph(character, parentMatrix, fontScale, documentData, canvas);
+                    var tx = character.Width * fontScale * parentScale;
+                    // Add tracking 
+                    var tracking = documentData.Tracking / 10f;
+                    if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
+                    tx += tracking * parentScale;
+                    priorTx += tx;
+                }
             }
         }
 
@@ -152,23 +153,28 @@ for (var i = 0; i < text.Length; i++)
             var textDelegate = _lottie.TextDelegate;
             if (textDelegate != null) text = textDelegate.GetTextInternal(text);
             _fillPaint.Typeface = typeface;
-            _fillPaint.TextSize =  documentData.Size ;
+            _fillPaint.TextSize = documentData.Size;
             _strokePaint.Typeface = _fillPaint.Typeface;
             _strokePaint.TextSize = _fillPaint.TextSize;
+
+            var priorTx = 0d;
+            
             for (var i = 0; i < text.Length; i++)
             {
-                var character = text[i];
-                var size = DrawCharacterFromFont(character, documentData, canvas);
+                using (canvas.Translate(priorTx, 0))
+                {
+                    var character = text[i];
+                    var size = DrawCharacterFromFont(character, documentData, canvas);
 
-                // Add tracking
-                var tracking = documentData.Tracking / 10f;
-                if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
-                var tx =  (size?.Width ?? 0) + tracking * parentScale;
-                canvas.Translate(tx, 0);
+                    // Add tracking
+                    var tracking = documentData.Tracking / 10f;
+                    if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
+                    var tx = (size?.Width ?? 0) + tracking * parentScale;
+                }
             }
         }
 
-        private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double  fontScale,
+        private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double fontScale,
             DocumentData documentData, LottieCanvas canvas)
         {
             var contentGroups = GetContentsForCharacter(character);
@@ -177,7 +183,7 @@ for (var i = 0; i < text.Length; i++)
                 var path = contentGroups[j].Path;
                 //path.ComputeBounds(out _rectF);
                 Matrix = (parentMatrix);
-                Matrix = MatrixExt.PreTranslate(Matrix, 0,  -documentData.BaselineShift );
+                Matrix = MatrixExt.PreTranslate(Matrix, 0, -documentData.BaselineShift);
                 Matrix = MatrixExt.PreScale(Matrix, fontScale, fontScale);
                 path.Transform(Matrix);
                 if (documentData.StrokeOverFill)
