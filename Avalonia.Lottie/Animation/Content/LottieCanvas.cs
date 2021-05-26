@@ -39,7 +39,7 @@ namespace Avalonia.Lottie.Animation.Content
             UpdateClip(width, height);
         }
 
-        internal IDrawingContextImpl CurrentDrawingContext =>
+        internal DrawingContext CurrentDrawingContext =>
             _renderTargetSaves.Count > 0 ? _renderTargetSaves.Peek().Context : null;
 
         public double Width { get; private set; }
@@ -60,25 +60,24 @@ namespace Avalonia.Lottie.Animation.Content
             Width = width;
             Height = height;
             _currentClip = new Rect(0, 0, Width, Height);
-            
-            
         }
-        
-        internal IDisposable CreateSession(Size size,IDrawingContextLayerImpl layer, IDrawingContextImpl drawingSession)
+
+        internal IDisposable CreateSession(Size size, IDrawingContextLayerImpl layer,
+            DrawingContext drawingSession)
         {
             UpdateClip(size.Width, size.Height);
-            
+
             _renderTargetSaves.Clear();
 
-             var rts = new RenderTargetSave(layer,
-                 drawingSession, size,
+            var rts = new RenderTargetSave(layer,
+                drawingSession, size,
                 0,
                 new PorterDuffXfermode(PorterDuff.Mode.Clear),
                 255);
-             
+
             _renderTargetSaves.Push(rts);
 
-            rts.Context.Clear(Colors.Transparent);
+            rts.Context.PlatformImpl.Clear(Colors.Transparent);
 
             return PushMask(_currentClip, 1f);
         }
@@ -129,21 +128,18 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public Disposable PushMask(Rect rect, double alpha, Path path = null)
+        public IDisposable PushMask(Rect rect, double alpha, Path path = null)
         {
             if (alpha >= 1 && path == null)
             {
-                CurrentDrawingContext.PushClip(rect);
-
-                return new Disposable(() => { CurrentDrawingContext.PopClip(); });
+               return CurrentDrawingContext.PushClip(rect);
             }
 
-            var geometery = path.GetGeometry();
+            var geometery = path.GetGeometry() as Geometry;
 
-            CurrentDrawingContext.PushGeometryClip(geometery);
+           return CurrentDrawingContext.PushGeometryClip(geometery);
 
-            return new Disposable(() => { CurrentDrawingContext.PopGeometryClip(); });
-        }
+         }
 
 
         public bool ClipRect(Rect rect)
@@ -173,14 +169,15 @@ namespace Avalonia.Lottie.Animation.Content
 
             if (isClipToLayer)
             {
-                var rendertarget = CurrentDrawingContext.CreateLayer(bounds.Size);
-                var rts = new RenderTargetSave(rendertarget, rendertarget.CreateDrawingContext(null), bounds.Size, paint.Flags,
+                var rendertarget = CurrentDrawingContext.PlatformImpl.CreateLayer(bounds.Size);
+                var rts = new RenderTargetSave(rendertarget, new DrawingContext(rendertarget.CreateDrawingContext(null)), bounds.Size,
+                    paint.Flags,
                     paint.Xfermode,
                     paint.Xfermode != null ? (byte) 255 : paint.Alpha);
 
                 _renderTargetSaves.Push(rts);
 
-                rts.Context.Clear(Colors.Transparent);
+                rts.Context.PlatformImpl.Clear(Colors.Transparent);
             }
 
             if ((flags & ClipSaveFlag) == ClipSaveFlag) SaveClip(isClipToLayer ? (byte) 255 : paint.Alpha, path);
@@ -239,11 +236,11 @@ namespace Avalonia.Lottie.Animation.Content
                         PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationIn,
                         _ => blendingMode
                     };
-
-                CurrentDrawingContext.PushBitmapBlendMode(blendingMode);
-                CurrentDrawingContext.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, source, destination);
-                CurrentDrawingContext.PopBitmapBlendMode();
                 
+                CurrentDrawingContext.PlatformImpl.PushBitmapBlendMode(blendingMode);
+                CurrentDrawingContext.PlatformImpl.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, source, destination);
+                CurrentDrawingContext.PlatformImpl.PopBitmapBlendMode();
+
                 renderTargetSave.Dispose();
             }
         }
@@ -251,12 +248,13 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
-            CurrentDrawingContext.DrawBitmap(bitmap.PlatformImpl, paint.Alpha, src, dst);
+            using (CurrentDrawingContext.PushOpacity(paint.Alpha / 255d))
+                CurrentDrawingContext.DrawImage(bitmap, src, dst);
         }
 
         public void Clear(Color color)
         {
-            CurrentDrawingContext.Clear(color);
+            CurrentDrawingContext.PlatformImpl.Clear(color);
 
             _matrixSaves.Clear();
             _flagSaves.Clear();
@@ -289,7 +287,7 @@ namespace Avalonia.Lottie.Animation.Content
                 FontSize = paint.TextSize
             };
 
-            CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout.PlatformImpl);
+            CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout);
             return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
         }
 
@@ -315,7 +313,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private struct RenderTargetSave
         {
-            public RenderTargetSave(IDrawingContextLayerImpl layer, IDrawingContextImpl layerCtx, Size bitmapSize,
+            public RenderTargetSave(IDrawingContextLayerImpl layer, DrawingContext layerCtx, Size bitmapSize,
                 int paintFlags, PorterDuffXfermode paintXfermode,
                 byte paintAlpha)
             {
@@ -328,7 +326,7 @@ namespace Avalonia.Lottie.Animation.Content
             }
 
             public Size BitmapSize { get; }
-            public IDrawingContextImpl Context { get; }
+            public DrawingContext Context { get; }
 
             public IDrawingContextLayerImpl Layer { get; }
             public int PaintFlags { get; }
