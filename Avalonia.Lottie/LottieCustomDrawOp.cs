@@ -48,7 +48,6 @@ namespace Avalonia.Lottie
                 using (_lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
                     new DrawingContext(renderSurfaceCtx)))
                 {
-                    _lottieCanvas.Clear(Colors.Transparent);
                     _compositionLayer.Draw(_lottieCanvas, _matrix, 255);
                 }
             }
