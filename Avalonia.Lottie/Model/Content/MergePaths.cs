@@ -29,12 +29,6 @@ namespace Avalonia.Lottie.Model.Content
 
         public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
-            if (!drawable.EnableMergePathsForKitKatAndAbove())
-            {
-                Debug.WriteLine("Animation contains merge paths but they are disabled.", LottieLog.Tag);
-                return null;
-            }
-
             return new MergePathsContent(this);
         }
 

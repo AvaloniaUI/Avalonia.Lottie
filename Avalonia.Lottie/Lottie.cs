@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Lottie.Animation.Content;
@@ -47,8 +48,7 @@ namespace Avalonia.Lottie
         private byte _alpha = 255;
         private LottieCanvas? _lottieCanvas;
         private LottieComposition _composition;
-        private CompositionLayer _compositionLayer;
-        private bool _enableMergePaths;
+        private CompositionLayer _compositionLayer; 
         private FontAssetDelegate _fontAssetDelegate;
         private FontAssetManager _fontAssetManager;
         private bool _forceSoftwareRenderer;
@@ -387,28 +387,7 @@ namespace Avalonia.Lottie
         {
             return _compositionLayer != null && _compositionLayer.HasMatte();
         }
-
-        internal virtual bool EnableMergePathsForKitKatAndAbove()
-        {
-            return _enableMergePaths;
-        }
-
-        /// <summary>
-        ///     Enable this to get merge path support for devices running KitKat (19) and above.
-        ///     Merge paths currently don't work if the the operand shape is entirely contained within the
-        ///     first shape. If you need to cut out one shape from another shape, use an even-odd fill type
-        ///     instead of using merge paths.
-        /// </summary>
-        public virtual void EnableMergePathsForKitKatAndAbove(bool enable)
-        {
-            _enableMergePaths = enable;
-            if (_composition != null) BuildCompositionLayer();
-        }
-
-        public bool IsMergePathsEnabledForKitKatAndAbove()
-        {
-            return _enableMergePaths;
-        }
+ 
 
         /// <summary>
         ///     If you have image assets and use <seealso cref="Lottie" /> directly, you must call this yourself.
@@ -420,6 +399,8 @@ namespace Avalonia.Lottie
             _imageAssetManager?.RecycleBitmaps();
         }
 
+        private IDisposable compositionTimerDisposable;
+         
         /// <summary>
         ///     Create a composition with <see cref="LottieCompositionFactory" />
         /// </summary>
@@ -449,6 +430,16 @@ namespace Avalonia.Lottie
 
                 _lazyCompositionTasks.Clear();
                 composition.PerformanceTrackingEnabled = _performanceTrackingEnabled;
+
+                compositionTimerDisposable =
+                (this.Clock ?? new Clock())
+                    .Subscribe((z) =>
+                    {
+                        if (_animator.IsRunning && _isEnabled)
+                            _animator.DoFrame();
+                    });
+
+
             }
 
             return true;
@@ -464,7 +455,13 @@ namespace Avalonia.Lottie
         {
             // ClearRtb();
             RecycleBitmaps();
-            if (_animator.IsRunning) _animator.Cancel();
+            if (_animator.IsRunning)
+            {
+                
+                compositionTimerDisposable?.Dispose();
+                _animator.Cancel();
+            }
+            
 
             lock (this)
             {
@@ -599,9 +596,6 @@ namespace Avalonia.Lottie
             if (_lottieCanvas is null || _compositionLayer is null || containerRect.Width <= 0 ||
                 containerRect.Height <= 0)
                 return;
-
-            if (_animator.IsRunning && _isEnabled)
-                _animator.DoFrame();
 
             var viewPort = new Rect(containerRect.Size);
 
