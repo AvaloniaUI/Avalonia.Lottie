@@ -743,7 +743,6 @@ namespace Avalonia.Lottie
         {
             if (_composition == null) return;
 
-            _lottieCanvas?.Dispose();
             _lottieCanvas = new LottieCanvas(Width, Height);
         }
 
@@ -898,7 +897,6 @@ namespace Avalonia.Lottie
 
             _composition = null;
 
-            _lottieCanvas?.Dispose();
             _lottieCanvas = null;
 
             _compositionLayer = null;

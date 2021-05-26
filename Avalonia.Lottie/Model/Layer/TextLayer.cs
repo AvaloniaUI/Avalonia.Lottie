@@ -9,6 +9,7 @@ using Avalonia.Lottie.Value;
 
 */
 
+using System;
 using System.Collections.Generic;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
@@ -82,13 +83,13 @@ namespace Avalonia.Lottie.Model.Layer
 
         public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
-            canvas.Save();
-            if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
+           var disp = canvas.Save();
+            // if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
             var documentData = _textAnimation.Value;
             if (!_composition.Fonts.TryGetValue(documentData.FontName, out var font))
             {
                 // Something is wrong. 
-                canvas.Restore();
+                disp?.Dispose();
                 return;
             }
 
@@ -114,7 +115,7 @@ namespace Avalonia.Lottie.Model.Layer
             else
                 DrawTextWithFont(documentData, font, parentMatrix, canvas);
 
-            canvas.Restore();
+            disp?.Dispose();
         }
 
         private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, LottieCanvas canvas)
@@ -122,8 +123,9 @@ namespace Avalonia.Lottie.Model.Layer
             var fontScale =  documentData.Size / 100;
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var text = documentData.Text;
-
-            for (var i = 0; i < text.Length; i++)
+            IDisposable prevDisp = null;
+            
+for (var i = 0; i < text.Length; i++)
             {
                 var c = text[i];
                 var characterHash = FontCharacter.HashFor(c, font.Family, font.Style);
@@ -136,7 +138,8 @@ namespace Avalonia.Lottie.Model.Layer
                 var tracking = documentData.Tracking / 10f;
                 if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
                 tx += tracking * parentScale;
-                canvas.Translate(tx, 0);
+                prevDisp?.Dispose();
+                prevDisp =  canvas.Translate(tx, 0);
             }
         }
 

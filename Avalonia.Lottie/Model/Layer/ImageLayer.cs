@@ -34,15 +34,18 @@ namespace Avalonia.Lottie.Model.Layer
         {
             var bitmap = Bitmap;
             if (bitmap == null) return;
- 
+
             _paint.Alpha = parentAlpha;
             if (_colorFilterAnimation != null) _paint.ColorFilter = _colorFilterAnimation.Value;
-            canvas.Save();
-            canvas.Concat(parentMatrix);
-            RectExt.Set(ref _src, 0, 0, PixelWidth, PixelHeight);
-            RectExt.Set(ref _dst, 0, 0, PixelWidth, PixelHeight);
-            canvas.DrawBitmap(bitmap, _src, _dst, _paint);
-            canvas.Restore();
+            using (canvas.Save())
+            {
+                using (canvas.Concat(parentMatrix))
+                {
+                    RectExt.Set(ref _src, 0, 0, PixelWidth, PixelHeight);
+                    RectExt.Set(ref _dst, 0, 0, PixelWidth, PixelHeight);
+                    canvas.DrawBitmap(bitmap, _src, _dst, _paint);
+                }
+            }
         }
 
         public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
@@ -51,8 +54,8 @@ namespace Avalonia.Lottie.Model.Layer
             var bitmap = Bitmap;
             if (bitmap != null)
             {
-                RectExt.Set(ref outBounds,  outBounds.Left,  outBounds.Top,
-                     Math.Min(outBounds.Right, PixelWidth),  Math.Min(outBounds.Bottom, PixelHeight));
+                RectExt.Set(ref outBounds, outBounds.Left, outBounds.Top,
+                    Math.Min(outBounds.Right, PixelWidth), Math.Min(outBounds.Bottom, PixelHeight));
                 BoundsMatrix.MapRect(ref outBounds);
             }
         }
