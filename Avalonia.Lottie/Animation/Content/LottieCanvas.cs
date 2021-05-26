@@ -30,7 +30,7 @@ namespace Avalonia.Lottie.Animation.Content
 
 
         private readonly Stack<RenderTargetSave> _renderTargetSaves = new();
-        private Rect _currentClip;
+       // private Rect _currentClip;
         private Matrix _matrix = Matrix.Identity;
 
         public LottieCanvas(double width, double height)
@@ -59,7 +59,7 @@ namespace Avalonia.Lottie.Animation.Content
 
             Width = width;
             Height = height;
-            _currentClip = new Rect(0, 0, Width, Height);
+           // _currentClip = new Rect(0, 0, Width, Height);
         }
 
         internal IDisposable CreateSession(Size size, IDrawingContextLayerImpl layer,
@@ -79,7 +79,13 @@ namespace Avalonia.Lottie.Animation.Content
 
             rts.Context.PlatformImpl.Clear(Colors.Transparent);
 
-            return PushMask(_currentClip, 1f);
+            return new Disposable(() =>
+            {
+                _matrixSaves.Clear();
+                _flagSaves.Clear();
+                _clipSaves.Clear();
+                _renderTargetSaves.Clear();
+            });
         }
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
@@ -142,10 +148,10 @@ namespace Avalonia.Lottie.Animation.Content
          }
 
 
-        public bool ClipRect(Rect rect)
+        public IDisposable ClipRect(Rect rect)
         {
-            _currentClip.Intersects(rect);
-            return _currentClip.IsEmpty == false;
+            return System.Reactive.Disposables.Disposable.Empty;
+            ;  // CurrentDrawingContext.PushClip(rect);
         }
 
         public void Concat(Matrix parentMatrix)
@@ -193,9 +199,9 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void SaveClip(byte alpha, Path path = null)
         {
-            var currentLayer = PushMask(_currentClip, alpha / 255f, path);
-
-            _clipSaves.Push(new ClipSave(_currentClip, currentLayer));
+            // var currentLayer = PushMask(_currentClip, alpha / 255f, path);
+            //
+            // _clipSaves.Push(new ClipSave(_currentClip, currentLayer));
         }
 
         public void RestoreAll()
@@ -211,13 +217,13 @@ namespace Avalonia.Lottie.Animation.Content
             var flags = _flagSaves.Pop();
 
             if ((flags & MatrixSaveFlag) == MatrixSaveFlag) _matrix = _matrixSaves.Pop();
-
-            if ((flags & ClipSaveFlag) == ClipSaveFlag)
-            {
-                var clipSave = _clipSaves.Pop();
-                _currentClip = clipSave.Rect;
-                clipSave.Layer.Dispose();
-            }
+            //
+            // if ((flags & ClipSaveFlag) == ClipSaveFlag)
+            // {
+            //     var clipSave = _clipSaves.Pop();
+            //     _currentClip = clipSave.Rect;
+            //     clipSave.Layer.Dispose();
+            // }
 
             if ((flags & ClipToLayerSaveFlag) == ClipToLayerSaveFlag)
             {
@@ -236,11 +242,14 @@ namespace Avalonia.Lottie.Animation.Content
                         PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationIn,
                         _ => blendingMode
                     };
-                
-                CurrentDrawingContext.PlatformImpl.PushBitmapBlendMode(blendingMode);
-                CurrentDrawingContext.PlatformImpl.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, source, destination);
-                CurrentDrawingContext.PlatformImpl.PopBitmapBlendMode();
 
+
+                using (CurrentDrawingContext.PushSetTransform(Matrix.Identity))
+                {
+                    CurrentDrawingContext.PlatformImpl.PushBitmapBlendMode(blendingMode);
+                    CurrentDrawingContext.PlatformImpl.DrawBitmap(RefCountable.Create(renderTargetSave.Layer), 1, source, destination);
+                    CurrentDrawingContext.PlatformImpl.PopBitmapBlendMode();
+                }
                 renderTargetSave.Dispose();
             }
         }
@@ -254,11 +263,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public void Clear(Color color)
         {
-            CurrentDrawingContext.PlatformImpl.Clear(color);
-
-            _matrixSaves.Clear();
-            _flagSaves.Clear();
-            _clipSaves.Clear();
+            CurrentDrawingContext.PlatformImpl.Clear(color); 
         }
 
         public void Translate(double dx, double dy)
@@ -290,15 +295,7 @@ namespace Avalonia.Lottie.Animation.Content
             CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout);
             return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
         }
-
-        private class RenderTargetHolder
-        {
-            public IDrawingContextImpl DrawingContext { get; set; }
-            public RenderTargetBitmap Bitmap { get; set; }
-            public double SessionHeight { get; set; }
-            public double SessionWidth { get; set; }
-        }
-
+        
         private class ClipSave
         {
             public ClipSave(Rect rect, IDisposable layer)

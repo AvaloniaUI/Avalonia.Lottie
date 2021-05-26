@@ -97,13 +97,15 @@ namespace Avalonia.Lottie.Model.Layer
             parentMatrix.MapRect(ref _newClipRect);
 
             for (var i = _layers.Count - 1; i >= 0; i--)
-            {
-                var nonEmptyClip = true;
-                if (!_newClipRect.IsEmpty) nonEmptyClip = canvas.ClipRect(_newClipRect);
-                if (nonEmptyClip)
+            { 
+                if (!_newClipRect.IsEmpty)
                 {
-                    var layer = _layers[i];
-                    layer.Draw(canvas, parentMatrix, parentAlpha);
+                    using (canvas.ClipRect(_newClipRect))
+                    {
+                        
+                        var layer = _layers[i];
+                        layer.Draw(canvas, parentMatrix, parentAlpha);
+                    }
                 }
             }
 

@@ -45,7 +45,7 @@ namespace Avalonia.Lottie
 
             using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
             {
-                using (var session = _lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
+                using (_lottieCanvas.CreateSession(_bounds.Size, finalRenderSurface,
                     new DrawingContext(renderSurfaceCtx)))
                 {
                     _lottieCanvas.Clear(Colors.Transparent);
