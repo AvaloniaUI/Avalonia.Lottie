@@ -872,9 +872,10 @@ namespace Avalonia.Lottie
         //public Device Device => base.devic;
 
         internal virtual Typeface GetTypeface(string fontFamily, string style)
-        {
-            var assetManager = FontAssetManager;
-            return assetManager?.GetTypeface(fontFamily, style);
+        { 
+                var assetManager = FontAssetManager;
+                return assetManager.GetTypeface(fontFamily, style);
+             
         }
 
         /**

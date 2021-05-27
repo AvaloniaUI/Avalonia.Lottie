@@ -73,9 +73,6 @@ namespace Avalonia.Lottie.Animation.Content
 
                     (Shader as IDisposable)?.Dispose();
                     Shader = null;
-
-                    (Typeface as IDisposable)?.Dispose();
-                    Typeface = null;
                 }
 
                 disposedValue = true;

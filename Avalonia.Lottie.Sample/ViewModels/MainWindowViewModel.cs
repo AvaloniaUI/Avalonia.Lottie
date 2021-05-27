@@ -25,6 +25,7 @@ namespace Avalonia.Lottie.Sample.ViewModels
                     new Uri("avares://Avalonia.Lottie.Sample/Assets"),
                     new Uri("/"))
                     .Select(x=>x.AbsoluteUri)
+                    // .Where(x=>!x.Contains(".zip"))
                     .ToList();
                 
                 return _assetSources;
