@@ -29,7 +29,8 @@ namespace Avalonia.Lottie.Model.Content
 
         public IContent ToContent(Lottie drawable, BaseLayer layer)
         {
-            return new MergePathsContent(this);
+            return null;
+            // return new MergePathsContent(this);
         }
 
         public override string ToString()
