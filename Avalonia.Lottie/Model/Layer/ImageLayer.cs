@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;
@@ -32,6 +33,10 @@ namespace Avalonia.Lottie.Model.Layer
 
         public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
+            Debug.WriteLine("Image assets are temporarily disabled.", LottieLog.Tag);
+
+            return; 
+            
             var bitmap = Bitmap;
             if (bitmap == null) return;
 
