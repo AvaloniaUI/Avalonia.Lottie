@@ -84,7 +84,7 @@ namespace Avalonia.Lottie.Model.Layer
         public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             var disp = canvas.Save();
-            // if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
+
             var documentData = _textAnimation.Value;
             if (!_composition.Fonts.TryGetValue(documentData.FontName, out var font))
             {

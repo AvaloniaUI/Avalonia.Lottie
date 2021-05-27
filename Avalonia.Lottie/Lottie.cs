@@ -453,7 +453,6 @@ namespace Avalonia.Lottie
 
         public void ClearComposition()
         {
-            // ClearRtb();
             RecycleBitmaps();
             if (_animator.IsRunning)
             {
@@ -538,19 +537,7 @@ namespace Avalonia.Lottie
 
         private IDrawingContextLayerImpl _renderSurface;
         private bool _isEnabled = true;
-
-        // private RenderTargetBitmap CreateNewRtb(PixelSize newSize)
-        // {
-        //     ClearRtb();
-        //     return new RenderTargetBitmap(newSize, new Vector(96, 96));
-        // }
-
-        // private void ClearRtb()
-        // {
-        //     _renderTargetBitmap?.Dispose();
-        //     _renderTargetBitmap = null;
-        // }
-
+        
         private Size SourceSize => (_composition?.Bounds.Size ?? Size.Empty) * VisualRoot.RenderScaling;
 
         /// <summary>

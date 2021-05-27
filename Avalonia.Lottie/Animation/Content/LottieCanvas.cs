@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
 using Avalonia.Platform;
 using Avalonia.Utilities;
 using Avalonia.Visuals.Media.Imaging;
-using Newtonsoft.Json;
 
 namespace Avalonia.Lottie.Animation.Content
 {
     public class LottieCanvas
     {
         private readonly Stack<RenderTargetSave> _renderTargetSaves = new();
-
-  
+        
         public LottieCanvas(double width, double height)
         {
-            //OutputRenderTarget = renderTarget;
             UpdateSize(width, height);
         }
 
@@ -29,7 +23,6 @@ namespace Avalonia.Lottie.Animation.Content
 
         public double Width { get; private set; }
         public double Height { get; private set; }
-
 
         private void UpdateSize(double width, double height)
         {
@@ -63,15 +56,17 @@ namespace Avalonia.Lottie.Animation.Content
             var brush = new ImmutableSolidColorBrush(paint.Color);
             {
                 if (paint.Style == Paint.PaintStyle.Stroke)
+                {
                     CurrentDrawingContext.DrawRectangle(null, new ImmutablePen(brush,
-                            paint.StrokeWidth,
-                            lineCap: paint.StrokeCap,
-                            lineJoin: paint.StrokeJoin,
-                            miterLimit: paint.StrokeMiter),
-                        rect);
+                        paint.StrokeWidth,
+                        lineCap: paint.StrokeCap,
+                        lineJoin: paint.StrokeJoin,
+                        miterLimit: paint.StrokeMiter), rect);
+                }
                 else
-                    CurrentDrawingContext.DrawRectangle(brush, null,
-                        rect);
+                {
+                    CurrentDrawingContext.DrawRectangle(brush, null, rect);
+                }
             }
         }
 
@@ -101,8 +96,6 @@ namespace Avalonia.Lottie.Animation.Content
 
         public IDisposable ClipRect(Rect rect)
         {
-            return System.Reactive.Disposables.Disposable.Empty;
-            ;
             // somehow there's a bug here that swaps the Y coord and Height value...
             return CurrentDrawingContext.PushClip(new Rect(rect.X, rect.Height, rect.Width, rect.Y));
         }
@@ -110,8 +103,6 @@ namespace Avalonia.Lottie.Animation.Content
         public IDisposable Concat(Matrix parentMatrix)
         {
             return CurrentDrawingContext.PushPreTransform(parentMatrix);
-            
-            // _matrix = MatrixExt.PreConcat(_matrix, parentMatrix);
         }
 
         public IDisposable Save()
@@ -121,8 +112,8 @@ namespace Avalonia.Lottie.Animation.Content
 
         public IDisposable SaveLayer(Rect bounds, Paint paint)
         {
-            var rendertarget = CurrentDrawingContext.PlatformImpl.CreateLayer(bounds.Size);
-            var rts = new RenderTargetSave(rendertarget, new DrawingContext(rendertarget.CreateDrawingContext(null)),
+            var renderTarget = CurrentDrawingContext.PlatformImpl.CreateLayer(bounds.Size);
+            var rts = new RenderTargetSave(renderTarget, new DrawingContext(renderTarget.CreateDrawingContext(null)),
                 bounds.Size,
                 paint.Flags,
                 paint.Xfermode,
@@ -135,21 +126,20 @@ namespace Avalonia.Lottie.Animation.Content
             return new Disposable(() =>
             {
                 var renderTargetSave = _renderTargetSaves.Pop();
-
                 var source = new Rect(renderTargetSave.Layer.PixelSize.ToSize(1));
                 var destination = new Rect(renderTargetSave.BitmapSize);
+                var blendingMode = BitmapBlendingMode.SourceOver;
 
-                BitmapBlendingMode blendingMode = BitmapBlendingMode.SourceOver;
-
-                if (renderTargetSave.PaintXfermode != null)
-                    blendingMode = renderTargetSave.PaintXfermode.Mode switch
+                if (renderTargetSave.PaintTransferMode != null)
+                {
+                    blendingMode = renderTargetSave.PaintTransferMode.Mode switch
                     {
                         PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
                         PorterDuff.Mode.DstOut => BitmapBlendingMode.DestinationOut,
                         PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationIn,
                         _ => blendingMode
                     };
-
+                }
 
                 using (CurrentDrawingContext.PushSetTransform(Matrix.Identity))
                 {
@@ -163,32 +153,17 @@ namespace Avalonia.Lottie.Animation.Content
             });
         }
 
-
-        public void Restore()
-        {
-        }
-
-
         public void DrawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint)
         {
             using (CurrentDrawingContext.PushOpacity(paint.Alpha / 255d))
+            {
                 CurrentDrawingContext.DrawImage(bitmap, src, dst);
-        }
-
-        public void Clear(Color color)
-        {
-            CurrentDrawingContext.PlatformImpl.Clear(color);
+            }
         }
 
         public IDisposable Translate(double dx, double dy)
         {
-             
-            return CurrentDrawingContext.PushPreTransform(Matrix.CreateTranslation(dx,dy));
-        }
-
-        public void SetMatrix(Matrix matrix)
-        {
-            // _matrix = matrix;
+            return CurrentDrawingContext.PushPreTransform(Matrix.CreateTranslation(dx, dy));
         }
 
         public Rect DrawText(char character, Paint paint)
@@ -212,17 +187,17 @@ namespace Avalonia.Lottie.Animation.Content
         }
 
 
-        private struct RenderTargetSave
+        private readonly struct RenderTargetSave
         {
             public RenderTargetSave(IDrawingContextLayerImpl layer, DrawingContext layerCtx, Size bitmapSize,
-                int paintFlags, PorterDuffXfermode paintXfermode,
+                int paintFlags, PorterDuffXfermode paintTransferMode,
                 byte paintAlpha)
             {
                 BitmapSize = bitmapSize;
                 Layer = layer;
                 Context = layerCtx;
                 PaintFlags = paintFlags;
-                PaintXfermode = paintXfermode;
+                PaintTransferMode = paintTransferMode;
                 PaintAlpha = paintAlpha;
             }
 
@@ -231,7 +206,7 @@ namespace Avalonia.Lottie.Animation.Content
 
             public IDrawingContextLayerImpl Layer { get; }
             public int PaintFlags { get; }
-            public PorterDuffXfermode PaintXfermode { get; }
+            public PorterDuffXfermode PaintTransferMode { get; }
             public byte PaintAlpha { get; }
 
             public void Dispose()

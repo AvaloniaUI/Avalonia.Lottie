@@ -122,11 +122,6 @@ namespace Avalonia.Lottie.Parser
             }
             else if (cp1 != null && cp2 != null)
             {
-                // cp1 = new Vector((float) MiscUtils.Clamp(cp1.Value.X, -scale, scale),
-                //     (float) MiscUtils.Clamp(cp1.Value.Y, -MaxCpValue, MaxCpValue));
-                // cp2 = new Vector((float) MiscUtils.Clamp(cp2.Value.X, -scale, scale),
-                //     (float) MiscUtils.Clamp(cp2.Value.Y, -MaxCpValue, MaxCpValue));
-
                 var hash = Utils.Utils.HashFor(cp1.Value.X, cp1.Value.Y, cp2.Value.X, cp2.Value.Y);
                 if (GetInterpolator(hash, out var interpolatorRef) == false ||
                     interpolatorRef.TryGetTarget(out interpolator) == false)

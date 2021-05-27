@@ -9,9 +9,6 @@ namespace Avalonia.Lottie.Model.Layer
 {
     public abstract class BaseLayer : IDrawingContent, IKeyPathElement, IDisposable
     {
-        // private static readonly int SaveFlags =
-        //     LottieCanvas.ClipSaveFlag | LottieCanvas.ClipToLayerSaveFlag | LottieCanvas.MatrixSaveFlag;
-
         private readonly Paint _addMaskPaint = new(Paint.AntiAliasFlag);
 
         private readonly List<IBaseKeyframeAnimation> _animations = new();
@@ -370,6 +367,7 @@ namespace Avalonia.Lottie.Model.Layer
         {
             var num = 0;
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeAdd);
+            
             // Treat intersect masks like add masks. This is not corRect but it's closer. 
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeIntersect);
             num += ApplyMasks(canvas, matrix, Mask.MaskMode.MaskModeSubtract);

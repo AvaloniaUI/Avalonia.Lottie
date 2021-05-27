@@ -54,20 +54,7 @@ namespace Avalonia.Lottie.Manager
         {
             if (_fontFamilies.TryGetValue(fontFamily, out var defaultTypeface)) return defaultTypeface;
 
-            var typeface = new Media.Typeface(fontFamily );
-            // if (_delegate != null) typeface = _delegate.FetchFont(fontFamily);
-            //
-            // if (_delegate != null && typeface == null)
-            // {
-            //     var path = _delegate.GetFontPath(fontFamily);
-            //     if (!ReferenceEquals(path, null)) typeface = Typeface.CreateFromAsset(path);
-            // }
-            //
-            // if (typeface == null)
-            // {
-            //     var path = $"Assets/Fonts/{fontFamily.Replace(" ", "")}{_defaultFontFileExtension}#{fontFamily}";
-            //     typeface = Typeface.CreateFromAsset(path);
-            // }
+            var typeface = new Typeface(fontFamily);
 
             _fontFamilies[fontFamily] = typeface;
             return typeface;
