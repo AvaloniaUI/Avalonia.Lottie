@@ -8,14 +8,9 @@ namespace Avalonia.Lottie.Parser
     {
         public static AnimatableFloatValue ParseFloat(JsonReader reader, LottieComposition composition)
         {
-            return ParseFloat(reader, composition, true);
+            return new(Parse(reader, composition, FloatParser.Instance));
         }
-
-        public static AnimatableFloatValue ParseFloat(JsonReader reader, LottieComposition composition, bool isDp)
-        {
-            return new(Parse(reader, isDp ? Utils.Utils.DpScale() : 1f, composition, FloatParser.Instance));
-        }
-
+ 
         internal static AnimatableIntegerValue ParseInteger(JsonReader reader, LottieComposition composition)
         {
             return new(Parse(reader, composition, IntegerParser.Instance));
@@ -23,7 +18,7 @@ namespace Avalonia.Lottie.Parser
 
         internal static AnimatablePointValue ParsePoint(JsonReader reader, LottieComposition composition)
         {
-            return new(Parse(reader, Utils.Utils.DpScale(), composition, PointFParser.Instance));
+            return new(Parse(reader, composition, PointFParser.Instance));
         }
 
         internal static AnimatableScaleValue ParseScale(JsonReader reader, LottieComposition composition)
@@ -33,7 +28,7 @@ namespace Avalonia.Lottie.Parser
 
         internal static AnimatableShapeValue ParseShapeData(JsonReader reader, LottieComposition composition)
         {
-            return new(Parse(reader, Utils.Utils.DpScale(), composition, ShapeDataParser.Instance));
+            return new(Parse(reader, composition, ShapeDataParser.Instance));
         }
 
         internal static AnimatableTextFrame ParseDocumentData(JsonReader reader, LottieComposition composition)
@@ -51,21 +46,7 @@ namespace Avalonia.Lottie.Parser
         {
             return new(Parse(reader, composition, new GradientColorParser(points)));
         }
-
-        /// <summary>
-        ///     Will return null if the animation can't be played such as if it has expressions.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reader"></param>
-        /// <param name="composition"></param>
-        /// <param name="valueParser"></param>
-        /// <returns></returns>
-        private static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition,
-            IValueParser<T> valueParser)
-        {
-            return KeyframesParser.Parse(reader, composition, 1, valueParser);
-        }
-
+ 
         /// <summary>
         ///     Will return null if the animation can't be played such as if it has expressions.
         /// </summary>
@@ -75,10 +56,9 @@ namespace Avalonia.Lottie.Parser
         /// <param name="composition"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static List<Keyframe<T>> Parse<T>(JsonReader reader, double  scale, LottieComposition composition,
-            IValueParser<T> valueParser)
+        private static List<Keyframe<T>> Parse<T>(JsonReader reader, LottieComposition composition, IValueParser<T> valueParser)
         {
-            return KeyframesParser.Parse(reader, composition, scale, valueParser);
+            return KeyframesParser.Parse(reader, composition, valueParser);
         }
     }
 }

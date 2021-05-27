@@ -13,7 +13,7 @@ namespace Avalonia.Lottie.Parser
         ///     PathInterpolator fails to create the interpolator in those cases and hangs.
         ///     Clamping the cp helps prevent that.
         /// </summary>
-        private const double  MaxCpValue = 100;
+        private const double MaxCpValue = 100;
 
         private static readonly IInterpolator LinearInterpolator = new LinearInterpolator();
 
@@ -47,11 +47,11 @@ namespace Avalonia.Lottie.Parser
             }
         }
 
-        internal static Keyframe<T> Parse<T>(JsonReader reader, LottieComposition composition, double  scale,
+        internal static Keyframe<T> Parse<T>(JsonReader reader, LottieComposition composition,
             IValueParser<T> valueParser, bool animated)
         {
-            if (animated) return ParseKeyframe(composition, reader, scale, valueParser);
-            return ParseStaticValue(reader, scale, valueParser);
+            if (animated) return ParseKeyframe(composition, reader, valueParser);
+            return ParseStaticValue(reader, valueParser);
         }
 
         /// <summary>
@@ -64,12 +64,12 @@ namespace Avalonia.Lottie.Parser
         /// <param name="scale"></param>
         /// <param name="valueParser"></param>
         /// <returns></returns>
-        private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader, double  scale,
+        private static Keyframe<T> ParseKeyframe<T>(LottieComposition composition, JsonReader reader,
             IValueParser<T> valueParser)
         {
             Vector? cp1 = null;
             Vector? cp2 = null;
-            double  startFrame = 0;
+            double startFrame = 0;
             var startValue = default(T);
             var endValue = default(T);
             var hold = false;
@@ -87,25 +87,25 @@ namespace Avalonia.Lottie.Parser
                         startFrame = reader.NextDouble();
                         break;
                     case "s":
-                        startValue = valueParser.Parse(reader, scale);
+                        startValue = valueParser.Parse(reader);
                         break;
                     case "e":
-                        endValue = valueParser.Parse(reader, scale);
+                        endValue = valueParser.Parse(reader);
                         break;
                     case "o":
-                        cp1 = JsonUtils.JsonToPoint(reader, scale);
+                        cp1 = JsonUtils.JsonToPoint(reader);
                         break;
                     case "i":
-                        cp2 = JsonUtils.JsonToPoint(reader, scale);
+                        cp2 = JsonUtils.JsonToPoint(reader);
                         break;
                     case "h":
                         hold = reader.NextInt() == 1;
                         break;
                     case "to":
-                        pathCp1 = JsonUtils.JsonToPoint(reader, scale);
+                        pathCp1 = JsonUtils.JsonToPoint(reader);
                         break;
                     case "ti":
-                        pathCp2 = JsonUtils.JsonToPoint(reader, scale);
+                        pathCp2 = JsonUtils.JsonToPoint(reader);
                         break;
                     default:
                         reader.SkipValue();
@@ -122,17 +122,12 @@ namespace Avalonia.Lottie.Parser
             }
             else if (cp1 != null && cp2 != null)
             {
-                cp1 = new Vector((float) MiscUtils.Clamp(cp1.Value.X, -scale, scale),
-                    (float) MiscUtils.Clamp(cp1.Value.Y, -MaxCpValue, MaxCpValue));
-                cp2 = new Vector((float) MiscUtils.Clamp(cp2.Value.X, -scale, scale),
-                    (float) MiscUtils.Clamp(cp2.Value.Y, -MaxCpValue, MaxCpValue));
-
                 var hash = Utils.Utils.HashFor(cp1.Value.X, cp1.Value.Y, cp2.Value.X, cp2.Value.Y);
                 if (GetInterpolator(hash, out var interpolatorRef) == false ||
                     interpolatorRef.TryGetTarget(out interpolator) == false)
                 {
-                    interpolator = new PathInterpolator(cp1.Value.X / scale, cp1.Value.Y / scale, cp2.Value.X / scale,
-                        cp2.Value.Y / scale);
+                    interpolator = new PathInterpolator(cp1.Value.X, cp1.Value.Y, cp2.Value.X,
+                        cp2.Value.Y);
                     try
                     {
                         PutInterpolator(hash, new WeakReference<IInterpolator>(interpolator));
@@ -159,9 +154,9 @@ namespace Avalonia.Lottie.Parser
             return keyframe;
         }
 
-        private static Keyframe<T> ParseStaticValue<T>(JsonReader reader, double  scale, IValueParser<T> valueParser)
+        private static Keyframe<T> ParseStaticValue<T>(JsonReader reader, IValueParser<T> valueParser)
         {
-            var value = valueParser.Parse(reader, scale);
+            var value = valueParser.Parse(reader);
             return new Keyframe<T>(value);
         }
     }

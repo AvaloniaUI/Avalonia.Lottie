@@ -21,17 +21,17 @@ namespace Avalonia.Lottie.Parser
         {
         }
 
-        public Vector? Parse(JsonReader reader, double  scale)
+        public Vector? Parse(JsonReader reader)
         {
             var token = reader.Peek();
-            if (token == JsonToken.StartArray) return JsonUtils.JsonToPoint(reader, scale);
-            if (token == JsonToken.StartObject) return JsonUtils.JsonToPoint(reader, scale);
+            if (token == JsonToken.StartArray) return JsonUtils.JsonToPoint(reader);
+            if (token == JsonToken.StartObject) return JsonUtils.JsonToPoint(reader);
             if (token == JsonToken.Integer || token == JsonToken.Float)
             {
                 // This is the case where the static value for a property is an array of numbers. 
                 // We begin the array to see if we have an array of keyframes but it's just an array 
                 // of static numbers instead. 
-                var point = new Vector((float) reader.NextDouble() * (float) scale, (float) reader.NextDouble() * (float) scale);
+                var point = new Vector((float) reader.NextDouble() , (float) reader.NextDouble());
                 while (reader.HasNext()) reader.SkipValue();
                 return point;
             }

@@ -118,7 +118,7 @@ namespace Avalonia.Lottie.Animation.Content
             }
         }
 
-        public override void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public override void Draw(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             GetBounds(ref _boundsRect, parentMatrix);
             if (_type == GradientType.Linear)

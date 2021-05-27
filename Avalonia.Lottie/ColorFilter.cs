@@ -5,6 +5,6 @@ namespace Avalonia.Lottie
 {
     public abstract class ColorFilter
     {
-        public abstract IBrush Apply(BitmapCanvas dst, IBrush brush);
+        public abstract IBrush Apply(LottieCanvas dst, IBrush brush);
     }
 }

@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Model.Layer
             _paint.Color = layerModel.SolidColor;
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             int backgroundAlpha = LayerModel.SolidColor.A;
             if (backgroundAlpha == 0) return;

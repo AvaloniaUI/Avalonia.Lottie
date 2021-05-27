@@ -69,7 +69,7 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override double  Progress
+        public override double Progress
         {
             set
             {
@@ -89,25 +89,28 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("CompositionLayer.Draw");
-            canvas.Save();
-            RectExt.Set(ref _newClipRect, 0, 0, LayerModel.PreCompWidth, LayerModel.PreCompHeight);
-            parentMatrix.MapRect(ref _newClipRect);
 
-            for (var i = _layers.Count - 1; i >= 0; i--)
+            using (canvas.Save())
             {
-                var nonEmptyClip = true;
-                if (!_newClipRect.IsEmpty) nonEmptyClip = canvas.ClipRect(_newClipRect);
-                if (nonEmptyClip)
+                RectExt.Set(ref _newClipRect, 0, 0, LayerModel.PreCompWidth, LayerModel.PreCompHeight);
+                parentMatrix.MapRect(ref _newClipRect);
+
+                for (var i = _layers.Count - 1; i >= 0; i--)
                 {
-                    var layer = _layers[i];
-                    layer.Draw(canvas, parentMatrix, parentAlpha);
+                    if (!_newClipRect.IsEmpty)
+                    {
+                        using (canvas.ClipRect(_newClipRect))
+                        {
+                            var layer = _layers[i];
+                            layer.Draw(canvas, parentMatrix, parentAlpha);
+                        }
+                    }
                 }
             }
 
-            canvas.Restore();
             LottieLog.EndSection("CompositionLayer.Draw");
         }
 
@@ -122,9 +125,9 @@ namespace Avalonia.Lottie.Model.Layer
                 if (outBounds.IsEmpty)
                     RectExt.Set(ref outBounds, Rect);
                 else
-                    RectExt.Set(ref outBounds,  Math.Min(outBounds.Left, Rect.Left),
-                         Math.Min(outBounds.Top, Rect.Top),  Math.Max(outBounds.Right, Rect.Right),
-                         Math.Max(outBounds.Bottom, Rect.Bottom));
+                    RectExt.Set(ref outBounds, Math.Min(outBounds.Left, Rect.Left),
+                        Math.Min(outBounds.Top, Rect.Top), Math.Max(outBounds.Right, Rect.Right),
+                        Math.Max(outBounds.Bottom, Rect.Bottom));
             }
         }
 

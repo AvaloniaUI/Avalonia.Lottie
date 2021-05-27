@@ -14,7 +14,7 @@ namespace Avalonia.Lottie
         public Color Color { get; }
         public PorterDuff.Mode Mode { get; }
 
-        public override IBrush Apply(BitmapCanvas dst, IBrush brush)
+        public override IBrush Apply(LottieCanvas dst, IBrush brush)
         {
             //var originalColor = Colors.White;
             //if (brush is CompositionColorBrush compositionColorBrush)

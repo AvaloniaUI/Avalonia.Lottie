@@ -157,7 +157,7 @@ namespace Avalonia.Lottie.Animation.Content
                     _paths.Add(pathContent);
         }
 
-        public void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public void Draw(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("GradientFillContent.Draw");
             _path.Reset();

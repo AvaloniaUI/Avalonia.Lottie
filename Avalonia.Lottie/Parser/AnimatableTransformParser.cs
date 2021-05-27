@@ -40,10 +40,10 @@ namespace Avalonia.Lottie.Parser
                         break;
                     case "rz":
                         composition.AddWarning("Lottie doesn't support 3D layers.");
-                        rotation = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        rotation = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "r":
-                        rotation = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        rotation = AnimatableValueParser.ParseFloat(reader, composition);
                         if (rotation.Keyframes.Count == 0)
                             rotation.Keyframes.Add(new Keyframe<float?>(composition, 0f, 0f, null, 0f,
                                 composition.EndFrame));
@@ -55,10 +55,10 @@ namespace Avalonia.Lottie.Parser
                         opacity = AnimatableValueParser.ParseInteger(reader, composition);
                         break;
                     case "so":
-                        startOpacity = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        startOpacity = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "eo":
-                        endOpacity = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        endOpacity = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     default:
                         reader.SkipValue();

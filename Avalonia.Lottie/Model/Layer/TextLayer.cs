@@ -15,6 +15,8 @@ using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 
+#nullable enable
+
 namespace Avalonia.Lottie.Model.Layer
 {
     internal class TextLayer : BaseLayer
@@ -80,15 +82,15 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        public override void DrawLayer(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
-            canvas.Save();
-            if (!_lottie.UseTextGlyphs()) canvas.SetMatrix(parentMatrix);
+            var disp = canvas.Save();
+
             var documentData = _textAnimation.Value;
             if (!_composition.Fonts.TryGetValue(documentData.FontName, out var font))
             {
                 // Something is wrong. 
-                canvas.Restore();
+                disp?.Dispose();
                 return;
             }
 
@@ -106,7 +108,7 @@ namespace Avalonia.Lottie.Model.Layer
             else
             {
                 var parentScale = Utils.Utils.GetScale(parentMatrix);
-                _strokePaint.StrokeWidth = documentData.StrokeWidth * Utils.Utils.DpScale() * parentScale;
+                _strokePaint.StrokeWidth = documentData.StrokeWidth * parentScale;
             }
 
             if (_lottie.UseTextGlyphs())
@@ -114,33 +116,36 @@ namespace Avalonia.Lottie.Model.Layer
             else
                 DrawTextWithFont(documentData, font, parentMatrix, canvas);
 
-            canvas.Restore();
+            disp?.Dispose();
         }
 
-        private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, BitmapCanvas canvas)
+        private void DrawTextGlyphs(DocumentData documentData, Matrix parentMatrix, Font font, LottieCanvas canvas)
         {
-            var fontScale =  documentData.Size / 100;
+            var fontScale = documentData.Size / 100;
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var text = documentData.Text;
-
+            var priorTx = 0d;
             for (var i = 0; i < text.Length; i++)
             {
-                var c = text[i];
-                var characterHash = FontCharacter.HashFor(c, font.Family, font.Style);
-                if (!_composition.Characters.TryGetValue(characterHash, out var character))
-                    // Something is wrong. Potentially, they didn't export the text as a glyph. 
-                    continue;
-                DrawCharacterAsGlyph(character, parentMatrix, fontScale, documentData, canvas);
-                var tx =  character.Width * fontScale * Utils.Utils.DpScale() * parentScale;
-                // Add tracking 
-                var tracking = documentData.Tracking / 10f;
-                if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
-                tx += tracking * parentScale;
-                canvas.Translate(tx, 0);
+                using (canvas.Translate(priorTx, 0))
+                {
+                    var c = text[i];
+                    var characterHash = FontCharacter.HashFor(c, font.Family, font.Style);
+                    if (!_composition.Characters.TryGetValue(characterHash, out var character))
+                        // Something is wrong. Potentially, they didn't export the text as a glyph. 
+                        continue;
+                    DrawCharacterAsGlyph(character, parentMatrix, fontScale, documentData, canvas);
+                    var tx = character.Width * fontScale * parentScale;
+                    // Add tracking 
+                    var tracking = documentData.Tracking / 10f;
+                    if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
+                    tx += tracking * parentScale;
+                    priorTx += tx;
+                }
             }
         }
 
-        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix parentMatrix, BitmapCanvas canvas)
+        private void DrawTextWithFont(DocumentData documentData, Font font, Matrix parentMatrix, LottieCanvas canvas)
         {
             var parentScale = Utils.Utils.GetScale(parentMatrix);
             var typeface = _lottie.GetTypeface(font.Family, font.Style);
@@ -148,25 +153,30 @@ namespace Avalonia.Lottie.Model.Layer
             var text = documentData.Text;
             var textDelegate = _lottie.TextDelegate;
             if (textDelegate != null) text = textDelegate.GetTextInternal(text);
-            _fillPaint.Typeface = typeface;
-            _fillPaint.TextSize =  documentData.Size * Utils.Utils.DpScale();
+            _fillPaint.Typeface = (Typeface) typeface;
+            _fillPaint.TextSize = documentData.Size;
             _strokePaint.Typeface = _fillPaint.Typeface;
             _strokePaint.TextSize = _fillPaint.TextSize;
+
+            var priorTx = 0d;
+            
             for (var i = 0; i < text.Length; i++)
             {
-                var character = text[i];
-                var size = DrawCharacterFromFont(character, documentData, canvas);
+                using (canvas.Translate(priorTx, 0))
+                {
+                    var character = text[i];
+                    var size = DrawCharacterFromFont(character, documentData, canvas);
 
-                // Add tracking
-                var tracking = documentData.Tracking / 10f;
-                if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
-                var tx =  (size?.Width ?? 0) + tracking * parentScale;
-                canvas.Translate(tx, 0);
+                    // Add tracking
+                    var tracking = documentData.Tracking / 10f;
+                    if (_trackingAnimation?.Value != null) tracking += _trackingAnimation.Value.Value;
+                    var tx = (size?.Width ?? 0) + tracking * parentScale;
+                }
             }
         }
 
-        private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double  fontScale,
-            DocumentData documentData, BitmapCanvas canvas)
+        private void DrawCharacterAsGlyph(FontCharacter character, Matrix parentMatrix, double fontScale,
+            DocumentData documentData, LottieCanvas canvas)
         {
             var contentGroups = GetContentsForCharacter(character);
             for (var j = 0; j < contentGroups.Count; j++)
@@ -174,7 +184,7 @@ namespace Avalonia.Lottie.Model.Layer
                 var path = contentGroups[j].Path;
                 //path.ComputeBounds(out _rectF);
                 Matrix = (parentMatrix);
-                Matrix = MatrixExt.PreTranslate(Matrix, 0,  -documentData.BaselineShift * Utils.Utils.DpScale());
+                Matrix = MatrixExt.PreTranslate(Matrix, 0, -documentData.BaselineShift);
                 Matrix = MatrixExt.PreScale(Matrix, fontScale, fontScale);
                 path.Transform(Matrix);
                 if (documentData.StrokeOverFill)
@@ -190,14 +200,14 @@ namespace Avalonia.Lottie.Model.Layer
             }
         }
 
-        private void DrawGlyph(Path path, Paint paint, BitmapCanvas canvas)
+        private void DrawGlyph(Path path, Paint paint, LottieCanvas canvas)
         {
             if (paint.Color == Colors.Transparent) return;
             if (paint.Style == Paint.PaintStyle.Stroke && paint.StrokeWidth == 0) return;
             canvas.DrawPath(path, paint);
         }
 
-        private Rect? DrawCharacterFromFont(char c, DocumentData documentData, BitmapCanvas canvas)
+        private Rect? DrawCharacterFromFont(char c, DocumentData documentData, LottieCanvas canvas)
         {
             Rect? ret;
             if (documentData.StrokeOverFill)
@@ -210,7 +220,7 @@ namespace Avalonia.Lottie.Model.Layer
             return DrawCharacter(c, _fillPaint, canvas) ?? ret;
         }
 
-        private Rect? DrawCharacter(char character, Paint paint, BitmapCanvas canvas)
+        private Rect? DrawCharacter(char character, Paint paint, LottieCanvas canvas)
         {
             if (paint.Color == Colors.Transparent) return null;
             if (paint.Style == Paint.PaintStyle.Stroke && paint.StrokeWidth == 0) return null;

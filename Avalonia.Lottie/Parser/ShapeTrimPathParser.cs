@@ -17,13 +17,13 @@ namespace Avalonia.Lottie.Parser
                 switch (reader.NextName())
                 {
                     case "s":
-                        start = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        start = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "e":
-                        end = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        end = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "o":
-                        offset = AnimatableValueParser.ParseFloat(reader, composition, false);
+                        offset = AnimatableValueParser.ParseFloat(reader, composition);
                         break;
                     case "nm":
                         name = reader.NextString();

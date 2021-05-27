@@ -28,12 +28,7 @@ namespace Avalonia.Lottie
         ///     parse tasks prior to the cache getting populated.
         /// </summary>
         private static readonly Dictionary<string, Task<LottieResult<LottieComposition>>> _taskCache = new();
-
-        static LottieCompositionFactory()
-        {
-            Utils.Utils.DpScale();
-        }
-
+ 
         /// <summary>
         ///     Fetch an animation from an http url. Once it is downloaded once, Lottie will cache the file to disk for
         ///     future use. Because of this, you may call <seealso cref="FromUrl(Context, string)" /> ahead of time to warm the

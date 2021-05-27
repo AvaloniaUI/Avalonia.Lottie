@@ -6,15 +6,7 @@
     /// </summary>
     /// <seealso cref="Lottie.FontAssetDelegate"></seealso>
     public class FontAssetDelegate
-    {
-        /// <summary>
-        ///     Override this if you want to return a Typeface from a font family.
-        /// </summary>
-        public virtual Typeface FetchFont(string fontFamily)
-        {
-            return null;
-        }
-
+    { 
         /// <summary>
         ///     Override this if you want to specify the asset path for a given font family.
         /// </summary>

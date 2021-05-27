@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Avalonia.Media;
+using Avalonia.Platform;
 
 namespace Avalonia.Lottie
 {
+    public static class PathHelpers
+    {
+        
+        private static T GetService<T>(this Avalonia.IAvaloniaDependencyResolver resolver) => (T) resolver.GetService(typeof (T));
+
+        public static Avalonia.Platform.IPlatformRenderInterface Factory => Avalonia.AvaloniaLocator.Current.GetService<Avalonia.Platform.IPlatformRenderInterface>();
+
+    }
     public class Path
     {
+        
         public Path()
         {
             Contours = new List<IContour>();
@@ -30,7 +40,7 @@ namespace Avalonia.Lottie
             for (var j = 0; j < Contours.Count; j++) Contours[j].Transform(matrix);
         }
 
-        public PathGeometry GetGeometry()
+        public IStreamGeometryImpl GetGeometry()
         {
             var v = FillRule.EvenOdd;
 
@@ -46,7 +56,7 @@ namespace Avalonia.Lottie
             }
 
             //    FillRule = path.FillType == PathFillType.EvenOdd ? FillRule.EvenOdd : FillRule.Nonzero,
-            var geometry = new PathGeometry();
+            var geometry = PathHelpers.Factory.CreateStreamGeometry();
 
             using (var canvasPathBuilder = geometry.Open())
             {
@@ -310,7 +320,7 @@ namespace Avalonia.Lottie
             }
 
             // Now that each division can use linear interpolation with less than the allowed error
-            foreach (var iter in tToPoint) AddLine(segmentPoints, lengths, new [] {(double)iter.Value.X, (double)iter.Value.Y});
+            foreach (var iter in tToPoint) AddLine(segmentPoints, lengths, new [] {iter.Value.X, iter.Value.Y});
         }
 
         private static bool SubdividePoints(double[] points, BezierCalculation bezierFunction, double  t0, Vector p0,
@@ -333,7 +343,7 @@ namespace Avalonia.Lottie
             PathIterator.ContourType Type { get; }
             void Transform(Matrix matrix);
             IContour Copy();
-            void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed);
+            void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed);
             void Offset(double dx, double  dy);
         }
 
@@ -383,11 +393,11 @@ namespace Avalonia.Lottie
                 return new ArcContour(_startPoint, _rect, _startAngle, _sweepAngle);
             }
 
-            public double [] Points => new[] {(double)_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
+            public double [] Points => new[] {_startPoint.X, _startPoint.Y, _endPoint.X, _endPoint.Y};
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Arc;
 
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 // canvasPathBuilder.AddArc(new ArcSegment
                 // {
@@ -451,11 +461,11 @@ namespace Avalonia.Lottie
                 return new BezierContour(_control1, _control2, _vertex);
             }
 
-            public double [] Points => new[] {(double) _control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
+            public double [] Points => new[] {_control1.X, _control1.Y, _control2.X, _control2.Y, _vertex.X, _vertex.Y};
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Bezier;
 
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 canvasPathBuilder.CubicBezierTo(new Point(_control1.X, _control1.Y),
                     new Point(_control2.X, _control2.Y),
@@ -550,7 +560,7 @@ namespace Avalonia.Lottie
 
             public PathIterator.ContourType Type => PathIterator.ContourType.Line;
 
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 canvasPathBuilder.LineTo(new Point(Points[0], Points[1]));
 
@@ -581,7 +591,7 @@ namespace Avalonia.Lottie
                 return new MoveToContour(Points[0], Points[1]);
             }
 
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 if (!closed)
                     canvasPathBuilder.EndFigure(false);
@@ -619,7 +629,7 @@ namespace Avalonia.Lottie
                 return new CloseContour();
             }
 
-            public void AddPathSegment(StreamGeometryContext canvasPathBuilder, ref bool closed)
+            public void AddPathSegment(IStreamGeometryContextImpl canvasPathBuilder, ref bool closed)
             {
                 if (!closed)
                 {

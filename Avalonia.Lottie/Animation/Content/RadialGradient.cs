@@ -79,8 +79,8 @@ namespace Avalonia.Lottie.Animation.Content
             _canvasRadialGradientBrush = new ImmutableRadialGradientBrush(
                 _canvasGradientStopCollection
                 , opacity: alpha / 255f
-                , center: new RelativePoint(x0, y0, RelativeUnit.Absolute)
-                , gradientOrigin: new RelativePoint(fx, fy, RelativeUnit.Absolute));
+                , center: new RelativePoint(x0, y0, RelativeUnit.Relative) /// Temporary Fix, should be calculated on a scaling matrix and on absolute units.
+                , gradientOrigin: new RelativePoint(fx, fy, RelativeUnit.Relative));
 
             return _canvasRadialGradientBrush;
         }

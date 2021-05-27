@@ -53,7 +53,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public virtual string Name { get; }
 
-        public virtual void Draw(BitmapCanvas canvas, Matrix parentMatrix, byte parentAlpha)
+        public virtual void Draw(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             LottieLog.BeginSection("FillContent.Draw");
             _paint.Color = _colorAnimation.Value ?? Colors.White;

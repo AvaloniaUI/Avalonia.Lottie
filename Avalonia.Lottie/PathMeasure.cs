@@ -9,7 +9,7 @@ namespace Avalonia.Lottie
     {
         private CachedPathIteratorFactory _originalPathIterator;
         private Path _path;
-        private Geometry _geometry;
+        private IStreamGeometryImpl _geometry;
 
         public PathMeasure(Path path)
         {
@@ -22,7 +22,7 @@ namespace Avalonia.Lottie
             _geometry = null;
             _geometry = _path.GetGeometry();
             _originalPathIterator = new CachedPathIteratorFactory(new FullPathIterator(path));
-            Length =  _geometry.PlatformImpl.ContourLength;
+            Length =  _geometry.ContourLength;
             if (Length > 0)
             {
                 
@@ -33,7 +33,7 @@ namespace Avalonia.Lottie
 
         public Vector GetPosTan(double distance)
         {
-            if (_geometry.PlatformImpl.TryGetPointAndTangentAtDistance(distance, out var vect2, out _))
+            if (_geometry.TryGetPointAndTangentAtDistance(distance, out var vect2, out _))
             {
                 return new Vector((float)  vect2.X,  (float) vect2.Y);
             }

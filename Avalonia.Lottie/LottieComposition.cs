@@ -12,8 +12,7 @@ namespace Avalonia.Lottie
     ///     After Effects/Bodymovin composition model. This is the serialized model from which the
     ///     animation will be created.
     ///     To create one, use <see cref="LottieCompositionFactory" />.
-    ///     It can be used with a <seealso cref="LottieAnimationView" /> or
-    ///     <seealso cref="Lottie" />.
+    ///     It can be used with a <seealso cref="Lottie" />.
     /// </summary>
     public class LottieComposition : IDisposable
     {
@@ -34,9 +33,9 @@ namespace Avalonia.Lottie
 
         // This is stored as a set to avoid duplicates.
         public virtual Rect Bounds { get; private set; }
-        public double  StartFrame { get; private set; }
-        public double  EndFrame { get; private set; }
-        public double  FrameRate { get; private set; }
+        public double StartFrame { get; private set; }
+        public double EndFrame { get; private set; }
+        public double FrameRate { get; private set; }
 
         public List<string> Warnings => _warnings.ToList();
 
@@ -48,13 +47,13 @@ namespace Avalonia.Lottie
 
         public virtual PerformanceTracker PerformanceTracker => _performanceTracker;
 
-        public virtual double  Duration => (long) (DurationFrames / FrameRate * 1000);
+        public virtual double Duration => (long) (DurationFrames / FrameRate * 1000);
 
         public virtual bool HasImages => _images.Count > 0;
 
         public virtual Dictionary<string, LottieImageAsset> Images => _images;
 
-        internal virtual double  DurationFrames => EndFrame - StartFrame;
+        internal virtual double DurationFrames => EndFrame - StartFrame;
 
         public void Dispose()
         {
@@ -87,7 +86,7 @@ namespace Avalonia.Lottie
             return layer;
         }
 
-        public void Init(Rect bounds, double  startFrame, double  endFrame, double  frameRate, List<Layer> layers,
+        public void Init(Rect bounds, double startFrame, double endFrame, double frameRate, List<Layer> layers,
             Dictionary<long, Layer> layerMap, Dictionary<string, List<Layer>> precomps,
             Dictionary<string, LottieImageAsset> images, Dictionary<int, FontCharacter> characters,
             Dictionary<string, Font> fonts)
