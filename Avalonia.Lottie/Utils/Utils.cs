@@ -148,7 +148,7 @@ namespace Avalonia.Lottie.Utils
             LottieLog.EndSection("applyTrimPathIfNeeded");
         }
 
-        public static Color GetSolidColorBrush(string hex)
+        public static Color GetSolidColor(string hex)
         {
             var index = 1; // Skip '#'
             // '#AARRGGBB'

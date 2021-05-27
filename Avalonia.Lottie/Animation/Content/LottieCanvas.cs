@@ -195,7 +195,7 @@ namespace Avalonia.Lottie.Animation.Content
         {
             var brush = paint.Shader is Gradient gradient
                 ? gradient.GetBrush(paint.Alpha)
-                : new SolidColorBrush(paint.Color);
+                : new ImmutableSolidColorBrush(paint.Color);
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
 
             var text = new string(character, 1);

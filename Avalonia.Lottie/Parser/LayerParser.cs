@@ -75,7 +75,7 @@ namespace Avalonia.Lottie.Parser
                         solidHeight = reader.NextInt();
                         break;
                     case "sc":
-                        solidColor = Utils.Utils.GetSolidColorBrush(reader.NextString());
+                        solidColor = Utils.Utils.GetSolidColor(reader.NextString());
                         break;
                     case "ks":
                         transform = AnimatableTransformParser.Parse(reader, composition);
