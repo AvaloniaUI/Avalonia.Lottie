@@ -9,12 +9,13 @@ using Avalonia.Lottie.Value;
 
 */
 
-using System;
 using System.Collections.Generic;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Animation.Keyframe;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
+
+#nullable enable
 
 namespace Avalonia.Lottie.Model.Layer
 {
@@ -152,7 +153,7 @@ namespace Avalonia.Lottie.Model.Layer
             var text = documentData.Text;
             var textDelegate = _lottie.TextDelegate;
             if (textDelegate != null) text = textDelegate.GetTextInternal(text);
-            _fillPaint.Typeface = typeface;
+            _fillPaint.Typeface = (Typeface) typeface;
             _fillPaint.TextSize = documentData.Size;
             _strokePaint.Typeface = _fillPaint.Typeface;
             _strokePaint.TextSize = _fillPaint.TextSize;

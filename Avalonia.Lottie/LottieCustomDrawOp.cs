@@ -1,12 +1,11 @@
-using System;
-using System.Diagnostics;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Lottie.Model.Layer;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Utilities;
+
+#nullable enable
 
 namespace Avalonia.Lottie
 {
@@ -34,8 +33,7 @@ namespace Avalonia.Lottie
 
         public void Render(IDrawingContextImpl context)
         {
-            IDrawingContextLayerImpl finalRenderSurface = null;
-            finalRenderSurface = context.CreateLayer(_bounds.Size);
+            var finalRenderSurface = context.CreateLayer(_bounds.Size);
 
             if (finalRenderSurface is null)
             {
@@ -56,7 +54,7 @@ namespace Avalonia.Lottie
                 1,
                 new Rect(finalRenderSurface.PixelSize.ToSize(1)), _bounds);
 
-            finalRenderSurface?.Dispose();
+            finalRenderSurface.Dispose();
         }
 
         public Rect Bounds => _bounds;

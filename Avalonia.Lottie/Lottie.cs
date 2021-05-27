@@ -265,7 +265,7 @@ namespace Avalonia.Lottie
             set => _animator.FrameRate = value;
         }
 
-        public bool IsAnimating => _animator.IsRunning;
+        public bool IsRunning => _animator.IsRunning;
 
         /// <summary>
         ///     Use this to manually set fonts.
@@ -351,8 +351,6 @@ namespace Avalonia.Lottie
         {
             EndAnimation();
         }
-
-        public bool IsRunning => IsAnimating;
 
         public void ForceSoftwareRenderer(bool force)
         {
@@ -840,7 +838,7 @@ namespace Avalonia.Lottie
             return ImageAssetManager?.BitmapForId(id);
         }
 
-        internal Typeface GetTypeface(string fontFamily, string style)
+        internal Typeface? GetTypeface(string fontFamily, string style)
         {
             var assetManager = FontAssetManager;
             return assetManager.GetTypeface(fontFamily, style);

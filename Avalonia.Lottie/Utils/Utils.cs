@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using Avalonia.Lottie.Animation.Content;
 using Avalonia.Media;
 
@@ -15,8 +14,6 @@ namespace Avalonia.Lottie.Utils
         private static  Path _tempPath2 = new();
         private static Vector[] _points = new Vector[2];
         private static readonly double  Sqrt2 =  Math.Sqrt(2);
-        private static double  _dpScale = -1;
-        private static double  _dpi = -1;
 
         internal static Path CreatePath(Vector startPoint, Vector endPoint, Vector? cp1, Vector? cp2)
         {
