@@ -26,6 +26,8 @@ namespace Avalonia.Lottie.Model.Layer
         {
             get
             {
+                Debug.WriteLine("Image assets are temporarily disabled.", LottieLog.Tag);
+                return null;
                 var refId = LayerModel.RefId;
                 return Lottie.GetImageAsset(refId);
             }
@@ -34,7 +36,6 @@ namespace Avalonia.Lottie.Model.Layer
         public override void DrawLayer(LottieCanvas canvas, Matrix parentMatrix, byte parentAlpha)
         {
             Debug.WriteLine("Image assets are temporarily disabled.", LottieLog.Tag);
-
             return; 
             
             var bitmap = Bitmap;
@@ -55,6 +56,9 @@ namespace Avalonia.Lottie.Model.Layer
 
         public override void GetBounds(ref Rect outBounds, Matrix parentMatrix)
         {
+            Debug.WriteLine("Image assets are temporarily disabled.", LottieLog.Tag);
+            return; 
+
             base.GetBounds(ref outBounds, parentMatrix);
             var bitmap = Bitmap;
             if (bitmap != null)
@@ -67,6 +71,9 @@ namespace Avalonia.Lottie.Model.Layer
 
         public override void AddValueCallback<T>(LottieProperty property, ILottieValueCallback<T> callback)
         {
+            Debug.WriteLine("Image assets are temporarily disabled.", LottieLog.Tag);
+            return; 
+
             base.AddValueCallback(property, callback);
             if (property == LottieProperty.ColorFilter)
             {
