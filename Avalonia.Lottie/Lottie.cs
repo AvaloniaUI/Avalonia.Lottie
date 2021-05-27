@@ -14,10 +14,8 @@ using Avalonia.Lottie.Utils;
 using Avalonia.Lottie.Value;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using Avalonia.Metadata;
-using Avalonia.Platform;
 
 #nullable enable
 
@@ -27,14 +25,9 @@ namespace Avalonia.Lottie
     ///     This can be used to show an lottie animation in any place that would normally take a drawable.
     ///     If there are masks or mattes, then you MUST call <seealso cref="RecycleBitmaps()" /> when you are done
     ///     or else you will leak bitmaps.
-    ///     <para>
-    ///         It is preferable to use <seealso cref="LottieAnimationView" /> when possible because it
-    ///         handles bitmap recycling and asynchronous loading
-    ///         of compositions.
-    ///     </para>
     /// </summary>
     [PseudoClasses(":animation-started", ":animation-ended")]
-    public class Lottie : Control, IAnimatable
+    public sealed class Lottie : Control, IAnimatable
     {
         /// <summary>
         ///     This value used used with the <see cref="RepeatCount" /> property to repeat
@@ -45,18 +38,16 @@ namespace Avalonia.Lottie
         private readonly LottieValueAnimator _animator = new();
 
         private readonly List<Action<LottieComposition>> _lazyCompositionTasks = new();
-        private byte _alpha = 255;
         private LottieCanvas? _lottieCanvas;
-        private LottieComposition _composition;
-        private CompositionLayer _compositionLayer; 
-        private FontAssetDelegate _fontAssetDelegate;
-        private FontAssetManager _fontAssetManager;
-        private bool _forceSoftwareRenderer;
-        private IImageAssetDelegate _imageAssetDelegate;
-        private ImageAssetManager _imageAssetManager;
-        private bool _performanceTrackingEnabled;
-        private double _scale = 1f;
-        private TextDelegate _textDelegate;
+        private LottieComposition? _composition;
+        private CompositionLayer? _compositionLayer;
+        private FontAssetDelegate? _fontAssetDelegate;
+        private FontAssetManager? _fontAssetManager;
+        private IImageAssetDelegate? _imageAssetDelegate;
+        private ImageAssetManager? _imageAssetManager;
+        private TextDelegate? _textDelegate;
+        private IDisposable? _compositionTimerDisposable;
+        private bool _isEnabled = true;
 
         public Lottie()
         {
@@ -101,19 +92,7 @@ namespace Avalonia.Lottie
         ///     the documentation at http://airbnb.io/lottie for more information about importing shapes from
         ///     Sketch or Illustrator to avoid this.
         /// </summary>
-        public virtual string ImageAssetsFolder { get; set; }
-
-        public virtual bool PerformanceTrackingEnabled
-        {
-            get { return _composition?.PerformanceTrackingEnabled ?? false; }
-            set
-            {
-                _performanceTrackingEnabled = value;
-                if (_composition != null) _composition.PerformanceTrackingEnabled = value;
-            }
-        }
-
-        public virtual PerformanceTracker PerformanceTracker => _composition?.PerformanceTracker;
+        public string? ImageAssetsFolder => null;
 
         /// <summary>
         ///     Gets or sets the minimum frame that the animation will start from when playing or looping.
@@ -125,7 +104,7 @@ namespace Avalonia.Lottie
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c => MinFrame = value);
+                    _lazyCompositionTasks.Add(_ => MinFrame = value);
                     return;
                 }
 
@@ -144,7 +123,7 @@ namespace Avalonia.Lottie
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c => { MinProgress = value; });
+                    _lazyCompositionTasks.Add(_ => { MinProgress = value; });
                     return;
                 }
 
@@ -161,7 +140,7 @@ namespace Avalonia.Lottie
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c => MaxFrame = value);
+                    _lazyCompositionTasks.Add(_ => MaxFrame = value);
                     return;
                 }
 
@@ -187,7 +166,7 @@ namespace Avalonia.Lottie
 
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c => { MaxProgress = value; });
+                    _lazyCompositionTasks.Add(_ => { MaxProgress = value; });
                     return;
                 }
 
@@ -199,7 +178,7 @@ namespace Avalonia.Lottie
         ///     Sets the playback speed. If speed &lt; 0, the animation will play backwards.
         ///     Returns the current playback speed. This will be &lt; 0 if the animation is playing backwards.
         /// </summary>
-        public virtual double Speed
+        public double Speed
         {
             set => _animator.Speed = value;
             get => _animator.Speed;
@@ -207,35 +186,27 @@ namespace Avalonia.Lottie
 
         internal double Frame
         {
-            /**
-            * Sets the progress to the specified frame.
-            * If the composition isn't set yet, the progress will be set to the frame when
-            * it is.
-            */
             set
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c => { Frame = value; });
+                    _lazyCompositionTasks.Add(_ => { Frame = value; });
                     return;
                 }
 
                 _animator.Frame = value;
             }
-            /**
-            * Get the currently rendered frame.
-            */
             get => _animator.Frame;
         }
 
-        public virtual double Progress
+        public double Progress
         {
             get => _animator.AnimatedValueAbsolute;
             set
             {
                 if (_composition == null)
                 {
-                    _lazyCompositionTasks.Add(c => { Progress = value; });
+                    _lazyCompositionTasks.Add(_ => { Progress = value; });
                     return;
                 }
 
@@ -246,8 +217,19 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Defines what this animation should do when it reaches the end. This
         ///     setting is applied only when the repeat count is either greater than
-        ///     0 or <see cref="Lottie.RepeatMode.Infinite" />. Defaults to <see cref="Lottie.RepeatMode.Restart" />.
-        ///     Return either one of <see cref="Lottie.RepeatMode.Reverse" /> or <see cref="Lottie.RepeatMode.Restart" />
+        ///     0 or <see>
+        ///         <cref>Lottie.RepeatMode.Infinite</cref>
+        ///     </see>
+        ///     . Defaults to <see>
+        ///         <cref>Lottie.RepeatMode.Restart</cref>
+        ///     </see>
+        ///     .
+        ///     Return either one of <see>
+        ///         <cref>Lottie.RepeatMode.Reverse</cref>
+        ///     </see>
+        ///     or <see>
+        ///         <cref>Lottie.RepeatMode.Restart</cref>
+        ///     </see>
         /// </summary>
         /// <param name="value">
         ///     <seealso cref="RepeatMode" />
@@ -261,10 +243,15 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Sets how many times the animation should be repeated. If the repeat
         ///     count is 0, the animation is never repeated. If the repeat count is
-        ///     greater than 0 or <see cref="Lottie.RepeatMode.Infinite" />, the repeat mode will be taken
+        ///     greater than 0 or <see>
+        ///         <cref>Lottie.RepeatMode.Infinite</cref>
+        ///     </see>
+        ///     , the repeat mode will be taken
         ///     into account. The repeat count is 0 by default.
         ///     Count the number of times the animation should be repeated
-        ///     Return the number of times the animation should repeat, or <see cref="Lottie.RepeatMode.Infinite" />
+        ///     Return the number of times the animation should repeat, or <see>
+        ///         <cref>Lottie.RepeatMode.Infinite</cref>
+        ///     </see>
         /// </summary>
         public int RepeatCount
         {
@@ -278,12 +265,12 @@ namespace Avalonia.Lottie
             set => _animator.FrameRate = value;
         }
 
-        public virtual bool IsAnimating => _animator.IsRunning;
+        public bool IsAnimating => _animator.IsRunning;
 
         /// <summary>
         ///     Use this to manually set fonts.
         /// </summary>
-        public virtual FontAssetDelegate FontAssetDelegate
+        public FontAssetDelegate? FontAssetDelegate
         {
             get => null;
 
@@ -294,7 +281,7 @@ namespace Avalonia.Lottie
             }
         }
 
-        public virtual TextDelegate TextDelegate
+        public TextDelegate? TextDelegate
         {
             set => _textDelegate = value;
             get => _textDelegate;
@@ -311,7 +298,7 @@ namespace Avalonia.Lottie
         ///     the documentation at http://airbnb.io/lottie for more information about importing shapes from
         ///     Sketch or Illustrator to avoid this.
         /// </summary>
-        internal virtual IImageAssetDelegate ImageAssetDelegate
+        internal IImageAssetDelegate? ImageAssetDelegate
         {
             get => null;
             set
@@ -321,9 +308,9 @@ namespace Avalonia.Lottie
             }
         }
 
-        public virtual LottieComposition Composition => _composition;
+        public LottieComposition? Composition => _composition;
 
-        private ImageAssetManager ImageAssetManager
+        private ImageAssetManager? ImageAssetManager
         {
             get
             {
@@ -336,7 +323,12 @@ namespace Avalonia.Lottie
                 if (_imageAssetManager == null)
                 {
                     var clonedDict = new Dictionary<string, LottieImageAsset>();
-                    foreach (var entry in _composition.Images) clonedDict.Add(entry.Key, entry.Value);
+                    
+                    if (_composition?.Images != null)
+                    {
+                        foreach (var entry in _composition.Images)
+                            clonedDict.Add(entry.Key, entry.Value);
+                    }
 
                     _imageAssetManager = new ImageAssetManager(ImageAssetsFolder, _imageAssetDelegate, clonedDict);
                 }
@@ -364,7 +356,6 @@ namespace Avalonia.Lottie
 
         public void ForceSoftwareRenderer(bool force)
         {
-            _forceSoftwareRenderer = force;
             //TODO: OID: Check can we do it or not
             //if (_canvasControl != null)
             //{
@@ -375,7 +366,7 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Returns whether or not any layers in this composition has masks.
         /// </summary>
-        public virtual bool HasMasks()
+        public bool HasMasks()
         {
             return _compositionLayer != null && _compositionLayer.HasMasks();
         }
@@ -383,30 +374,28 @@ namespace Avalonia.Lottie
         /// <summary>
         ///     Returns whether or not any layers in this composition has a matte layer.
         /// </summary>
-        public virtual bool HasMatte()
+        public bool HasMatte()
         {
             return _compositionLayer != null && _compositionLayer.HasMatte();
         }
- 
+
 
         /// <summary>
         ///     If you have image assets and use <seealso cref="Lottie" /> directly, you must call this yourself.
         ///     Calling recycleBitmaps() doesn't have to be final and <seealso cref="Lottie" />
         ///     will recreate the bitmaps if needed but they will leak if you don't recycle them.
         /// </summary>
-        public virtual void RecycleBitmaps()
+        public void RecycleBitmaps()
         {
             _imageAssetManager?.RecycleBitmaps();
         }
 
-        private IDisposable compositionTimerDisposable;
-         
         /// <summary>
         ///     Create a composition with <see cref="LottieCompositionFactory" />
         /// </summary>
         /// <param name="composition">The new composition.</param>
         /// <returns>True if the composition is different from the previously set composition, false otherwise.</returns>
-        public virtual bool SetComposition(LottieComposition composition)
+        public bool SetComposition(LottieComposition composition)
         {
             //if (Callback == null) // TODO: needed?
             //{
@@ -429,17 +418,14 @@ namespace Avalonia.Lottie
                 foreach (var t in _lazyCompositionTasks.ToList()) t.Invoke(composition);
 
                 _lazyCompositionTasks.Clear();
-                composition.PerformanceTrackingEnabled = _performanceTrackingEnabled;
 
-                compositionTimerDisposable =
-                (this.Clock ?? new Clock())
-                    .Subscribe((z) =>
+                _compositionTimerDisposable =
+                    (Clock ?? new Clock())
+                    .Subscribe((_) =>
                     {
                         if (_animator.IsRunning && _isEnabled)
                             _animator.DoFrame();
                     });
-
-
             }
 
             return true;
@@ -448,7 +434,7 @@ namespace Avalonia.Lottie
         private void BuildCompositionLayer()
         {
             _compositionLayer =
-                new CompositionLayer(this, LayerParser.Parse(_composition), _composition.Layers, _composition);
+                new CompositionLayer(this, LayerParser.Parse(_composition), _composition?.Layers, _composition);
         }
 
         public void ClearComposition()
@@ -456,11 +442,10 @@ namespace Avalonia.Lottie
             RecycleBitmaps();
             if (_animator.IsRunning)
             {
-                
-                compositionTimerDisposable?.Dispose();
+                _compositionTimerDisposable?.Dispose();
                 _animator.Cancel();
             }
-            
+
 
             lock (this)
             {
@@ -481,11 +466,11 @@ namespace Avalonia.Lottie
                 Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
         }
 
-        public static readonly StyledProperty<LottieCompositionSource> SourceProperty =
-            AvaloniaProperty.Register<Lottie, LottieCompositionSource>(nameof(Source));
+        public static readonly StyledProperty<LottieCompositionSource?> SourceProperty =
+            AvaloniaProperty.Register<Lottie, LottieCompositionSource?>(nameof(Source));
 
         [Content]
-        public LottieCompositionSource Source
+        public LottieCompositionSource? Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
@@ -535,9 +520,6 @@ namespace Avalonia.Lottie
             }
         }
 
-        private IDrawingContextLayerImpl _renderSurface;
-        private bool _isEnabled = true;
-        
         private Size SourceSize => (_composition?.Bounds.Size ?? Size.Empty) * VisualRoot.RenderScaling;
 
         /// <summary>
@@ -586,23 +568,25 @@ namespace Avalonia.Lottie
 
             var viewPort = new Rect(containerRect.Size);
 
-            var sourceSize = _composition.Bounds.Size;
+            if (_composition != null)
+            {
+                var sourceSize = _composition.Bounds.Size;
 
-            var scale = Stretch.CalculateScaling(viewPort.Size, sourceSize);
-            var scaledSize = sourceSize * scale;
+                var scale = Stretch.CalculateScaling(viewPort.Size, sourceSize);
+                var scaledSize = sourceSize * scale;
 
-            var destRect = viewPort
-                .CenterRect(new Rect(scaledSize))
-                .Intersect(viewPort);
+                var destRect = viewPort
+                    .CenterRect(new Rect(scaledSize))
+                    .Intersect(viewPort);
 
-            var matrix = Matrix.Identity;
+                var matrix = Matrix.Identity;
+
+                matrix *= Matrix.CreateScale(scale.X, scale.Y);
+
+                renderCtx.Custom(
+                    new LottieCustomDrawOp(_lottieCanvas, _compositionLayer, destRect, matrix));
+            }
             
-            matrix *= Matrix.CreateScale(scale.X, scale.Y);
-
-            renderCtx.Custom(
-                new LottieCustomDrawOp(_lottieCanvas, _compositionLayer, destRect, matrix));
-            //  
-
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
             LottieLog.EndSection("Drawable.Draw");
@@ -612,11 +596,11 @@ namespace Avalonia.Lottie
         ///     Plays the animation from the beginning. If speed is &lt; 0, it will start at the end
         ///     and play towards the beginning
         /// </summary>
-        public virtual void PlayAnimation()
+        public void PlayAnimation()
         {
             if (_compositionLayer == null)
             {
-                _lazyCompositionTasks.Add(c => { PlayAnimation(); });
+                _lazyCompositionTasks.Add(_ => { PlayAnimation(); });
                 return;
             }
 
@@ -633,11 +617,11 @@ namespace Avalonia.Lottie
         ///     Continues playing the animation from its current position. If speed &lt; 0, it will play backwards
         ///     from the current position.
         /// </summary>
-        public virtual void ResumeAnimation()
+        public void ResumeAnimation()
         {
             if (_compositionLayer == null)
             {
-                _lazyCompositionTasks.Add(c => { ResumeAnimation(); });
+                _lazyCompositionTasks.Add(_ => { ResumeAnimation(); });
                 return;
             }
 
@@ -654,7 +638,7 @@ namespace Avalonia.Lottie
         {
             if (_composition == null)
             {
-                _lazyCompositionTasks.Add(c => SetMinAndMaxFrame(minFrame, maxFrame));
+                _lazyCompositionTasks.Add(_ => SetMinAndMaxFrame(minFrame, maxFrame));
                 return;
             }
 
@@ -680,7 +664,7 @@ namespace Avalonia.Lottie
 
             if (_composition == null)
             {
-                _lazyCompositionTasks.Add(c => { SetMinAndMaxProgress(minProgress, maxProgress); });
+                _lazyCompositionTasks.Add(_ => { SetMinAndMaxProgress(minProgress, maxProgress); });
                 return;
             }
 
@@ -721,9 +705,9 @@ namespace Avalonia.Lottie
             _animator.RemoveAllListeners();
         }
 
-        internal virtual bool UseTextGlyphs()
+        internal bool UseTextGlyphs()
         {
-            return _textDelegate == null && _composition.Characters.Count > 0;
+            return _composition != null && _textDelegate == null && _composition.Characters.Count > 0;
         }
 
         private void UpdateBounds()
@@ -733,7 +717,7 @@ namespace Avalonia.Lottie
             _lottieCanvas = new LottieCanvas(Width, Height);
         }
 
-        public virtual void CancelAnimation()
+        public void CancelAnimation()
         {
             _lazyCompositionTasks.Clear();
             _animator.Cancel();
@@ -782,7 +766,7 @@ namespace Avalonia.Lottie
         {
             if (_compositionLayer == null)
             {
-                _lazyCompositionTasks.Add(c => { AddValueCallback(keyPath, property, callback); });
+                _lazyCompositionTasks.Add(_ => { AddValueCallback(keyPath, property, callback); });
                 return;
             }
 
@@ -835,7 +819,7 @@ namespace Avalonia.Lottie
         /// <returns>
         ///     the previous Bitmap or null.
         /// </returns>
-        public virtual Bitmap UpdateBitmap(string id, Bitmap bitmap)
+        public Bitmap? UpdateBitmap(string id, Bitmap bitmap)
         {
             var bm = ImageAssetManager;
             if (bm == null)
@@ -851,45 +835,15 @@ namespace Avalonia.Lottie
             return ret;
         }
 
-        internal virtual Bitmap GetImageAsset(string id)
+        internal Bitmap? GetImageAsset(string id)
         {
             return ImageAssetManager?.BitmapForId(id);
         }
 
-        //public Device Device => base.devic;
-
-        internal virtual Typeface GetTypeface(string fontFamily, string style)
-        { 
-                var assetManager = FontAssetManager;
-                return assetManager.GetTypeface(fontFamily, style);
-             
-        }
-
-        /**
-         * If there are masks or mattes, we can't scale the animation larger than the canvas or else 
-         * the off screen rendering for masks and mattes after saveLayer calls will get clipped.
-         */
-        private double GetMaxScale(LottieCanvas canvas)
+        internal Typeface GetTypeface(string fontFamily, string style)
         {
-            var maxScaleX = canvas.Width / _composition.Bounds.Width;
-            var maxScaleY = canvas.Height / _composition.Bounds.Height;
-            return Math.Min(maxScaleX, maxScaleY);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            // base.Dispose(disposing);
-
-            _imageAssetManager?.Dispose();
-            _imageAssetManager = null;
-
-            _composition = null;
-
-            _lottieCanvas = null;
-
-            _compositionLayer = null;
-
-            ClearComposition();
+            var assetManager = FontAssetManager;
+            return assetManager.GetTypeface(fontFamily, style);
         }
 
         private class ColorFilterData
@@ -915,7 +869,7 @@ namespace Avalonia.Lottie
                 return hashCode;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (this == obj) return true;
 
