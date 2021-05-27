@@ -43,8 +43,8 @@ namespace Avalonia.Lottie.Animation.Content
 
                 _canvasLinearGradientBrush = new ImmutableLinearGradientBrush(_canvasGradientStopCollection,
                     alpha / 255f,
-                    startPoint: new RelativePoint(startPoint.X, startPoint.Y, RelativeUnit.Absolute),
-                    endPoint: new RelativePoint(endPoint.X, endPoint.Y, RelativeUnit.Absolute));
+                    startPoint: new RelativePoint(startPoint.X, startPoint.Y, RelativeUnit.Relative),
+                    endPoint: new RelativePoint(endPoint.X, endPoint.Y, RelativeUnit.Relative));
             }
 
             return _canvasLinearGradientBrush;
