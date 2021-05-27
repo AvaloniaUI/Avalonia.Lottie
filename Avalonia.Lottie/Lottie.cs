@@ -54,6 +54,7 @@ namespace Avalonia.Lottie
         private TextDelegate? _textDelegate;
         private IDisposable? _compositionTimerDisposable;
         private bool _isEnabled = true;
+        private LottieCustomDrawOp _currentDrawOperation;
 
         static Lottie()
         {
@@ -78,7 +79,7 @@ namespace Avalonia.Lottie
         /// <param name="serviceProvider">The XAML service provider.</param>
         public Lottie(IServiceProvider serviceProvider)
         {
-            _baseUri = ((IUriContext)serviceProvider.GetService(typeof(IUriContext))).BaseUri;
+            _baseUri = ((IUriContext) serviceProvider.GetService(typeof(IUriContext))).BaseUri;
             Initialize();
         }
 
@@ -455,6 +456,9 @@ namespace Avalonia.Lottie
                     });
             }
 
+            InvalidateMeasure();
+            InvalidateArrange();
+
             return true;
         }
 
@@ -503,19 +507,29 @@ namespace Avalonia.Lottie
             set => SetValue(SourceProperty, value);
         }
 
+
+        public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
+            AvaloniaProperty.Register<Lottie, StretchDirection>(nameof(StretchDirection), StretchDirection.Both);
+
+        public StretchDirection StretchDirection
+        {
+            get => GetValue(StretchDirectionProperty);
+            set => SetValue(StretchDirectionProperty, value);
+        }
+
         /// <summary>
         /// Defines the <see cref="Stretch"/> property.
         /// </summary>
         public static readonly StyledProperty<Stretch> StretchProperty =
-            AvaloniaProperty.Register<Image, Stretch>(nameof(Stretch), Stretch.Uniform);
+            AvaloniaProperty.Register<Lottie, Stretch>(nameof(Stretch), Stretch.Uniform);
 
         /// <summary>
         /// Gets or sets a value controlling how the image will be stretched.
         /// </summary>
         public Stretch Stretch
         {
-            get { return GetValue(StretchProperty); }
-            set { SetValue(StretchProperty, value); }
+            get => GetValue(StretchProperty);
+            set => SetValue(StretchProperty, value);
         }
 
         private LottieComposition Load(string s, Uri? baseUri)
@@ -542,7 +556,7 @@ namespace Avalonia.Lottie
 
             return null;
         }
-        
+
         protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
             base.OnPropertyChanged(change);
@@ -587,7 +601,7 @@ namespace Avalonia.Lottie
 
             if (source != null)
             {
-                result = Stretch.CalculateSize(availableSize, SourceSize);
+                result = Stretch.CalculateSize(availableSize, SourceSize, StretchDirection);
             }
 
             return result;
@@ -598,9 +612,33 @@ namespace Avalonia.Lottie
         {
             var source = Source;
 
-            if (source != null)
+            if (source != null && _composition != null)
             {
-                var result = Stretch.CalculateSize(finalSize, SourceSize);
+                var result = Stretch.CalculateSize(finalSize, SourceSize, StretchDirection);
+
+                if (_lottieCanvas != null && _compositionLayer != null)
+                {
+                    var viewPort = new Rect(result);
+
+                    var sourceSize = _composition.Bounds.Size;
+                    var scale = Stretch.CalculateScaling(viewPort.Size, sourceSize, StretchDirection);
+                    var scaledSize = sourceSize * scale;
+
+                    var matrix = Matrix.Identity;
+                    matrix *= Matrix.CreateScale(scale.X, scale.Y);
+
+                    var destRect = viewPort
+                        .CenterRect(new Rect(scaledSize))
+                        .Intersect(viewPort);
+
+                    var sourceRect = new Rect(scaledSize)
+                        .CenterRect(new Rect(finalSize));
+
+                    matrix *= Matrix.CreateTranslation(-sourceRect.X, -sourceRect.Y);
+
+                    _currentDrawOperation = new LottieCustomDrawOp(_lottieCanvas, _compositionLayer, destRect, matrix);
+                }
+
                 return result;
             }
             else
@@ -619,25 +657,9 @@ namespace Avalonia.Lottie
                 containerRect.Height <= 0)
                 return;
 
-            var viewPort = new Rect(containerRect.Size);
-
-            if (_composition != null)
+            if (_composition != null && _currentDrawOperation != null)
             {
-                var sourceSize = _composition.Bounds.Size;
-
-                var scale = Stretch.CalculateScaling(viewPort.Size, sourceSize);
-                var scaledSize = sourceSize * scale;
-
-                var destRect = viewPort
-                    .CenterRect(new Rect(scaledSize))
-                    .Intersect(viewPort);
-
-                var matrix = Matrix.Identity;
-
-                matrix *= Matrix.CreateScale(scale.X, scale.Y);
-
-                renderCtx.Custom(
-                    new LottieCustomDrawOp(_lottieCanvas, _compositionLayer, destRect, matrix));
+                renderCtx.Custom(_currentDrawOperation);
             }
 
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
