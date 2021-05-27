@@ -493,11 +493,11 @@ namespace Avalonia.Lottie
                 Dispatcher.UIThread.InvokeAsync(InvalidateVisual);
         }
 
-        public static readonly StyledProperty<string> SourceProperty =
-            AvaloniaProperty.Register<Lottie, string>(nameof(Source));
+        public static readonly StyledProperty<string?> SourceProperty =
+            AvaloniaProperty.Register<Lottie, string?>(nameof(Source));
 
         [Content]
-        public string Source
+        public string? Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
