@@ -323,7 +323,7 @@ namespace Avalonia.Lottie
                 if (_imageAssetManager == null)
                 {
                     var clonedDict = new Dictionary<string, LottieImageAsset>();
-                    
+
                     if (_composition?.Images != null)
                     {
                         foreach (var entry in _composition.Images)
@@ -586,7 +586,7 @@ namespace Avalonia.Lottie
                 renderCtx.Custom(
                     new LottieCustomDrawOp(_lottieCanvas, _compositionLayer, destRect, matrix));
             }
-            
+
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
 
             LottieLog.EndSection("Drawable.Draw");

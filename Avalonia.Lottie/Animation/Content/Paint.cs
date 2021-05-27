@@ -13,7 +13,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         public static int AntiAliasFlag = 0b01;
         public static int FilterBitmapFlag = 0b10;
-        private bool disposedValue;
+        private bool _disposedValue;
 
         public Paint(int flags)
         {
@@ -42,13 +42,13 @@ namespace Avalonia.Lottie.Animation.Content
         public ColorFilter ColorFilter { get; set; }
         public PenLineCap StrokeCap { get; set; }
         public PenLineJoin StrokeJoin { get; set; }
-        public double  StrokeMiter { get; set; }
-        public double  StrokeWidth { get; set; }
+        public double StrokeMiter { get; set; }
+        public double StrokeWidth { get; set; }
         public PathEffect PathEffect { get; set; }
         public PorterDuffXfermode Xfermode { get; set; }
         public Shader Shader { get; set; }
         public Typeface Typeface { get; set; }
-        public double  TextSize { get; set; }
+        public double TextSize { get; set; }
 
         public void Dispose()
         {
@@ -58,7 +58,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -75,7 +75,7 @@ namespace Avalonia.Lottie.Animation.Content
                     Shader = null;
                 }
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
     }

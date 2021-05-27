@@ -12,7 +12,7 @@ namespace Avalonia.Lottie.Animation.Content
     public class LottieCanvas
     {
         private readonly Stack<RenderTargetSave> _renderTargetSaves = new();
-        
+
         public LottieCanvas(double width, double height)
         {
             UpdateSize(width, height);
@@ -37,9 +37,7 @@ namespace Avalonia.Lottie.Animation.Content
 
             var rts = new RenderTargetSave(layer,
                 drawingSession, size,
-                0,
-                new PorterDuffXfermode(PorterDuff.Mode.Clear),
-                255);
+                new PorterDuffXfermode(PorterDuff.Mode.Clear));
 
             _renderTargetSaves.Push(rts);
 
@@ -115,9 +113,7 @@ namespace Avalonia.Lottie.Animation.Content
             var renderTarget = CurrentDrawingContext.PlatformImpl.CreateLayer(bounds.Size);
             var rts = new RenderTargetSave(renderTarget, new DrawingContext(renderTarget.CreateDrawingContext(null)),
                 bounds.Size,
-                paint.Flags,
-                paint.Xfermode,
-                paint.Xfermode != null ? (byte) 255 : paint.Alpha);
+                paint.Xfermode);
 
             _renderTargetSaves.Push(rts);
 
@@ -178,7 +174,7 @@ namespace Avalonia.Lottie.Animation.Content
             var textLayout = new FormattedText
             {
                 Text = text,
-                Typeface = new Media.Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
+                Typeface = new Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
                 FontSize = paint.TextSize
             };
 
@@ -190,24 +186,21 @@ namespace Avalonia.Lottie.Animation.Content
         private readonly struct RenderTargetSave
         {
             public RenderTargetSave(IDrawingContextLayerImpl layer, DrawingContext layerCtx, Size bitmapSize,
-                int paintFlags, PorterDuffXfermode paintTransferMode,
-                byte paintAlpha)
+                PorterDuffXfermode paintTransferMode)
             {
                 BitmapSize = bitmapSize;
                 Layer = layer;
                 Context = layerCtx;
-                PaintFlags = paintFlags;
                 PaintTransferMode = paintTransferMode;
-                PaintAlpha = paintAlpha;
             }
 
             public Size BitmapSize { get; }
+
             public DrawingContext Context { get; }
 
             public IDrawingContextLayerImpl Layer { get; }
-            public int PaintFlags { get; }
+
             public PorterDuffXfermode PaintTransferMode { get; }
-            public byte PaintAlpha { get; }
 
             public void Dispose()
             {
