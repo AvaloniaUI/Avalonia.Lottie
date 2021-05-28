@@ -23,6 +23,12 @@ namespace Avalonia.Lottie.Animation.Content
 
         private DrawingContext mainDrawingContext;
 
+
+        private DrawingContext CurrentDrawingContext => ContextStack.Peek();
+
+        private DrawingContext _layerCtx;
+        private Stack<DrawingContext> ContextStack = new();
+
         public double Width { get; private set; }
         public double Height { get; private set; }
 
@@ -35,13 +41,14 @@ namespace Avalonia.Lottie.Animation.Content
             if (curSize != _lastSize)
             {
                 _lastSize = curSize;
+                InvalidateLayerCache();
             }
-
-            InvalidateLayerCache();
         }
 
         private void InvalidateLayerCache()
         {
+            if(_layerCache.Count == 0) return;
+            
             foreach (var rts in _layerCache.Values)
             {
                 rts.Dispose();
@@ -71,10 +78,10 @@ namespace Avalonia.Lottie.Animation.Content
         internal IDisposable CreateSession(Rect rect, DrawingContext drawingSession)
         {
             mainDrawingContext = drawingSession;
-
+            ContextStack.Push(mainDrawingContext);
             UpdateSize(rect.Width, rect.Height);
 
-            return new Disposable(InvalidateLayerCache);
+            return new Disposable(() => { ContextStack.Pop(); });
         }
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
@@ -141,35 +148,27 @@ namespace Avalonia.Lottie.Animation.Content
             return CurrentDrawingContext?.PushSetTransform(Matrix.Identity);
         }
 
-        private DrawingContext CurrentDrawingContext =>
-            _layerCache.Count == 0 || _layerIndex == 0 ? mainDrawingContext : _layerCtx;
-
-        private DrawingContext _layerCtx;
-
         public IDisposable CreateLayer(Rect bounds, Paint paint)
         {
             _layerIndex += 1;
             var rts = GetOrCreateLayer(_layerIndex, bounds, paint);
             var layerNumber = _layerIndex;
-            
-            _layerCtx = new DrawingContext(rts.Layer.CreateDrawingContext(null));
- 
+
+            ContextStack.Push(new DrawingContext(rts.Layer.CreateDrawingContext(null)));
+
             return new Disposable(() =>
             {
                 _layerIndex -= 1;
-
-                DrawingContext targetDc;
-
+                
+                var curDc = ContextStack.Pop();
+                
+                curDc.PlatformImpl.Clear(Colors.Aqua);
+ 
                 if (!_layerCache.TryGetValue(layerNumber, out var renderTargetSave))
                 {
                     return;
                 }
 
-                var isMainDC = !_layerCache.TryGetValue(layerNumber - 1, out var priorRenderTargetSave);
-                targetDc = isMainDC
-                    ? mainDrawingContext
-                    : new DrawingContext(priorRenderTargetSave.Layer.CreateDrawingContext(null));
-                
                 var source = new Rect(renderTargetSave.Layer.PixelSize.ToSize(1));
                 var destination = new Rect(renderTargetSave.BitmapSize);
                 var blendingMode = BitmapBlendingMode.SourceOver;
@@ -185,25 +184,17 @@ namespace Avalonia.Lottie.Animation.Content
                     };
                 }
 
-                using (targetDc.PushSetTransform(Matrix.Identity))
+                using (CurrentDrawingContext.PushSetTransform(Matrix.Identity))
                 {
-                    targetDc.PlatformImpl.PushBitmapBlendMode(blendingMode);
-                    targetDc.PlatformImpl.DrawBitmap(RefCountable.Create(renderTargetSave.Layer),
+                    CurrentDrawingContext.PlatformImpl.PushBitmapBlendMode(blendingMode);
+                    CurrentDrawingContext.PlatformImpl.DrawBitmap(RefCountable.CreateUnownedNotClonable(renderTargetSave.Layer),
                         1,
                         source, destination);
-                    targetDc.PlatformImpl.PopBitmapBlendMode();
+                    CurrentDrawingContext.PlatformImpl.PopBitmapBlendMode();
                 }
+                
+                curDc.Dispose();
 
-                if (!isMainDC)
-                {
-                    targetDc.Dispose();
-                    _layerCtx?.Dispose();
-                    _layerCtx = new DrawingContext(priorRenderTargetSave.Layer.CreateDrawingContext(null));
-                }
-                else
-                {
-                    _layerCtx = mainDrawingContext;
-                }
             });
         }
 

@@ -33,7 +33,8 @@ namespace Avalonia.Lottie
 
         public void Render(IDrawingContextImpl context)
         {
-            using (_lottieCanvas.CreateSession(_destRect, new DrawingContext(context)))
+            using (_lottieCanvas.CreateSession(_destRect,
+                new DrawingContext(context)))
             {
                 _compositionLayer.Draw(_lottieCanvas, _matrix, 255);
             }
