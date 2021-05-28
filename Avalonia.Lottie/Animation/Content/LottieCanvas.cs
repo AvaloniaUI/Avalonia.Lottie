@@ -21,7 +21,7 @@ namespace Avalonia.Lottie.Animation.Content
         private Dictionary<uint, RenderTargetSave> _layerCache = new();
         private Size _lastSize = Size.Empty;
 
-        private DrawingContext mainDrawingContext;
+        private IDrawingContextImpl mainDrawingContext;
 
 
         private DrawingContext CurrentDrawingContext => ContextStack.Peek();
@@ -34,6 +34,11 @@ namespace Avalonia.Lottie.Animation.Content
 
         private void UpdateSize(double width, double height)
         {
+            if (double.IsNaN(width) || double.IsNaN(height))
+            {
+                return;
+            }
+            
             Width = width;
             Height = height;
             var curSize = new Size(Width, Height);
@@ -59,29 +64,34 @@ namespace Avalonia.Lottie.Animation.Content
 
         private RenderTargetSave GetOrCreateLayer(uint layerIndex, Rect bounds, Paint paint)
         {
-            if (_layerCache.TryGetValue(layerIndex, out var output))
-            {
-                return output;
-            }
+            // if (_layerCache.TryGetValue(layerIndex, out var output))
+            // {
+            //     return output;
+            // }
 
-            var renderTarget = mainDrawingContext.PlatformImpl.CreateLayer(bounds.Size);
+
+            
+            var renderTarget = mainDrawingContext.CreateLayer(bounds.Size);
 
             var rts = new RenderTargetSave(renderTarget,
                 new DrawingContext(renderTarget.CreateDrawingContext(null)),
                 bounds.Size, paint.Xfermode);
-
-            _layerCache.Add(layerIndex, rts);
+            
+            
+            _layerCache.TryAdd(layerIndex, rts);
 
             return rts;
         }
 
-        internal IDisposable CreateSession(Rect rect, DrawingContext drawingSession)
+        internal IDisposable CreateSession(Rect rect, IDrawingContextImpl drawingSession)
         {
             mainDrawingContext = drawingSession;
-            ContextStack.Push(mainDrawingContext);
+            ContextStack.Push(new DrawingContext(mainDrawingContext));
             UpdateSize(rect.Width, rect.Height);
 
-            return new Disposable(() => { ContextStack.Pop(); });
+            return new Disposable(() => { ContextStack.Pop();
+                InvalidateLayerCache(); 
+            });
         }
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
