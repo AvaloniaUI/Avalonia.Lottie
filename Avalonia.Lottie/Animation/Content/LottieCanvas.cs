@@ -21,8 +21,8 @@ namespace Avalonia.Lottie.Animation.Content
         private Dictionary<uint, RenderTargetSave> _layerCache = new();
         private Size _lastSize = Size.Empty;
 
-         private DrawingContext mainDrawingContext;
- 
+        private DrawingContext mainDrawingContext;
+
         public double Width { get; private set; }
         public double Height { get; private set; }
 
@@ -50,11 +50,11 @@ namespace Avalonia.Lottie.Animation.Content
             _layerCache.Clear();
         }
 
-        private (RenderTargetSave, DrawingContext) GetOrCreateLayer(uint layerIndex, Rect bounds, Paint paint)
+        private RenderTargetSave GetOrCreateLayer(uint layerIndex, Rect bounds, Paint paint)
         {
             if (_layerCache.TryGetValue(layerIndex, out var output))
             {
-                return (output, new DrawingContext(output.Layer.CreateDrawingContext(null)));
+                return output;
             }
 
             var renderTarget = mainDrawingContext.PlatformImpl.CreateLayer(bounds.Size);
@@ -64,14 +64,14 @@ namespace Avalonia.Lottie.Animation.Content
                 bounds.Size, paint.Xfermode);
 
             _layerCache.Add(layerIndex, rts);
-            
-            return (rts, new DrawingContext(rts.Layer.CreateDrawingContext(null)));
+
+            return rts;
         }
 
         internal IDisposable CreateSession(Rect rect, DrawingContext drawingSession)
-        { 
+        {
             mainDrawingContext = drawingSession;
-            
+
             UpdateSize(rect.Width, rect.Height);
 
             return new Disposable(InvalidateLayerCache);
@@ -145,35 +145,31 @@ namespace Avalonia.Lottie.Animation.Content
             _layerCache.Count == 0 || _layerIndex == 0 ? mainDrawingContext : _layerCtx;
 
         private DrawingContext _layerCtx;
-        
+
         public IDisposable CreateLayer(Rect bounds, Paint paint)
         {
             _layerIndex += 1;
-          var r =  GetOrCreateLayer(_layerIndex, bounds, paint);
-            var h = _layerIndex;
-
-            _layerCtx = r.Item2;
+            var rts = GetOrCreateLayer(_layerIndex, bounds, paint);
+            var layerNumber = _layerIndex;
             
-            Debug.WriteLine($"Layer Index Added {_layerIndex}");
-
+            _layerCtx = new DrawingContext(rts.Layer.CreateDrawingContext(null));
+ 
             return new Disposable(() =>
             {
                 _layerIndex -= 1;
 
                 DrawingContext targetDc;
 
-                if (!_layerCache.TryGetValue(h, out var renderTargetSave))
+                if (!_layerCache.TryGetValue(layerNumber, out var renderTargetSave))
                 {
                     return;
                 }
 
-                targetDc = !_layerCache.TryGetValue(h - 1, out var priorRenderTargetSave) ? 
-                    mainDrawingContext : 
-                    new DrawingContext(priorRenderTargetSave.Layer.CreateDrawingContext(null));
-
+                var isMainDC = !_layerCache.TryGetValue(layerNumber - 1, out var priorRenderTargetSave);
+                targetDc = isMainDC
+                    ? mainDrawingContext
+                    : new DrawingContext(priorRenderTargetSave.Layer.CreateDrawingContext(null));
                 
-                Debug.WriteLine($"Layer Index Removed {_layerIndex}");
-
                 var source = new Rect(renderTargetSave.Layer.PixelSize.ToSize(1));
                 var destination = new Rect(renderTargetSave.BitmapSize);
                 var blendingMode = BitmapBlendingMode.SourceOver;
@@ -197,8 +193,17 @@ namespace Avalonia.Lottie.Animation.Content
                         source, destination);
                     targetDc.PlatformImpl.PopBitmapBlendMode();
                 }
-                
-                targetDc?.Dispose();
+
+                if (!isMainDC)
+                {
+                    targetDc.Dispose();
+                    _layerCtx?.Dispose();
+                    _layerCtx = new DrawingContext(priorRenderTargetSave.Layer.CreateDrawingContext(null));
+                }
+                else
+                {
+                    _layerCtx = mainDrawingContext;
+                }
             });
         }
 
@@ -247,7 +252,7 @@ namespace Avalonia.Lottie.Animation.Content
             }
 
             public Size BitmapSize { get; }
-            
+
             public IDrawingContextLayerImpl Layer { get; }
 
             public PorterDuffXfermode PaintTransferMode { get; }
