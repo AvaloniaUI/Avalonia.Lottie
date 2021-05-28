@@ -33,28 +33,10 @@ namespace Avalonia.Lottie
 
         public void Render(IDrawingContextImpl context)
         {
-            var finalRenderSurface = context.CreateLayer(_destRect.Size);
-
-            if (finalRenderSurface is null)
+            using (_lottieCanvas.CreateSession(_destRect, new DrawingContext(context)))
             {
-                context.Clear(Colors.Aqua);
-                return;
+                _compositionLayer.Draw(_lottieCanvas, _matrix, 255);
             }
-
-            using (var renderSurfaceCtx = finalRenderSurface.CreateDrawingContext(null))
-            {
-                using (_lottieCanvas.CreateSession(_destRect.Size, finalRenderSurface,
-                    new DrawingContext(renderSurfaceCtx)))
-                {
-                    _compositionLayer.Draw(_lottieCanvas, _matrix, 255);
-                }
-            }
-
-            context.DrawBitmap(RefCountable.Create(finalRenderSurface),
-                1,
-                new Rect(new Point(), finalRenderSurface.PixelSize.ToSize(1)), _destRect);
-
-            finalRenderSurface.Dispose();
         }
 
         public Rect Bounds => _destRect;
