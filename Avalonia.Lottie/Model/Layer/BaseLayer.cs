@@ -162,7 +162,7 @@ namespace Avalonia.Lottie.Model.Layer
             LottieLog.EndSection("Layer.ComputeBounds");
 
             LottieLog.BeginSection("Layer.SaveLayer");
-            using (canvas.SaveLayer(Rect, _contentPaint))
+            using (canvas.CreateLayer(Rect, _contentPaint))
             {
                 LottieLog.EndSection("Layer.SaveLayer");
 
@@ -178,7 +178,7 @@ namespace Avalonia.Lottie.Model.Layer
                 {
                     LottieLog.BeginSection("Layer.DrawMatte");
                     LottieLog.BeginSection("Layer.SaveLayer");
-                    using (canvas.SaveLayer(Rect, _mattePaint))
+                    using (canvas.CreateLayer(Rect, _mattePaint))
                     {
                         LottieLog.EndSection("Layer.SaveLayer");
                         ClearCanvas(canvas);
@@ -406,7 +406,7 @@ namespace Avalonia.Lottie.Model.Layer
             if (!hasMask) return 0;
             LottieLog.BeginSection("Layer.DrawMask");
             LottieLog.BeginSection("Layer.SaveLayer");
-            using (canvas.SaveLayer(Rect, paint))
+            using (canvas.CreateLayer(Rect, paint))
             {
                 LottieLog.EndSection("Layer.SaveLayer");
                 ClearCanvas(canvas);
