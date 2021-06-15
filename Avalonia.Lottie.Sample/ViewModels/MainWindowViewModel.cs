@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Platform;
 using ReactiveUI;
 
@@ -16,15 +18,22 @@ namespace Avalonia.Lottie.Sample.ViewModels
             get
             {
                 if (_assetSources is not null) return _assetSources;
-                
+
                 var asset = AvaloniaLocator.Current.GetService<IAssetLoader>();
-                
+
                 _assetSources = asset.GetAssets(
-                    new Uri("avares://Avalonia.Lottie.Sample/Assets"),
-                    new Uri("avares://Avalonia.Lottie.Sample/"))
-                    .Select(x=>x.AbsoluteUri)
+                        new Uri("avares://Avalonia.Lottie.Sample/Assets"),
+                        new Uri("avares://Avalonia.Lottie.Sample/"))
+                    .Select(x => x.AbsoluteUri)
                     .ToList();
-                
+
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    SelectedAsset = _assetSources.First();
+                });
+
                 return _assetSources;
             }
         }
