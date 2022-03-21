@@ -74,7 +74,6 @@ namespace Avalonia.Lottie.Animation.Content
             var renderTarget = mainDrawingContext.CreateLayer(bounds.Size);
 
             var rts = new RenderTargetSave(renderTarget,
-                new DrawingContext(renderTarget.CreateDrawingContext(null)),
                 bounds.Size, paint.Xfermode);
             
             
@@ -244,7 +243,7 @@ namespace Avalonia.Lottie.Animation.Content
 
         private readonly struct RenderTargetSave
         {
-            public RenderTargetSave(IDrawingContextLayerImpl layer, DrawingContext layerCtx, Size bitmapSize,
+            public RenderTargetSave(IDrawingContextLayerImpl layer, Size bitmapSize,
                 PorterDuffXfermode paintTransferMode)
             {
                 BitmapSize = bitmapSize;
