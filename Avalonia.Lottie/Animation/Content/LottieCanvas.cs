@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.Immutable;
+using Avalonia.Media.TextFormatting;
 using Avalonia.Platform;
 using Avalonia.Utilities;
 using Avalonia.Visuals.Media.Imaging;
@@ -68,8 +70,6 @@ namespace Avalonia.Lottie.Animation.Content
             // {
             //     return output;
             // }
-
-
             
             var renderTarget = mainDrawingContext.CreateLayer(bounds.Size);
 
@@ -228,16 +228,15 @@ namespace Avalonia.Lottie.Animation.Content
             var finalBrush = paint.ColorFilter?.Apply(this, brush) ?? brush;
 
             var text = new string(character, 1);
+             
+            var tf = new Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight);
+ 
+            var x = new FormattedText(text, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, tf, paint.TextSize,
+                finalBrush);
 
-            var textLayout = new FormattedText
-            {
-                Text = text,
-                Typeface = new Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
-                FontSize = paint.TextSize
-            };
-
-            CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout);
-            return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
+            CurrentDrawingContext.DrawText(x, new Point(0,0 ));
+             
+            return new Rect(0, 0, x.Width, x.Height);
         }
 
 
