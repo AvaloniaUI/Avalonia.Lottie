@@ -18,28 +18,33 @@ namespace Avalonia.Lottie.Animation.Keyframe
 
         // Used for repeaters 
         private readonly IBaseKeyframeAnimation<float?, float?> _startOpacity;
-        private Matrix _matrix =Matrix.Identity;
+        private Matrix _matrix = Matrix.Identity;
 
         internal TransformKeyframeAnimation(AnimatableTransform animatableTransform)
         {
-            _anchorPoint = animatableTransform.AnchorPoint.CreateAnimation();
-            _position = animatableTransform.Position.CreateAnimation();
-            _scale = animatableTransform.Scale.CreateAnimation();
-            _rotation = animatableTransform.Rotation.CreateAnimation();
-            _opacity = animatableTransform.Opacity.CreateAnimation();
+            _anchorPoint = animatableTransform.AnchorPoint?.CreateAnimation();
+            _position = animatableTransform.Position?.CreateAnimation();
+            _scale = animatableTransform.Scale?.CreateAnimation();
+            _rotation = animatableTransform.Rotation?.CreateAnimation();
+            _opacity = animatableTransform.Opacity?.CreateAnimation();
             _startOpacity = animatableTransform.StartOpacity?.CreateAnimation();
             _endOpacity = animatableTransform.EndOpacity?.CreateAnimation();
         }
 
-        public double  Progress
+        public double Progress
         {
             set
             {
+                if(_anchorPoint is { })
                 _anchorPoint.Progress = value;
-                _position.Progress = value;
-                _scale.Progress = value;
-                _rotation.Progress = value;
-                _opacity.Progress = value;
+                if(_position is { })
+                    _position.Progress = value;
+                if(_scale is { })
+                    _scale.Progress = value;
+                if(_rotation is { })
+                    _rotation.Progress = value;
+                if(_opacity is { })
+                    _opacity.Progress = value;
                 if (_startOpacity != null) _startOpacity.Progress = value;
                 if (_endOpacity != null) _endOpacity.Progress = value;
             }
@@ -56,15 +61,16 @@ namespace Avalonia.Lottie.Animation.Keyframe
             get
             {
                 _matrix = Matrix.Identity;
-                
+
                 var position = _position.Value;
                 if (position != null && (position.Value.X != 0 || position.Value.Y != 0))
                     _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X, position.Value.Y);
 
-                if (_rotation.Value.HasValue && _rotation.Value.Value != 0f)
+                if (_rotation != null && _rotation.Value.HasValue && _rotation.Value.Value != 0f)
                     _matrix = MatrixExt.PreRotate(_matrix, _rotation.Value.Value);
 
                 var scaleTransform = _scale.Value;
+                
                 if (scaleTransform != null && (scaleTransform.ScaleX != 1f || scaleTransform.ScaleY != 1f))
                     _matrix = MatrixExt.PreScale(_matrix, scaleTransform.ScaleX, scaleTransform.ScaleY);
 
@@ -90,21 +96,31 @@ namespace Avalonia.Lottie.Animation.Keyframe
         {
             add
             {
-                _anchorPoint.ValueChanged += value;
-                _position.ValueChanged += value;
-                _scale.ValueChanged += value;
-                _rotation.ValueChanged += value;
-                _opacity.ValueChanged += value;
+                if (_anchorPoint is { })
+                    _anchorPoint.ValueChanged += value;
+                if (_position is { })
+                    _position.ValueChanged += value;
+                if (_scale is { })
+                    _scale.ValueChanged += value;
+                if (_rotation is { })
+                    _rotation.ValueChanged += value;
+                if (_opacity is { })
+                    _opacity.ValueChanged += value;
                 if (_startOpacity != null) _startOpacity.ValueChanged += value;
                 if (_endOpacity != null) _endOpacity.ValueChanged += value;
             }
             remove
             {
-                _anchorPoint.ValueChanged -= value;
-                _position.ValueChanged -= value;
-                _scale.ValueChanged -= value;
-                _rotation.ValueChanged -= value;
-                _opacity.ValueChanged -= value;
+                if (_anchorPoint is { })
+                    _anchorPoint.ValueChanged -= value;
+                if (_position is { })
+                    _position.ValueChanged -= value;
+                if (_scale is { })
+                    _scale.ValueChanged -= value;
+                if (_rotation is { })
+                    _rotation.ValueChanged -= value;
+                if (_opacity is { })
+                    _opacity.ValueChanged -= value;
                 if (_startOpacity != null) _startOpacity.ValueChanged -= value;
                 if (_endOpacity != null) _endOpacity.ValueChanged -= value;
             }
@@ -123,8 +139,8 @@ namespace Avalonia.Lottie.Animation.Keyframe
             _matrix = Matrix;
             _matrix = MatrixExt.PreTranslate(_matrix, position.Value.X * amount, position.Value.Y * amount);
             _matrix = MatrixExt.PreScale(_matrix,
-                 Math.Pow(scale.ScaleX, amount),
-                 Math.Pow(scale.ScaleY, amount));
+                Math.Pow(scale.ScaleX, amount),
+                Math.Pow(scale.ScaleY, amount));
             _matrix = MatrixExt.PreRotate(_matrix, rotation * amount, anchorPoint.Value.X, anchorPoint.Value.Y);
 
             return _matrix;
