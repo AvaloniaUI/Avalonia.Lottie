@@ -121,9 +121,24 @@ namespace Avalonia.Lottie.Animation.Content
             return CurrentDrawingContext?.PushSetTransform(Matrix.Identity);
         }
 
-        public IDisposable CreateLayer(Rect bounds, Paint paint)
+        public IDisposable CreateLayer(Rect boundsx, Paint paint)
         {
-            var rts = mainDrawingContext.CreateLayer(bounds.Size);
+            if (boundsx.Width > 1500 || boundsx.Height > 1500)
+            {
+                LottieLog.Warn("Layer Size seems to exceed common sense");
+            }
+
+            var bounds = new Rect(boundsx.X, boundsx.Y, Math.Max(boundsx.Width, 1500), Math.Max(boundsx.Height, 1500));
+            IDrawingContextLayerImpl rts;
+            try
+            {
+                rts = mainDrawingContext.CreateLayer(bounds.Size);
+            }
+            catch (Exception e)
+            {
+                return System.Reactive.Disposables.Disposable.Empty;
+            }
+
             var source = new Rect(rts.PixelSize.ToSize(1));
             var destination = new Rect(bounds.Size);
 
