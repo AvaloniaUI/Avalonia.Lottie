@@ -17,8 +17,6 @@ namespace Avalonia.Lottie.Animation.Content
             UpdateSize(width, height);
         }
 
-        private uint _layerIndex;
-        private Dictionary<uint, RenderTargetSave> _layerCache = new();
         private Size _lastSize = Size.Empty;
 
         private IDrawingContextImpl mainDrawingContext;
@@ -38,7 +36,7 @@ namespace Avalonia.Lottie.Animation.Content
             {
                 return;
             }
-            
+
             Width = width;
             Height = height;
             var curSize = new Size(Width, Height);
@@ -46,51 +44,17 @@ namespace Avalonia.Lottie.Animation.Content
             if (curSize != _lastSize)
             {
                 _lastSize = curSize;
-                InvalidateLayerCache();
             }
         }
 
-        private void InvalidateLayerCache()
-        {
-            if(_layerCache.Count == 0) return;
-            
-            foreach (var rts in _layerCache.Values)
-            {
-                rts.Dispose();
-            }
 
-            _layerCache.Clear();
-        }
-
-        private RenderTargetSave GetOrCreateLayer(uint layerIndex, Rect bounds, Paint paint)
-        {
-            // if (_layerCache.TryGetValue(layerIndex, out var output))
-            // {
-            //     return output;
-            // }
-
-
-            
-            var renderTarget = mainDrawingContext.CreateLayer(bounds.Size);
-
-            var rts = new RenderTargetSave(renderTarget,
-                bounds.Size, paint.Xfermode);
-            
-            
-            _layerCache.TryAdd(layerIndex, rts);
-
-            return rts;
-        }
-
-        internal IDisposable CreateSession(Rect rect, IDrawingContextImpl drawingSession)
+        internal IDisposable CreateSession(Rect rect, Matrix viewportMatrix, IDrawingContextImpl drawingSession)
         {
             mainDrawingContext = drawingSession;
             ContextStack.Push(new DrawingContext(mainDrawingContext));
             UpdateSize(rect.Width, rect.Height);
 
-            return new Disposable(() => { ContextStack.Pop();
-                InvalidateLayerCache(); 
-            });
+            return new Disposable(() => { ContextStack.Pop(); });
         }
 
         public void DrawRect(double x1, double y1, double x2, double y2, Paint paint)
@@ -159,51 +123,37 @@ namespace Avalonia.Lottie.Animation.Content
 
         public IDisposable CreateLayer(Rect bounds, Paint paint)
         {
-            _layerIndex += 1;
-            var rts = GetOrCreateLayer(_layerIndex, bounds, paint);
-            var layerNumber = _layerIndex;
+            var rts = mainDrawingContext.CreateLayer(bounds.Size);
+            var source = new Rect(rts.PixelSize.ToSize(1));
+            var destination = new Rect(bounds.Size);
 
-            ContextStack.Push(new DrawingContext(rts.Layer.CreateDrawingContext(null)));
-
+            ContextStack.Push(new DrawingContext(rts.CreateDrawingContext(null)));
             return new Disposable(() =>
             {
-                _layerIndex -= 1;
-                
                 var curDc = ContextStack.Pop();
-                
-                curDc.PlatformImpl.Clear(Colors.Aqua);
- 
-                if (!_layerCache.TryGetValue(layerNumber, out var renderTargetSave))
-                {
-                    return;
-                }
 
-                var source = new Rect(renderTargetSave.Layer.PixelSize.ToSize(1));
-                var destination = new Rect(renderTargetSave.BitmapSize);
                 var blendingMode = BitmapBlendingMode.SourceOver;
 
-                if (renderTargetSave.PaintTransferMode != null)
+                if (paint.Xfermode != null)
                 {
-                    blendingMode = renderTargetSave.PaintTransferMode.Mode switch
+                    blendingMode = paint.Xfermode.Mode switch
                     {
                         PorterDuff.Mode.SrcAtop => BitmapBlendingMode.SourceAtop,
                         PorterDuff.Mode.DstOut => BitmapBlendingMode.DestinationOut,
                         PorterDuff.Mode.DstIn => BitmapBlendingMode.DestinationIn,
+                        PorterDuff.Mode.Clear => BitmapBlendingMode.Destination,
                         _ => blendingMode
                     };
                 }
 
-                using (CurrentDrawingContext.PushSetTransform(Matrix.Identity))
-                {
-                    CurrentDrawingContext.PlatformImpl.PushBitmapBlendMode(blendingMode);
-                    CurrentDrawingContext.PlatformImpl.DrawBitmap(RefCountable.CreateUnownedNotClonable(renderTargetSave.Layer),
-                        1,
-                        source, destination);
-                    CurrentDrawingContext.PlatformImpl.PopBitmapBlendMode();
-                }
-                
-                curDc.Dispose();
+                CurrentDrawingContext.PlatformImpl.PushBitmapBlendMode(blendingMode);
+                CurrentDrawingContext.PlatformImpl.DrawBitmap(RefCountable.CreateUnownedNotClonable(rts),
+                    1,
+                    source, destination);
+                CurrentDrawingContext.PlatformImpl.PopBitmapBlendMode();
 
+                rts.Dispose();
+                curDc.Dispose();
             });
         }
 
@@ -238,29 +188,6 @@ namespace Avalonia.Lottie.Animation.Content
 
             CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout);
             return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
-        }
-
-
-        private readonly struct RenderTargetSave
-        {
-            public RenderTargetSave(IDrawingContextLayerImpl layer, Size bitmapSize,
-                PorterDuffXfermode paintTransferMode)
-            {
-                BitmapSize = bitmapSize;
-                Layer = layer;
-                PaintTransferMode = paintTransferMode;
-            }
-
-            public Size BitmapSize { get; }
-
-            public IDrawingContextLayerImpl Layer { get; }
-
-            public PorterDuffXfermode PaintTransferMode { get; }
-
-            public void Dispose()
-            {
-                Layer?.Dispose();
-            }
         }
     }
 }
