@@ -10,12 +10,5 @@
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
-    <Grid RowDefinitions="*, Auto">
-        <Lottie RepeatCount="-1" Stretch="Uniform" 
-                Source="{Binding SelectedAsset}" />
-        <ComboBox Grid.Row="1"
-                  SelectedIndex="1"
-                  SelectedItem="{Binding SelectedAsset}"
-                  Items="{Binding AssetSources}" />
-    </Grid>
+    
 </Window>
