@@ -11,7 +11,7 @@ namespace Avalonia.Lottie.XPlat.Android
         {
             base.OnResume();
 
-            StartActivity(new Intent(Application.Context, typeof(MainActivity)));
+            StartActivity(new Intent(global::Android.App.Application.Context, typeof(MainActivity)));
         }
     }
 }
