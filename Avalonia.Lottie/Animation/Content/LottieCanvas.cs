@@ -194,15 +194,16 @@ namespace Avalonia.Lottie.Animation.Content
 
             var text = new string(character, 1);
 
-            var textLayout = new FormattedText
-            {
-                Text = text,
-                Typeface = new Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
-                FontSize = paint.TextSize
-            };
-
-            CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout);
-            return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
+            // var textLayout = new FormattedText
+            // {
+            //     Text = text,
+            //     Typeface = new Typeface(paint.Typeface.FontFamily, paint.Typeface.Style, paint.Typeface.Weight),
+            //     FontSize = paint.TextSize
+            // };
+            //
+            // CurrentDrawingContext.DrawText(finalBrush, new Point(0, 0), textLayout);
+            // return new Rect(0, 0, textLayout.Bounds.Width, textLayout.Bounds.Height);
+            return Rect.Empty;
         }
     }
 }
