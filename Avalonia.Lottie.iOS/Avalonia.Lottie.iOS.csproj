@@ -5,9 +5,7 @@
     <SupportedOSPlatformVersion>10.0</SupportedOSPlatformVersion>
     <ProvisioningType>manual</ProvisioningType>
     <Nullable>enable</Nullable>
-    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier> 
     <CodesignKey>Apple Development: jumar@macato.net (S66Z98PJ8N)</CodesignKey>
   </PropertyGroup> 
   <ItemGroup>

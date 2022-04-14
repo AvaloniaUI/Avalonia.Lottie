@@ -1,6 +1,5 @@
 ﻿using Android.App;
 using Android.Content;
-using Application = Android.App.Application;
 
 namespace Avalonia.Lottie.Android
 {
@@ -11,7 +10,7 @@ namespace Avalonia.Lottie.Android
         {
             base.OnResume();
 
-            StartActivity(new Intent(Application.Context, typeof(MainActivity)));
+            StartActivity(new Intent(global::Android.App.Application.Context, typeof(MainActivity)));
         }
     }
 }
