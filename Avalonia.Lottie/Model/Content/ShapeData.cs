@@ -53,7 +53,12 @@ namespace Avalonia.Lottie.Model.Content
             SetInitialPoint(MiscUtils.Lerp(initialPoint1.X, initialPoint2.X, percentage),
                 MiscUtils.Lerp(initialPoint1.Y, initialPoint2.Y, percentage));
 
-            for (var i = _curves.Count - 1; i >= 0; i--)
+
+            // Manage and match curves control points
+            // when interpolating... 
+            // I guess the lottie js player are more forgiving than C#
+            // when it comes to data mismatch.
+            for (var i = Math.Min(Math.Min(shapeData1.Curves.Count, shapeData2.Curves.Count), _curves.Count) - 1; i >= 0; i--) 
             {
                 var curve1 = shapeData1.Curves[i];
                 var curve2 = shapeData2.Curves[i];
