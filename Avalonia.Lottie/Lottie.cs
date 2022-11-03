@@ -557,13 +557,13 @@ namespace Avalonia.Lottie
             return null;
         }
 
-        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
 
             if (change.Property == SourceProperty)
             {
-                var newValue = change.NewValue.GetValueOrDefault<string>();
+                var newValue = (string)change.NewValue;
                 var composition = Load(newValue, _baseUri);
 
                 if (composition is { })
@@ -578,9 +578,9 @@ namespace Avalonia.Lottie
             }
             else if (change.Property == IsEnabledProperty)
             {
-                _isEnabled = change.NewValue.GetValueOrDefault<bool>();
+                _isEnabled = (bool)change.NewValue;
 
-                if (change.NewValue.GetValueOrDefault<bool>() && _composition != null)
+                if ((bool)change.NewValue && _composition != null)
                 {
                     Start();
                 }
